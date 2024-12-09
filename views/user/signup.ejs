@@ -1,0 +1,483 @@
+<!DOCTYPE html>
+<html lang="zxx">
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="x-ua-compatible" content="ie=edge" />
+    <title>Watch Shop | eCommerce</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link rel="stylesheet" href="assets/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="assets/css/style.css" />
+     <!-- CSS here -->
+     <link rel="stylesheet" href="assets/css/bootstrap.min.css">
+     <link rel="stylesheet" href="assets/css/owl.carousel.min.css">
+     <link rel="stylesheet" href="assets/css/flaticon.css">
+     <link rel="stylesheet" href="assets/css/slicknav.css">
+     <link rel="stylesheet" href="assets/css/animate.min.css">
+     <link rel="stylesheet" href="assets/css/magnific-popup.css">
+     <link rel="stylesheet" href="assets/css/fontawesome-all.min.css">
+     <link rel="stylesheet" href="assets/css/themify-icons.css">
+     <link rel="stylesheet" href="assets/css/slick.css">
+     <link rel="stylesheet" href="assets/css/nice-select.css">
+     <link rel="stylesheet" href="assets/css/style.css">
+     <!-- <link rel="stylesheet" href="assets/css/signup.css"> -->
+    <style>
+                        .error-message {
+                            color: #ff4d4d;
+                            font-size: 0.875rem;
+                            display: none;
+                            margin-top: 5px;
+                            line-height: 1.4;
+                            font-weight: 500;
+                            padding-left: 20px;
+                            position: relative;
+                        }
+
+                        .error-message::before {
+                            content: "\26A0";
+                            color: #ff4d4d;
+                            font-size: 1rem;
+                            position: absolute;
+                            left: 0;
+                            top: 0;
+                        }
+
+                        .form-control.invalid {
+                            border-color: #ff4d4d;
+                            background-color: #ffe6e6;
+                        }
+
+                        .form-control.invalid:focus {
+                            border-color: hsl(0, 100%, 60%);
+                            box-shadow: 0 0 5px rgba(255, 0, 0, 0.3);
+                        }
+                        .existing-account {
+                          margin-top: 15px;
+                          font-size: 16px;
+                          color: #555;
+                        }
+
+                        .existing-account .login-link {
+                          color: #3DAFE1;
+                          text-decoration: none;
+                          font-weight: 600;
+                        }
+
+                        .existing-account .login-link:hover {
+                          text-decoration: underline;
+                        }
+                        .logo {
+                          font-family: Arial, sans-serif;
+                          font-size: 24px;
+                          font-weight: bold;
+                          display: inline-flex;
+                          align-items: center;
+                        }
+
+                        .part1 {
+                          color: black;
+                        }
+
+                        .part2 {
+                          color: #00cccc;
+                        }
+                        .container {
+                          box-shadow: 0 0 90px rgba(0, 0, 0, 0.1);
+                          border-radius: 10px;
+                          overflow: hidden;
+                          background-color: #fff;
+                        }
+
+                       .welcome-section {
+                          /* background: linear-gradient(rgba(0, 0, 0, 0.4), rgba(0, 0, 0, 0.4)),  */
+                          background:  url('assets/img/lexicaheadphone.jpg');
+                          background-size: cover;
+                          background-position: center;
+                          color: white;
+                          border-radius: 10px;
+                          position: relative;
+                          height: 80vh; /* Makes it fill the viewport height */
+                          min-height: 600px;
+                          display: flex;
+                          align-items: center;
+                          justify-content: center;
+                          text-align: center;
+                          overflow: hidden;
+                        }
+
+                          .welcome-section h1, .welcome-section p {
+                            z-index: 1; /* Ensure text is above any background overlays */
+                          }
+
+                          .welcome-section::before {
+                            content: '';
+                            position: absolute;
+                            top: 0;
+                            left: 0;
+                            width: 100%;
+                            height: 100%;
+                            background: rgba(0, 0, 0, 0.2); /* Subtle overlay for readability */
+                            z-index: 0;
+                          }
+
+                        .welcome-heading {
+                          font-size: 2.5rem;
+                          margin-bottom: 1rem;
+                          font-weight: bold;
+                          color: #fff;
+                        }
+                      
+                        .welcome-message {
+                          font-size: 1.1rem;
+                          margin-bottom: 1.5rem;
+                          line-height: 1.6;
+                          color: #fff;
+                        }
+                      
+                        .existing-user-prompt {
+                          font-size: 0.9rem;
+                          color: #fff;
+                        }
+                      
+                        .signin-link {
+                          color: #00ffff;
+                          text-decoration: none;
+                          font-weight: bold;
+                          transition: color 0.3s ease;
+                        }
+                      
+                        .signin-link:hover {
+                          color: #00cccc;
+                          text-decoration: underline;
+                        }
+                      
+                        @media (max-width: 768px) {
+                          .welcome-section {
+                            padding: 30px;
+                            min-height: 300px;
+                          }
+                      
+                          .welcome-heading {
+                            font-size: 2rem;
+                          }
+                      
+                          .welcome-message {
+                            font-size: 1rem;
+                          }
+                        }
+                         .btn-google {
+                        background-color: #4285F4; /* Google's blue color */
+                        color: white;
+                        border: none;
+                        width: 100%;
+                        height: 45px;
+                        font-size: 16px;
+                        font-weight: 600;
+                        border-radius: 5px;
+                        display: flex;
+                        align-items: center;
+                        justify-content: center;
+                        transition: background-color 0.3s;
+                    }
+
+                    .btn-google i {
+                        margin-right: 8px;
+                    }
+
+                    .btn-google:hover {
+                        background-color: #357ae8; /* Darker blue on hover */
+                    }
+
+
+    </style>
+</head>
+<body>
+  <header>
+    <!-- Header Start -->
+    <div class="header-area">
+        <div class="main-header header-sticky">
+          <div class="container-fluid">
+            <div class="menu-wrapper">
+              <!-- Logo -->
+              <div class="logo">
+                <div class="logo">
+                  <span class="part1">Sound</span
+                  ><span class="part2">Zone</span>
+                </div>
+              </div>
+              <!-- Main-menu -->
+              <div class="main-menu d-none d-lg-block">
+                <nav>
+                  <ul id="navigation">
+                    <li><a href="/">Home</a></li>
+                    <li><a href="shop.html">shop</a></li>
+                    <!-- <li><a href="about.html">about</a></li> -->
+                    <li class="hot">
+                      <a href="#">Latest</a>
+                      <ul class="submenu">
+                        <li><a href="shop.html"> Product list</a></li>
+                        <li>
+                          <a href="product_details.html"> Product Details</a>
+                        </li>
+                      </ul>
+                    </li>
+                    <!-- <li>
+                      <a href="blog.html">Blog</a>
+                      <ul class="submenu">
+                        <li><a href="blog.html">Blog</a></li>
+                        <li><a href="blog-details.html">Blog Details</a></li>
+                      </ul>
+                    </li> -->
+                    <!-- <li>
+                      <a href="#">Pages</a>
+                      <ul class="submenu">
+                        <li><a href="login.html">Login</a></li>
+                        <li><a href="cart.html">Cart</a></li>
+                        <li><a href="elements.html">Element</a></li>
+                        <li><a href="confirmation.html">Confirmation</a></li>
+                        <li><a href="checkout.html">Product Checkout</a></li>
+                      </ul>
+                    </li> -->
+                    <!-- <li><a href="contact.html">Contact</a></li> -->
+                    <li>
+                      <a href="contact.html"
+                        ><span class="flaticon-search"></span
+                      ></a>
+                    </li>
+
+                    <li>
+                      <a href="#"><span class="flaticon-user"></span></a>
+                     <ul class="submenu">
+    <% if (user) { %>
+        <li><a href="/profile"><%= user.fullname %></a></li>
+        <li><a href="/profile">User Profile</a></li>
+        <li><a href="/logout">Logout</a></li>
+    <% } else { %>
+        <li><a href="/signup">Sign Up</a></li>
+        <li><a href="/login">Login</a></li>
+    <% } %>
+</ul>
+
+                    </li>
+                    <li>
+                      <a href="contact.html"
+                        ><span class="flaticon-shopping-cart"></span
+                      ></a>
+                    </li>
+                  </ul>
+                </nav>
+              </div>
+            
+            </div>
+            <!-- Mobile Menu -->
+            <div class="col-12">
+              <div class="mobile_menu d-block d-lg-none"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+          <!-- Mobile Menu -->
+          <div class="col-12">
+            <div class="mobile_menu d-block d-lg-none"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <!-- Header End -->
+  </header>
+  <main>
+  
+<main>
+    <section class="login_part section_padding">
+        <div class="container">
+            <div class="row align-items-center">
+                <!-- Left Side: Welcome Message -->
+                <div class="col-lg-6 col-md-6">
+                  <div class="welcome-section text-center" id="welcomeBox">
+                    <div class="welcome-content">
+                      <h2 class="welcome-heading">New to Our Audio World?</h2>
+                      <p class="welcome-message">Dive into an immersive sound experience with our premium collection of headphones.</p>
+                      <p class="existing-user-prompt">
+                        Already part of our audiophile community? 
+                        <a href="/login" class="signin-link">Login in here</a>.
+                      </p>
+                    </div>
+                  </div>
+                </div>
+                
+               
+                <!-- Right Side: Register Form -->
+                <div class="col-lg-6 col-md-6">
+    <div class="login_part_form" id="register_form">
+        <div class="login_part_form_iner">
+            <h3>Welcome! <br /> Please Register Now</h3>
+            <form id="sign-form" class="row contact_form" action="/signup" method="post" novalidate="novalidate">
+                <!-- Full Name -->
+                <div class="col-md-12 form-group p_star">
+                    <input type="text" class="form-control" id="fullname" name="fullname" placeholder="Full Name" required />
+                    <div id="error-1" class="error-message"></div>
+                </div>
+
+                <!-- Email -->
+                <div class="col-md-12 form-group p_star">
+                    <input type="email" class="form-control" id="email" name="email" placeholder="Email Address" required />
+                    <div id="error-2" class="error-message"></div>
+                </div>
+
+                <!-- Phone Number -->
+                <div class="col-md-12 form-group p_star">
+                    <input type="text" class="form-control" id="phone" name="phone" placeholder="Phone Number" required />
+                    <div id="error-3" class="error-message"></div>
+                </div>
+
+                <!-- Password -->
+                <div class="col-md-12 form-group p_star">
+                    <input type="password" class="form-control" id="password" name="password" placeholder="Password" required />
+                    <div id="error-4" class="error-message"></div>
+                </div>
+
+                <!-- Confirm Password -->
+                <div class="col-md-12 form-group p_star">
+                    <input type="password" class="form-control" id="confirm_password" name="confirm_password" placeholder="Confirm Password" required />
+                    <div id="error-5" class="error-message"></div>
+                </div>
+                 <% if(locals.message && message.length>0){ %>
+                  <div class="alert alert-primary text-center">
+                     <span class="alert-icon">&#9888;</span>
+                    <%=locals.message%>
+
+                  </div>
+                <%}%>
+
+                <!-- Checkbox for Agreement -->
+                <div class="col-md-12 form-group d-flex align-items-center">
+                    <input type="checkbox" id="terms" name="terms" required />
+                    <label for="terms" class="ml-2">I agree to the <a href="#">terms and conditions</a></label>
+                </div>
+
+                <!-- Submit Button -->
+                <div class="col-md-12 form-group">
+                    <button type="submit" class="btn_3">Register</button>
+                </div>
+
+                <!-- Sign Up with Google Button -->
+                <div class="col-md-12 form-group text-center mt-3">
+    <a href="/auth/google"><button type="button" class="btn btn-google" onclick="googleSignUp()">
+        <i class="fab fa-google mr-2"></i> Sign Up with Google
+    </button></a>
+</div>
+                
+            </form>
+        </div>
+    </div>
+</div>
+
+
+
+            </div>
+        </div>
+    </section>
+</main>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        const signform = document.getElementById("sign-form");
+        const nameid = document.getElementById("fullname");
+        const emailid = document.getElementById("email");
+        const phoneid = document.getElementById("phone");
+        const passwordid = document.getElementById("password");
+        const confirmid = document.getElementById("confirm_password");
+
+        const error1 = document.getElementById("error-1");
+        const error2 = document.getElementById("error-2");
+        const error3 = document.getElementById("error-3");
+        const error4 = document.getElementById("error-4");
+        const error5 = document.getElementById("error-5");
+
+        signform.addEventListener("submit", function (e) {
+            nameValidatechecking();
+            emailValidatecheking();
+            phoneValidatecheking();
+            passValidatecheking();
+
+            // Prevent form submission if errors exist
+            if (
+                error1.style.display === 'block' ||
+                error2.style.display === 'block' ||
+                error3.style.display === 'block' ||
+                error4.style.display === 'block' ||
+                error5.style.display === 'block'
+            ) {
+                e.preventDefault();
+            }
+        });
+
+        function nameValidatechecking() {
+            const nameval = nameid.value.trim();
+            const namepattern = /^[A-Za-z\s'-]{1,50}$/;
+            if (nameval === "") {
+                error1.style.display = 'block';
+                error1.innerHTML = "Please enter a valid name.";
+            } else if (!namepattern.test(nameval)) {
+                error1.style.display = 'block';
+                error1.innerHTML = "Name can only contain alphabets and spaces.";
+            } else {
+                error1.style.display = 'none';
+                error1.innerHTML = "";
+            }
+        }
+
+        function emailValidatecheking() {
+            const emailval = emailid.value.trim();
+            const emailpattern = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+            if (!emailpattern.test(emailval)) {
+                error2.style.display = 'block';
+                error2.innerHTML = "Invalid email format.";
+            } else {
+                error2.style.display = 'none';
+                error2.innerHTML = "";
+            }
+        }
+
+        function phoneValidatecheking() {
+            const phoneval = phoneid.value.trim();
+            const phonepattern = /^\d{10}$/;
+            if (phoneval === "") {
+                error3.style.display = 'block';
+                error3.innerHTML = "Please enter a valid number.";
+            } else if (!phonepattern.test(phoneval)) {
+                error3.style.display = 'block';
+                error3.innerHTML = "Enter a 10-digit phone number.";
+            } else {
+                error3.style.display = 'none';
+                error3.innerHTML = "";
+            }
+        }
+
+        function passValidatecheking() {
+            const passval = passwordid.value.trim();
+            const current = confirmid.value.trim();
+            const passpattern = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
+            if (passval === "") {
+                error4.style.display = 'block';
+                error4.innerHTML = "Password should contain at least 8 characters.";
+            } else if (!passpattern.test(passval)) {
+                error4.style.display = 'block';
+                error4.innerHTML = "Password must contain numbers, uppercase, lowercase, and special characters.";
+            } else {
+                error4.style.display = 'none';
+                error4.innerHTML = "";
+            }
+
+            if (passval !== current) {
+                error5.style.display = 'block';
+                error5.innerHTML = "Passwords do not match.";
+            } else {
+                error5.style.display = 'none';
+                error5.innerHTML = "";
+            }
+        }
+    });
+</script>
+
+</body>
+</html>

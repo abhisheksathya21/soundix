@@ -1,0 +1,194 @@
+:root {
+        --primary-color: #f8f9fa;
+        --secondary-color: #e9ecef;
+        --accent-color: #007bff;
+        --text-color: #495057;
+        --hover-color: #0056b3;
+        --header-height: 60px;
+        --sidebar-width: 250px;
+        --transition-speed: 0.3s;
+      }
+
+      body {
+        min-height: 100vh;
+        margin: 0;
+        background-color: var(--primary-color);
+        font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+        color: var(--text-color);
+      }
+      /* Hover effect for the profile image */
+        .profile-image {
+            transition: transform 0.3s ease, border-color 0.3s ease;
+            cursor: pointer;
+        }
+
+        .profile-image:hover {
+            transform: scale(1.1);
+            border-color: #007bff;
+        }
+
+        /* Hover effect for dropdown items */
+        .dropdown-menu .dropdown-item {
+            transition: background-color 0.2s ease, color 0.2s ease;
+        }
+
+        .dropdown-menu .dropdown-item:hover {
+            background-color: #007bff;
+            color: white;
+        }
+
+
+      .sidebar {
+        position: fixed;
+        top: var(--header-height);
+        left: 0;
+        width: var(--sidebar-width);
+        height: calc(100vh - var(--header-height));
+        background-color: var(--secondary-color);
+        transition: all var(--transition-speed) ease;
+        z-index: 1000;
+        overflow-y: auto;
+        box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
+      }
+
+      .sidebar::-webkit-scrollbar {
+        width: 6px;
+      }
+
+      .sidebar::-webkit-scrollbar-thumb {
+        background-color: #adb5bd;
+        border-radius: 3px;
+      }
+
+      .sidebar.collapsed {
+        width: 60px;
+      }
+
+      .nav-link {
+        display: flex;
+        align-items: center;
+        padding: 12px 15px;
+        color: var(--text-color) !important;
+        transition: all var(--transition-speed) ease;
+        border-radius: 4px;
+        margin: 4px 8px;
+      }
+
+      .nav-link:hover,
+      .nav-link.active {
+        background-color: var(--accent-color);
+        color: white !important;
+      }
+
+      .nav-link i {
+        min-width: 30px;
+        font-size: 20px;
+        transition: transform var(--transition-speed) ease;
+      }
+
+      .nav-link:hover i {
+        transform: scale(1.1);
+      }
+
+      .nav-link span {
+        margin-left: 8px;
+        opacity: 1;
+        transition: all var(--transition-speed) ease;
+      }
+
+      .sidebar.collapsed .nav-link span {
+        opacity: 0;
+        width: 0;
+      }
+
+      .section-name {
+        font-size: 0.75em;
+        text-transform: uppercase;
+        color: #6c757d;
+        padding: 15px 15px 5px;
+        letter-spacing: 1px;
+        margin-top: 10px;
+      }
+
+      .sidebar.collapsed .section-name {
+        display: none;
+      }
+
+      .header {
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: var(--header-height);
+        background: white;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        display: flex;
+        align-items: center;
+        padding: 0 20px;
+        z-index: 1001;
+      }
+
+      .brand {
+        font-size: 24px;
+        font-weight: bold;
+        color: var(--text-color);
+        text-decoration: none;
+        margin-right: 20px;
+      }
+
+      .brand span {
+        color: var(--accent-color);
+      }
+
+      .toggle-sidebar {
+        background: none;
+        border: none;
+        font-size: 24px;
+        cursor: pointer;
+        padding: 0 15px;
+        color: var(--text-color);
+        transition: transform var(--transition-speed) ease;
+      }
+
+      .toggle-sidebar:hover {
+        color: var(--accent-color);
+      }
+
+      .main-content {
+        margin-left: var(--sidebar-width);
+        margin-top: var(--header-height);
+        padding: 20px;
+        transition: all var(--transition-speed) ease;
+      }
+
+      .main-content.expanded {
+        margin-left: 60px;
+      }
+
+      .profile-image {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        margin-left: auto;
+        border: 2px solid var(--accent-color);
+        transition: transform var(--transition-speed) ease;
+      }
+
+      .profile-image:hover {
+        transform: scale(1.1);
+      }
+
+      @media (max-width: 768px) {
+        .sidebar {
+          transform: translateX(-100%);
+        }
+        .sidebar.show {
+          transform: translateX(0);
+        }
+        .main-content {
+          margin-left: 0;
+        }
+        .main-content.expanded {
+          margin-left: 0;
+        }
+      }
