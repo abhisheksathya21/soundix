@@ -16,9 +16,9 @@ const categorySchema = new mongoose.Schema({
         type: String,
         default: "" // Path or URL to a category image (useful for UI)
     },
-    isActive: {
+    isDeleted: {
         type: Boolean,
-        default: true // Indicates whether the category is active or disabled
+        default: false // Indicates whether the category is active or disabled
     },
     createdAt: {
         type: Date,

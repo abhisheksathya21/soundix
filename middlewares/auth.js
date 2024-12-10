@@ -32,7 +32,7 @@ const AdminAuth=async(req,res,next)=>{
 
             }
             else{
-                res.redirect('/admin/login')
+                res.redirect('admin/login')
             }
         }
     }

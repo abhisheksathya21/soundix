@@ -34,10 +34,6 @@ app.use('/',userRouter);
 
 app.use('/admin',adminRouter);
 
-// 404 Error Page Route
-// app.use((req, res, next) => {
-//     res.status(404).render('pageNotFound', { title: 'Page Not Found' }); // Replace '404' with your view file name
-// });
 
 app.listen(process.env.PORT,()=>{
     console.log("server running")

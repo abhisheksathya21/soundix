@@ -9,9 +9,9 @@ const {UserAuth,AdminAuth}=require('../middlewares/auth')
 router.get('/pageError',admincontroller.pageError);
 //Login Management
 
-router.get('/login',admincontroller.loadlogin);
+router.get('/login',admincontroller.loadLogin);
 router.post('/login',admincontroller.login);
-router.get('/',AdminAuth,admincontroller.loaddashboard);
+router.get('/',AdminAuth,admincontroller.loadDashboard);
 router.get('/logout',admincontroller.logout);
 
 
@@ -24,5 +24,5 @@ router.get('/UnblockCustomer',AdminAuth,customercontroller.UnblockCustomer);
 //Category Management
 
 router.get('/category',AdminAuth,categorycontroller.categoryInfo);
-
+router.post('/addCategory',AdminAuth,categorycontroller.addcategory);
 module.exports=router;
