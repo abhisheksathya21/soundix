@@ -54,14 +54,15 @@
               <table class="table table-hover">
                 <thead>
                   <tr>
-                    <th class="text-center"></th>
+                    <!-- <th class="text-center"></th> -->
                     <th>Name</th>
                     <th>Description</th>
                     <!-- <th>Offer Price</th> -->
                     <!-- <th>Offer</th> -->
-                    <!-- <th>Status</th> -->
+                    <th>Status</th>
                     <th>List/Unlist</th>
                     <th class="text-start">Edit</th>
+                     <!-- <th class="text-start">delete</th> -->
                   </tr>
                 </thead>
                 <tbody>
@@ -72,8 +73,9 @@
                     <!-- <td></td> -->
                     <td class="text-start"><%=category.name%></td>
                     <td class="text-start"><%=category.description%></td>
-                    <td>
-                    </td>
+                    
+
+
                     <!-- <td class="text-start">
                       <button class="btn btn-info" style="width: 100px">
                         <a href="#" class="text-white">Add Offer</a>
@@ -82,21 +84,41 @@
                         <a href="#" class="text-white">Remove</a>
                       </button>
                     </td> -->
-                    <!-- <td class="text-start">
-                      <span class="badge rounded-pill alert-success" style="width: 60px">Listed</span>
-                      <span class="badge rounded-pill alert-danger" style="width: 60px">Unlisted</span>
-                    </td> -->
-                    <td class="text-start">
-                      <button class="btn <%= category.isListed ? 'btn-danger' : 'btn-success' %>" style="width: 70px">
-    <a href="/admin/<%= category.isListed ? 'unlistCategory' : 'listCategory' %>?id=<%= category._id %>" class="text-white">
-        <%= category.isListed ? 'Unlist' : 'List' %>
-    </a>
-</button>
 
+
+
+                    <td class="text-start">
+                      <%if(category.isListed){%>
+                      <span class="badge rounded-pill bg-primary" style="width: 80px">Listed</span>
+                      <%}else{%>
+                      <span class="badge rounded-pill bg-danger" style="width: 80px">Unlisted</span>
+                      <%}%>
                     </td>
                     <td class="text-start">
-                      <a href="" class="btn btn-info text-white">Edit</a>
+                      <%if(category.isListed){%>
+                     <button class="btn btn-danger" style="width: 70px">
+                       <a href="/admin/listcategory?id=<%=category._id%>" class="text-white">Unlist </a>
+                   </button>
+                   <%}else{%>
+                    <button class="btn btn-success" style="width: 70px">
+                       <a href="/admin/Unlistcategory?id=<%=category._id%>" class="text-white">List </a>
+                   </button>
+                   <%}%>
                     </td>
+
+
+
+
+
+
+                    <td class="text-start">
+                      <a href="/admin/editcategory?id=<%=category._id%>" class="btn btn-info text-white">Edit</a>
+                      
+                    </td>
+                    <!-- <td class="text-start">
+                      <a href="/admin/editcategory?id=<%=category._id%>" class="btn btn-danger text-white">Delete</a>
+                      
+                    </td> -->
                   </tr>
                   <%})%>
                 </tbody>
@@ -152,7 +174,7 @@
 .then(response => {
     if (!response.ok) {
       console.log("Response ",response)
-        throw new Error(`HT: ${response.status}`);
+        throw new Error(`HTTP error! Status: ${response.status}`);
     }
     return response.json();
 })

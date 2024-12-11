@@ -2,7 +2,8 @@ const express=require('express');
 const router=express.Router();
 const admincontroller=require('../controllers/admin/admincontroller');
 const customercontroller=require('../controllers/admin/customercontroller');
-const categorycontroller=require('../controllers/admin/categorycontroller')
+const categorycontroller=require('../controllers/admin/categorycontroller');
+const productcontroller=require('../controllers/admin/productcontroller');
 const {UserAuth,AdminAuth}=require('../middlewares/auth')
 
 
@@ -25,4 +26,12 @@ router.get('/UnblockCustomer',AdminAuth,customercontroller.UnblockCustomer);
 
 router.get('/category',AdminAuth,categorycontroller.categoryInfo);
 router.post('/addCategory',AdminAuth,categorycontroller.addcategory);
+router.get('/editcategory',AdminAuth,categorycontroller.geteditcategory);
+router.post('/editcategory/:id',AdminAuth,categorycontroller.editcategory);
+router.get('/listcategory',AdminAuth,categorycontroller.listcategory);
+router.get('/Unlistcategory',AdminAuth,categorycontroller.Unlistcategory);
+
+//product Management
+router.get('/addproducts',AdminAuth,productcontroller.loadProductaddpage);
+
 module.exports=router;

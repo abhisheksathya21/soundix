@@ -24,6 +24,10 @@ const categorySchema = new mongoose.Schema({
         type: Date,
         default: Date.now // Automatically sets the creation date
     },
+    isListed: {
+        type: Boolean,
+        default: true, // Default to listed
+    },
     updatedAt: {
         type: Date,
         default: Date.now // Automatically updates when changes are made

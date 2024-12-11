@@ -78,7 +78,7 @@
                         }
 
                         .part2 {
-                          color: #00cccc;
+                          color: #eb1010;
                         }
                         .container {
                           box-shadow: 0 0 90px rgba(0, 0, 0, 0.1);
@@ -186,6 +186,18 @@
                     .btn-google:hover {
                         background-color: #357ae8; /* Darker blue on hover */
                     }
+                     .text-muted {
+            margin-top: 1rem;
+            color: #6c757d;
+            text-align: center;
+        }
+        .text-muted a {
+            color: #007bff;
+            text-decoration: none;
+        }
+        .text-muted a:hover {
+            text-decoration: underline;
+        }
 
 
     </style>
@@ -296,9 +308,11 @@
                     <div class="welcome-content">
                       <h2 class="welcome-heading">New to Our Audio World?</h2>
                       <p class="welcome-message">Dive into an immersive sound experience with our premium collection of headphones.</p>
-                      <p class="existing-user-prompt">
-                        Already part of our audiophile community? 
-                        <a href="/login" class="signin-link">Login in here</a>.
+                     
+                        
+                       <div class="text-muted text-center ">
+                    Already verified? <a href="/login">Login now</a>
+                </div>
                       </p>
                     </div>
                   </div>
@@ -358,8 +372,8 @@
                 <div class="col-md-12 form-group">
                     <button type="submit" class="btn_3">Register</button>
                 </div>
-
-                <!-- Sign Up with Google Button -->
+                
+                          <!-- Sign Up with Google Button -->
                 <div class="col-md-12 form-group text-center mt-3">
     <a href="/auth/google"><button type="button" class="btn btn-google" onclick="googleSignUp()">
         <i class="fab fa-google mr-2"></i> Sign Up with Google

@@ -296,5 +296,6 @@ module.exports={
      resendOtp,
      loadlogin,
      login,
-     logout
+     logout,
+     
 }
