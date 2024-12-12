@@ -1,7 +1,7 @@
 const mongoose = require("mongoose");
 
 const productSchema = new mongoose.Schema({
-  name: {
+  productName: {
     type: String,
     required: true,
     trim: true,
@@ -11,43 +11,42 @@ const productSchema = new mongoose.Schema({
     required: true,
     trim: true,
   },
-  price: {
-    type: Number,
-    required: true,
-    min: 0,
-  },
   category: {
-    type: String,
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "Category", // References the Category collection
     required: true,
-    enum: ["headphone", "speaker", "earbud"],
   },
-  specifications: {
-    type: Map,
-    of: String, // Flexible key-value pairs for specifications
-  },
-  stock: {
+  regularPrice: {
     type: Number,
     required: true,
     min: 0,
   },
-  isListed: {
-    type: Boolean,
-    default: true,
+  salePrice: {
+    type: Number,
+    min: 0,
   },
-  images: {
+  createdOn: {
+    type: Date,
+    default: Date.now,
+  },
+  quantity: {
+    type: Number,
+    required: true,
+    min: 0,
+  },
+ 
+  color: String, // Optional for color-based products
+  productImage: {
     type: [String], // Array of image URLs
     validate: {
       validator: (v) => Array.isArray(v) && v.length > 0,
       message: "At least one image is required.",
     },
   },
-  createdAt: {
-    type: Date,
-    default: Date.now,
-  },
-  updatedAt: {
-    type: Date,
-    default: Date.now,
+  status: {
+    type: String,
+    enum: ["Available", "Out of Stock", "Discontinued"],
+    default: "Available",
   },
 });
 
