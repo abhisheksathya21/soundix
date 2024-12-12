@@ -1,7 +1,8 @@
 const express=require('express');
 const router=express.Router();
 const passport=require('passport')
-const usercontroller=require('../controllers/user/usercontroller')
+const usercontroller=require('../controllers/user/usercontroller');
+const productcontroller=require('../controllers/user/productcontroller')
 const {UserAuth,AdminAuth}=require('../middlewares/auth')
 
 
@@ -17,6 +18,12 @@ router.get('/logout',usercontroller.logout);
 
 router.post('/verify-otp',usercontroller.verifyOtp);
 router.post("/resend-otp",usercontroller.resendOtp);
+
+
+router.get('/shop',UserAuth,usercontroller.loadShopPage);
+router.get('/productdetails',UserAuth,productcontroller.productDetails);
+
+
 
 router.get('/', (req, res) => {
   res.send("Welcome to the homepage");

@@ -1,4 +1,6 @@
-const User=require('../../models/userSchema')
+const User=require('../../models/userSchema');
+const Category= require('../../models/categorySchema');
+const Product=require('../../models/productSchema');
 const nodemailer=require('nodemailer');
 const env=require('dotenv').config();
 const bcrypt=require("bcrypt");
@@ -20,17 +22,26 @@ const pageNotFound= async(req,res)=>{
 const loadhomepage=async(req,res)=>{
     try{ 
         const userId=req.session.user;
+        const categories= await Category.find({isListed:true});
+        let productData=await Product.find({
+            isBlocked:false,
+            category:{$in:categories.map(category=>category._id)},quantity:{$gt:0}
+        }) 
+       
+        
+
+
         console.log("loadhome page req.session.user",req.session.user)
         console.log("user",userId)
         if(userId){
             const userData=await User.findOne({_id:userId})
             console.log("userData",userData)
-            return res.render('home',{user:userData})
+            return res.render('home',{user:userData,products:productData});
 
 
         }
         else{
-            return res.render('home',{user:null});
+            return res.render('home',{user:null,products:productData});
         }
         
     }
@@ -286,6 +297,33 @@ const resendOtp=async (req,res)=>{
     }
 }
 
+const loadShopPage=async (req,res)=>{
+    try{
+        const userId=req.session.user;
+         const categories= await Category.find({isListed:true});
+        let productData=await Product.find({
+            isBlocked:false,
+            category:{$in:categories.map(category=>category._id)},quantity:{$gt:0}
+        }) 
+         
+
+         console.log("user",userId)
+        if(userId){
+            const userData=await User.findOne({_id:userId})
+            console.log("userData",userData)
+            return res.render('shop',{user:userData,products:productData});
+
+
+        }
+        else{
+            return res.render('shop',{user:null,products:productData});
+        }
+    }
+    catch(error){
+        console.log("error loading shop page");
+        res.redirect('/pageNotFound');
+    }
+}
 
 module.exports={
      loadhomepage,
@@ -297,5 +335,6 @@ module.exports={
      loadlogin,
      login,
      logout,
+     loadShopPage
      
 }

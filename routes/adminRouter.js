@@ -47,5 +47,9 @@ router.get('/Unlistcategory',AdminAuth,categorycontroller.Unlistcategory);
 //product Management
 router.get('/addproducts',AdminAuth,productcontroller.loadProductaddpage);
 router.post('/addproducts',AdminAuth,uploads.array("images",4),productcontroller.addProducts);
+router.get('/products',AdminAuth,productcontroller.getAllproducts);
+router.get('/blockProduct',AdminAuth,productcontroller.blockProduct);
+router.get('/UnblockProduct',AdminAuth,productcontroller.UnblockProduct);
+router.get('/editProduct',AdminAuth,productcontroller.geteditProduct);
 
 module.exports=router;

@@ -34,6 +34,10 @@ const productSchema = new mongoose.Schema({
     required: true,
     min: 0,
   },
+  isBlocked:{
+        type: Boolean,
+        default: false // Indicates whether the category is active or disabled
+    },
  
   color: String, // Optional for color-based products
   productImage: {

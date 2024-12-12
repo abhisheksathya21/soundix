@@ -1,4 +1,4 @@
-const Products=require('../../models/productSchema');
+
 const Category=require('../../models/categorySchema');
 const User=require('../../models/userSchema');
 const fs=require('fs');
@@ -24,60 +24,6 @@ const loadProductaddpage = async (req, res) => {
     }
 }
 
-// const addProducts=async(req,res)=>{
-//     try{
-//         const product=req.body;
-//         console.log("the product from req.body",product);
-//         const existingProduct= await Products.findOne({
-//             productName:product.productName
-            
-//         });
-//         if(!existingProduct){
-//             const images=[];
-
-//             if(req.files && req.files.length>0){
-//                 for(let i=0;i<req.files.length;i++){
-//                     const originalImagePath=req.files[i].path;
-                    
-//                     const resizedImagePath=path.join('public','uploads','productimages',req.files[i].filename);
-//                     await sharp(originalImagePath).resize({width:440,height:440}).toFile(resizedImagePath);
-//                     images.push(req.files[i].filename);
-//                 }
-//             }
-//             const categoryId=await Category.findOne({productName:products.category});
-            
-//             if(!categoryId){
-//                 return res.status(400).join("Invalid category name")
-//             }
-//             const newProduct=new Products({
-//                 productName:product.productName,
-//                 description:product.description,
-//                 category:categoryId._id,
-//                 regularPrice:product.regularPrice,
-//                 salePrice:product.salePrice,
-//                 createdOn:new Date(),
-//                 quantity:product.quantity,
-//                 color:product.color,
-//                 productImage:images,
-//                 status:'Available',
-//             })
-        
-//             await newProduct.save();
-//             return res.redirect("/admin/addProducts");
-        
-        
-        
-//         }
-//         else{
-//             return res.status(400).json("the product already exists")
-//         }
-
-//     }
-//     catch(error){
-//         console.log("error saving product",error);
-//         return res.redirect('/admin/pageError')
-//     }
-// }
 const addProducts = async (req, res) => {
   try {
       const products = req.body;
@@ -138,6 +84,94 @@ const addProducts = async (req, res) => {
   }
 };
 
+const getAllproducts = async (req, res) => {
+    try {
+        const search = req.query.search || ""
+        const page = req.query.page || 1;
+        const limit = 2;
+
+        const productData = await Product.find({
+             
+            productName: {$regex:new RegExp(".*"+search+".*","i") } 
+             
+        
+        }) .limit(limit *1)
+            .skip((page -1)*limit)
+            .populate('category')
+            .exec();
+         console.log(productData)   
+
+
+            const count =await Product.find({
+                productName:{$regex:new RegExp(".*"+search+".*","i")}
+            }).countDocuments();
+
+            const category=await Category.find({isListed:true});
+            if(category){
+                res.render('products',{
+                    data:productData,
+                    currentPage:page,
+                    totalPages:Math.ceil(count/limit),
+                    cat:category,
+                })
+            }
+            else{
+                res.render('pageError');
+            }
+    }
+    catch(error){
+        res.redirect('/admin/pageError')
+
+    }
+}
+
+const blockProduct=async(req,res)=>{
+    try{
+        let id=req.query.id;
+        await Product.updateOne({_id:id},{$set:{isBlocked:false}});
+        console.log("blocked products");
+        res.redirect('/admin/products');
+    }
+    catch(error){
+        console.log("error in block product");
+        res.redirect('/admin/pageError')
+    }
+}
+
+const UnblockProduct=async(req,res)=>{
+    try{
+        let id=req.query.id;
+        await Product.updateOne({_id:id},{$set:{isBlocked:true}});
+        console.log("blocked products");
+        res.redirect('/admin/products');
+    }
+    catch(error){
+        console.log("error in block product");
+         res.redirect('/admin/pageError')
+    }
+}
+
+
+const geteditProduct=async(req,res)=>{
+    try{
+        const id=req.query.id;
+        const product=await Product.findOne({_id:id});
+        const category=await Category.find({})
+        res.render('edit-product',{
+            product:product,
+            category:category,
+
+        });
+        console.log("edit-product page loaded succesfully")
+    }
+    catch(error){
+        res.redirect('/admin/pageError');
+        console.log("edit-product admin side side load error")
+
+
+    }
+}
+
 
 
 
@@ -147,5 +181,9 @@ const addProducts = async (req, res) => {
 
 module.exports={
     loadProductaddpage,
-    addProducts
+    addProducts,
+    getAllproducts,
+    UnblockProduct,
+    blockProduct,
+    geteditProduct
 }
