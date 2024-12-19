@@ -198,58 +198,76 @@
         .text-muted a:hover {
             text-decoration: underline;
         }
+         .logo img {
+    height: 40px; /* Adjust the height as needed */
+    width: auto;  /* Maintain the aspect ratio */
+  }
+.header-area {
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* Subtle shadow */
+    position: relative; /* Ensures shadow renders correctly */
+    z-index: 10; /* Keeps the navbar above other elements */
+}
+/* Center align Home and Shop */
+.main-menu ul#navigation {
+    display: flex;
+    justify-content: center; /* Center the links horizontally */
+    gap: 2rem; /* Add spacing between links */
+}
+
+.main-menu ul#navigation li {
+    list-style: none; /* Remove bullet points */
+}
+
+.main-menu ul#navigation li a {
+    text-decoration: none;
+    font-weight: 600;
+    color: #333;
+    font-size: 1rem;
+    transition: color 0.3s ease;
+}
+
+/* Optional: Adjust hover styles */
+.main-menu ul#navigation li a:hover {
+    color: #d61500; /* Highlight color */
+}
 
 
     </style>
 </head>
-<body>
-  <header>
-    <!-- Header Start -->
-    <div class="header-area">
+
+  <body>
+    <!--? Preloader Start -->
+     <div id="preloader-active">
+      <div class="preloader d-flex align-items-center justify-content-center">
+        <div class="preloader-inner position-relative">
+          <div class="preloader-circle"></div>
+          <div class="preloader-img pere-text">
+            <img src="assets/img/logo/logo.png" alt="" />
+          </div>
+        </div>
+      </div>
+    </div>
+    <!-- Preloader Start -->
+    <header>
+      <!-- Header Start -->
+      <div class="header-area">
         <div class="main-header header-sticky">
           <div class="container-fluid">
             <div class="menu-wrapper">
               <!-- Logo -->
               <div class="logo">
                 <div class="logo">
-                  <span class="part1">Sound</span
-                  ><span class="part2">Zone</span>
-                </div>
+              <img src="/assets/img/beats-logo-161616.png" alt="SoundZone Logo" />
+             </div>
+
               </div>
               <!-- Main-menu -->
               <div class="main-menu d-none d-lg-block">
                 <nav>
                   <ul id="navigation">
                     <li><a href="/">Home</a></li>
-                    <li><a href="shop.html">shop</a></li>
-                    <!-- <li><a href="about.html">about</a></li> -->
-                    <li class="hot">
-                      <a href="#">Latest</a>
-                      <ul class="submenu">
-                        <li><a href="shop.html"> Product list</a></li>
-                        <li>
-                          <a href="product_details.html"> Product Details</a>
-                        </li>
-                      </ul>
-                    </li>
-                    <!-- <li>
-                      <a href="blog.html">Blog</a>
-                      <ul class="submenu">
-                        <li><a href="blog.html">Blog</a></li>
-                        <li><a href="blog-details.html">Blog Details</a></li>
-                      </ul>
-                    </li> -->
-                    <!-- <li>
-                      <a href="#">Pages</a>
-                      <ul class="submenu">
-                        <li><a href="login.html">Login</a></li>
-                        <li><a href="cart.html">Cart</a></li>
-                        <li><a href="elements.html">Element</a></li>
-                        <li><a href="confirmation.html">Confirmation</a></li>
-                        <li><a href="checkout.html">Product Checkout</a></li>
-                      </ul>
-                    </li> -->
-                    <!-- <li><a href="contact.html">Contact</a></li> -->
+                    <li><a href="/shop">shop</a></li>
+                    
                     <li>
                       <a href="contact.html"
                         ><span class="flaticon-search"></span
@@ -258,17 +276,18 @@
 
                     <li>
                       <a href="#"><span class="flaticon-user"></span></a>
-                     <ul class="submenu">
-    <% if (user) { %>
-        <li><a href="/profile"><%= user.fullname %></a></li>
-        <li><a href="/profile">User Profile</a></li>
-        <li><a href="/logout">Logout</a></li>
-    <% } else { %>
-        <li><a href="/signup">Sign Up</a></li>
-        <li><a href="/login">Login</a></li>
-    <% } %>
-</ul>
-
+                      <ul class="submenu">
+                        <% if (locals.user) { %>
+                        <li>
+                          <a href="/signup"><%= locals.user.fullname %></a>
+                        </li>
+                        <li><a href="/profile">User Profile</a></li>
+                        <li><a href="/logout">Logout</a></li>
+                        <% } else { %>
+                        <li><a href="/signup">Sign Up</a></li>
+                        <li><a href="/login">Login</a></li>
+                        <% } %>
+                      </ul>
                     </li>
                     <li>
                       <a href="contact.html"
@@ -278,7 +297,6 @@
                   </ul>
                 </nav>
               </div>
-            
             </div>
             <!-- Mobile Menu -->
             <div class="col-12">
@@ -287,18 +305,11 @@
           </div>
         </div>
       </div>
-          <!-- Mobile Menu -->
-          <div class="col-12">
-            <div class="mobile_menu d-block d-lg-none"></div>
-          </div>
-        </div>
-      </div>
-    </div>
-    <!-- Header End -->
-  </header>
+      <!-- Header End -->
+    </header>
   <main>
   
-<main>
+
     <section class="login_part section_padding">
         <div class="container">
             <div class="row align-items-center">
@@ -354,7 +365,7 @@
                     <input type="password" class="form-control" id="confirm_password" name="confirm_password" placeholder="Confirm Password" required />
                     <div id="error-5" class="error-message"></div>
                 </div>
-                 <% if(locals.message && message.length>0){ %>
+                 <% if(locals.user && locals.message.length>0){ %>
                   <div class="alert alert-primary text-center">
                      <span class="alert-icon">&#9888;</span>
                     <%=locals.message%>
@@ -363,10 +374,10 @@
                 <%}%>
 
                 <!-- Checkbox for Agreement -->
-                <div class="col-md-12 form-group d-flex align-items-center">
+                <!-- <div class="col-md-12 form-group d-flex align-items-center">
                     <input type="checkbox" id="terms" name="terms" required />
                     <label for="terms" class="ml-2">I agree to the <a href="#">terms and conditions</a></label>
-                </div>
+                </div> -->
 
                 <!-- Submit Button -->
                 <div class="col-md-12 form-group">
@@ -390,8 +401,18 @@
             </div>
         </div>
     </section>
-</main>
 
+<script>
+  document.addEventListener("DOMContentLoaded", function () {
+    setTimeout(() => {
+  const preloader = document.getElementById("preloader-active");
+  if (preloader) {
+    preloader.style.display = "none";
+  }
+}, 2000); // Hides the preloader after 3 seconds
+
+  });
+</script>
 <script>
     document.addEventListener("DOMContentLoaded", function () {
         const signform = document.getElementById("sign-form");

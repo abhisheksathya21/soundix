@@ -1,0 +1,21 @@
+.single-slider {
+  height: 100vh; /* Full screen height */
+  background: linear-gradient(to right, #f7f7f7, #fff); /* Light gradient background */
+  position: relative;
+}
+
+.hero__caption h1 {
+  font-size: 3rem;
+  color: #2c3e50;
+  font-weight: bold;
+}
+
+.hero__caption p {
+  font-size: 1rem;
+  color: #555;
+}
+
+.hero__img img {
+  max-width: 800px;
+  height: 800px;
+}

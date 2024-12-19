@@ -16,9 +16,6 @@ const pageNotFound= async(req,res)=>{
     }
 }
 
-
-
-
 const loadhomepage=async(req,res)=>{
     try{ 
         const userId=req.session.user;
@@ -197,7 +194,7 @@ const signup=async(req,res)=>{
 
        if(finduser){
         console.log("User already exists");
-        return res.render('signup',{message:"user with this email already exsts"})
+        return res.render('signup',{user:finduser,message:"user with this email already exsts"})
        }
 
 
@@ -325,6 +322,22 @@ const loadShopPage=async (req,res)=>{
     }
 }
 
+const loaduserProfile=async(req,res)=>{
+    try{
+        if(req.session.user){
+            return res.render('user')
+        }
+        else{
+            return res.redirect('/login')
+        }
+
+    }
+    catch(error){
+        console.log("error occured")
+
+    }
+
+}
 module.exports={
      loadhomepage,
      pageNotFound,
@@ -335,6 +348,7 @@ module.exports={
      loadlogin,
      login,
      logout,
-     loadShopPage
+     loadShopPage,
+     loaduserProfile
      
 }

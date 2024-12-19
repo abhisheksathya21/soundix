@@ -7,17 +7,17 @@ const env=require("dotenv").config();
 passport.use(new GoogleStrategy({
     clientID:process.env.GOOGLE_CLIENT_ID,
     clientSecret:process.env.GOOGLE_CLIENT_SECRET,
-    callbackURL:'http://localhost:3000/google/callback'
+    callbackURL:'/auth/google/callback'
 },
-async (accessToken,profile,done)=>{
+async (accessToken,refreshToken,profile,done)=>{
     try{
         let user= await User.findOne({googleId:profile.id});
         if(user){
             return done(null,user);
         }
         else{
-            user= new User({
-                name:profile.displayName,
+            user= await new User({
+                fullname:profile.displayName,
                 email:profile.emails[0].value,
                 googleId:profile.id,
 

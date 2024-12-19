@@ -33,7 +33,7 @@ const categoryInfo = async (req, res) => {
         console.log("category info page loaded");
         res.render('category', {
             categories: categories,
-            currentPage: page,
+            currentPage: page,  
             totalPages: totalPages,
             search: search, 
             count: CategoryCount
@@ -88,9 +88,10 @@ const geteditcategory=async(req,res)=>{
 const editcategory=async(req,res)=>{
     try{
         const id=req.params.id;
-        console.log("id",id)
-        console.log(req.body)
+        console.log("  edit categoryid",id)
+        console.log("req.body",req.body);
         const {categoryName,description}= req.body;
+        console.log();
         const existingCategory= await Category.findOne({name:categoryName});
         console.log("existingcategory",existingCategory)
         if(existingCategory){
@@ -106,12 +107,13 @@ const editcategory=async(req,res)=>{
     );
     console.log("reached");
         console.log("upadated",Updatecategory);
-        if(Updatecategory){
-            res.redirect('/admin/category');
-        }
-        else{
-            res.status(404).json({error:"category not found"});
-        }
+        if (Updatecategory) {
+    console.log("category info page 22");
+    return res.status(200).json({ success: true, message: "Category updated successfully." });
+} else {
+    return res.status(404).json({ error: "Category not found" });
+}
+
 
     }
     catch(error){

@@ -34,52 +34,56 @@
 </main>
 <script src="//cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script>
-    document.getElementById('editCategoryForm').addEventListener('submit', function(event) {
-        event.preventDefault(); // Prevent the default form submission
+   document.getElementById('editCategoryForm').addEventListener('submit', function(event) {
+    event.preventDefault(); 
 
-        const formData = new FormData(this); // Create a FormData object from the form
+    const formData = new URLSearchParams(new FormData(this)); 
 
-        // Use fetch to submit the form data
-        fetch(this.action, {
-            method: 'POST',
-            body: formData
-        })
-        .then(response => {
-            if (response.ok) {
-                return response.json(); // Assuming the server responds with JSON
-            }
-            throw new Error('Network response was not ok.');
-        })
-        .then(data => {
-            // Check if the update was successful based on your server response
-            if (data.success) {
-                Swal.fire({
-                    icon: 'success',
-                    title: 'Updated!',
-                    text: data.message,
-                    confirmButtonText: 'Okay'
-                }).then(() => {
-                    // Optionally redirect or refresh the page
-                    window.location.href = '/admin/category'; // Redirect to the category list
-                });
-            } else {
-                Swal.fire({
-                    icon: 'error',
-                    title: 'Error!',
-                    text: data.error || 'Failed to update category.',
-                    confirmButtonText: 'Retry'
-                });
-            }
-        })
-        .catch(error => {
-            console.error('Error:', error);
+    
+    fetch(this.action, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/x-www-form-urlencoded'
+        },
+        body: formData.toString() 
+    })
+    .then(response => {
+        if (response.ok) {
+            return response.json(); 
+        }
+        throw new Error('Network response was not ok.');
+    })
+    .then(data => {
+        
+        if (data.success) {
+            Swal.fire({
+                icon: 'success',
+                title: 'Updated!',
+                text: data.message,
+                confirmButtonText: 'Okay'
+            }).then(() => {
+               
+                window.location.href = '/admin/category'; 
+            });
+        } else {
             Swal.fire({
                 icon: 'error',
                 title: 'Error!',
-                text: 'An error occurred while updating the category.',
+                text: data.error || 'Failed to update category.',
                 confirmButtonText: 'Retry'
             });
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        Swal.fire({
+            icon: 'error',
+            title: 'Error!',
+            text: 'An error occurred while updating the category.',
+            confirmButtonText: 'Retry'
         });
     });
+});
+
 </script>
 <%- include("../partials/admin/footer") %>

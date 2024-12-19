@@ -36,6 +36,6 @@ app.use('/admin',adminRouter);
 
 
 app.listen(process.env.PORT,()=>{
-    console.log("server running")
+    console.log("server running");
 });  
 module.exports=app;

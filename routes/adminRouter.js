@@ -8,15 +8,18 @@ const productcontroller=require('../controllers/admin/productcontroller');
 const {UserAuth,AdminAuth}=require('../middlewares/auth');
 
 
-// Set up multer for file uploads
+const { v4: uuidv4 } = require('uuid');
+
 const storage = multer.diskStorage({
     destination: function (req, file, cb) {
-        cb(null, 'public/uploads/productimages'); // Set the destination for uploaded files
+        cb(null, 'public/uploads/product-images');
     },
     filename: function (req, file, cb) {
-        cb(null, Date.now() + '-' + file.originalname); // Set the filename
+        const ext = file.originalname.split('.').pop(); // Extract file extension
+        cb(null, `${uuidv4()}.${ext}`); // Unique filename
     }
 });
+
 
 const uploads = multer({ storage: storage });
 
@@ -46,10 +49,12 @@ router.get('/Unlistcategory',AdminAuth,categorycontroller.Unlistcategory);
 
 //product Management
 router.get('/addproducts',AdminAuth,productcontroller.loadProductaddpage);
-router.post('/addproducts',AdminAuth,uploads.array("images",4),productcontroller.addProducts);
+router.post('/addproducts', AdminAuth, uploads.array("images", 6), productcontroller.addProducts);
+
 router.get('/products',AdminAuth,productcontroller.getAllproducts);
 router.get('/blockProduct',AdminAuth,productcontroller.blockProduct);
 router.get('/UnblockProduct',AdminAuth,productcontroller.UnblockProduct);
 router.get('/editProduct',AdminAuth,productcontroller.geteditProduct);
+router.post('/editProduct/:id',AdminAuth,uploads.array("images", 6), productcontroller.editProduct)
 
 module.exports=router;

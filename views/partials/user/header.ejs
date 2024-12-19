@@ -3,13 +3,13 @@
   <head>
     <meta charset="utf-8" />
     <meta http-equiv="x-ua-compatible" content="ie=edge" />
-    <title>Watch shop | eCommers</title>
+    <title>Beats Zone </title>
     <meta name="description" content="" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <link rel="manifest" href="site.webmanifest" />
     <link
       rel="shortcut icon"
-      type="image/x-icon"
+      type="image/x-icon"s
       href="assets/img/favicon.ico"
     />
 
@@ -26,21 +26,41 @@
     <link rel="stylesheet" href="assets/css/nice-select.css" />
     <link rel="stylesheet" href="assets/css/style.css" />
     <style>
-      .logo {
-        font-family: Arial, sans-serif;
-        font-size: 24px;
-        font-weight: bold;
-        display: inline-flex;
-        align-items: center;
-      }
+     .logo img {
+    height: 40px; /* Adjust the height as needed */
+    width: auto;  /* Maintain the aspect ratio */
+  }
+.header-area {
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* Subtle shadow */
+    position: relative; /* Ensures shadow renders correctly */
+    z-index: 10; /* Keeps the navbar above other elements */
+}
+/* Center align Home and Shop */
+.main-menu ul#navigation {
+    display: flex;
+    justify-content: center; /* Center the links horizontally */
+    gap: 2rem; /* Add spacing between links */
+}
 
-      .part1 {
-        color: black;
-      }
+.main-menu ul#navigation li {
+    list-style: none; /* Remove bullet points */
+}
 
-      .part2 {
-        color: red;
-      }
+.main-menu ul#navigation li a {
+    text-decoration: none;
+    font-weight: 600;
+    color: #333;
+    font-size: 1rem;
+    transition: color 0.3s ease;
+}
+
+/* Optional: Adjust hover styles */
+.main-menu ul#navigation li a:hover {
+    color: #d61500; /* Highlight color */
+}
+
+      
+      
     </style>
     <!-- <link rel="stylesheet" href="assets/css/signup.css"> -->
   </head>
@@ -67,9 +87,9 @@
               <!-- Logo -->
               <div class="logo">
                 <div class="logo">
-                  <span class="part1">Sound</span
-                  ><span class="part2">Zone</span>
-                </div>
+              <img src="/assets/img/beats-logo-161616.png" alt="SoundZone Logo" />
+             </div>
+
               </div>
               <!-- Main-menu -->
               <div class="main-menu d-none d-lg-block">
@@ -77,34 +97,7 @@
                   <ul id="navigation">
                     <li><a href="/">Home</a></li>
                     <li><a href="/shop">shop</a></li>
-                    <!-- <li><a href="about.html">about</a></li> -->
-                    <li class="hot">
-                      <a href="#">Latest</a>
-                      <ul class="submenu">
-                        <li><a href="shop.html"> Product list</a></li>
-                        <li>
-                          <a href="product_details.html"> Product Details</a>
-                        </li>
-                      </ul>
-                    </li>
-                    <!-- <li>
-                      <a href="blog.html">Blog</a>
-                      <ul class="submenu">
-                        <li><a href="blog.html">Blog</a></li>
-                        <li><a href="blog-details.html">Blog Details</a></li>
-                      </ul>
-                    </li> -->
-                    <!-- <li>
-                      <a href="#">Pages</a>
-                      <ul class="submenu">
-                        <li><a href="login.html">Login</a></li>
-                        <li><a href="cart.html">Cart</a></li>
-                        <li><a href="elements.html">Element</a></li>
-                        <li><a href="confirmation.html">Confirmation</a></li>
-                        <li><a href="checkout.html">Product Checkout</a></li>
-                      </ul>
-                    </li> -->
-                    <!-- <li><a href="contact.html">Contact</a></li> -->
+                    
                     <li>
                       <a href="contact.html"
                         ><span class="flaticon-search"></span
@@ -118,7 +111,7 @@
                         <li>
                           <a href="/signup"><%= locals.user.fullname %></a>
                         </li>
-                        <li><a href="/profile">User Profile</a></li>
+                        <li><a href="/userprofile">User Profile</a></li>
                         <li><a href="/logout">Logout</a></li>
                         <% } else { %>
                         <li><a href="/signup">Sign Up</a></li>

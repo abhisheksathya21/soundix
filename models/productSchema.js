@@ -39,14 +39,13 @@ const productSchema = new mongoose.Schema({
         default: false // Indicates whether the category is active or disabled
     },
  
-  color: String, // Optional for color-based products
+  color: String,
+  
   productImage: {
-    type: [String], // Array of image URLs
-    validate: {
-      validator: (v) => Array.isArray(v) && v.length > 0,
-      message: "At least one image is required.",
-    },
-  },
+    type: [String],
+    required: true,
+},
+ 
   status: {
     type: String,
     enum: ["Available", "Out of Stock", "Discontinued"],

@@ -1566,7 +1566,7 @@ input:focus::-moz-placeholder {
   position: relative;
   border-style: solid;
   border-width: 1px;
-  border-top-color: #ff2020;
+  border-top-color: #000000;
   border-bottom-color: transparent;
   border-left-color: transparent;
   border-right-color: transparent;
@@ -2862,7 +2862,7 @@ input:focus {
 }
 .popular-items .single-popular-items .popular-img {
   overflow: hidden;
-  border-bottom: 3px solid #ff2020;
+  border-bottom: 3px solid #000000;
   margin-bottom: 19px;
   position: relative;
 }
@@ -2883,7 +2883,7 @@ input:focus {
 }
 .popular-items .single-popular-items .popular-img .img-cap span {
   color: #fff;
-  background: #f81f1f;
+  background: #000000;
   padding: 20px 0;
   display: block;
   cursor: pointer;
@@ -2954,7 +2954,7 @@ input:focus {
 .popular-items .nav-tabs .nav-item.show .nav-link,
 .popular-items .nav-tabs .nav-link.active {
   background: none;
-  border-bottom: 2px solid #ff5757;
+  border-bottom: 2px solid #000000;
   z-index: 5;
   position: relative;
 }
@@ -3061,7 +3061,7 @@ input:focus {
 }
 .video-area .play-btn a:hover {
   background: #fff;
-  color: #ff2020;
+  color: #000000;
   border: 1px solid transparent;
 }
 .video-area:hover::before {
@@ -3207,7 +3207,7 @@ input:focus {
   }
 }
 .shop-method-area .method-wrapper {
-  background: #ea0000;
+  background: #000000;
 }
 .shop-method-area .method-wrapper .single-method {
   padding: 43px 20px 0 45px;
