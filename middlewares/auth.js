@@ -5,8 +5,9 @@ const UserAuth=async (req,res,next)=>{
         console.log("user Auth session checking",req.session.user);
          if(req.session.user){
         const data=await User.findById(req.session.user);
-        console.log("data");
+    
         if(data && !data.isBlocked){
+               console.log("data");
            return  next();
         }
     }

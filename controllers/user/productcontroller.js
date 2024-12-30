@@ -9,20 +9,34 @@ const productDetails=async (req,res)=>{
         const userData=await User.findById(userId);
         const productId=req.query.id;
         const productData=await Product.findById(productId).populate('category');
+         if (!productData) {
+         return res.status(404).send("Product not found");
+        }
         const findcategory=productData.category;
         console.log("productData",productData);
-        console.log("productData.qyuantity",productData.qyuantity);
+        console.log("productData.quantity",productData.quantity);
+        const RelatedProducts= await Product.find({
+             category: productData.category._id,
+      _id: { $ne: productData._id },
+        })
+        const breadcrumbs = [
+            { name: 'Home', url: '/' },
+            { name: 'shop', url: '/shop' },
+            { name: productData.productName, url: '' }, // Current page
+        ];
         res.render('product-details',{
             user:userData,
             product:productData,
             quantity:productData.quantity,
-            category:findcategory
+            category:findcategory,
+            breadcrumbs,
+            RelatedProducts 
 
         })
 
     }
     catch(error){
-        console.log("product detail page render error");
+         console.error("Error fetching product details:", error);
         res.redirect('/pageNotFound')
 
     }

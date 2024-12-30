@@ -31,24 +31,26 @@ const addProducts = async (req, res) => {
   try {
     const productData = req.body;
 
-    
+    // Check if the product already exists
     const existingProduct = await Product.findOne({
       productName: productData.productName,
     });
     if (existingProduct) {
-      return res.status(400).json("Product already exists, please try with another name");
+      return res.status(400).json({
+        message: "Product already exists, please try with another name",
+      });
     }
 
     const processedImages = [];
     if (req.files && req.files.length > 0) {
       const uploadDirectory = path.join("public", "uploads", "product-images");
 
-      
+      // Create upload directory if it doesn't exist
       if (!fs.existsSync(uploadDirectory)) {
         fs.mkdirSync(uploadDirectory, { recursive: true });
       }
 
-     
+      // Process and resize uploaded images
       for (let i = 0; i < req.files.length; i++) {
         const originalImagePath = req.files[i].path;
         const fileExtension = path.extname(req.files[i].originalname);
@@ -59,39 +61,47 @@ const addProducts = async (req, res) => {
           .resize({ width: 440, height: 440, fit: sharp.fit.cover })
           .sharpen({ sigma: 1.5 })
           .jpeg({ quality: 95 })
-          .toColourspace('srgb')
+          .toColourspace("srgb")
           .toFile(resizedImagePath);
 
         processedImages.push(`/uploads/product-images/${uniqueFileName}`);
       }
     }
 
-   
+    // Validate category
     const category = await Category.findOne({ name: productData.category });
     if (!category) {
-      return res.status(400).json("Invalid category name");
+      return res.status(400).json({
+        message: "Invalid category name",
+      });
     }
 
-   
+    // Create and save the new product
     const newProduct = new Product({
       productName: productData.productName,
       description: productData.description,
-      category: category._id, 
+      category: category._id,
       regularPrice: productData.regularPrice,
       salePrice: productData.salePrice,
       createdOn: new Date(),
       quantity: productData.quantity,
       productImage: processedImages,
-      status: "Available", 
+      status: "Available",
     });
 
     await newProduct.save();
-    res.redirect("/admin/products");
+    res.status(201).json({
+      message: "Product added successfully",
+    });
   } catch (error) {
     console.error("Error while adding product:", error);
-    res.redirect("/admin/pageerror");
+    res.status(500).json({
+      message: "Internal server error. Please try again later.",
+      error: error.message,
+    });
   }
 };
+
 
 
 const geteditProduct=async (req,res)=>{
@@ -200,7 +210,7 @@ const getAllproducts = async (req, res) => {
     try {
         const search = req.query.search || ""
         const page = req.query.page || 1;
-        const limit = 2;
+        const limit = 5;
 
         const productData = await Product.find({
              

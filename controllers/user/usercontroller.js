@@ -294,50 +294,76 @@ const resendOtp=async (req,res)=>{
     }
 }
 
-const loadShopPage=async (req,res)=>{
-    try{
-        const userId=req.session.user;
-         const categories= await Category.find({isListed:true});
-        let productData=await Product.find({
-            isBlocked:false,
-            category:{$in:categories.map(category=>category._id)},quantity:{$gt:0}
-        }) 
-         
+const loadShopPage = async (req, res) => {
+  try {
+    const userId = req.session.user;
+    const categories = await Category.find({ isListed: true });
 
-         console.log("user",userId)
-        if(userId){
-            const userData=await User.findOne({_id:userId})
-            console.log("userData",userData)
-            return res.render('shop',{user:userData,products:productData});
+    // Retrieve the `sort` query parameter (default to 'newest')
+    const sortParam = req.query.sort || 'newest';
 
-
-        }
-        else{
-            return res.render('shop',{user:null,products:productData});
-        }
-    }
-    catch(error){
-        console.log("error loading shop page");
-        res.redirect('/pageNotFound');
-    }
-}
-
-const loaduserProfile=async(req,res)=>{
-    try{
-        if(req.session.user){
-            return res.render('user')
-        }
-        else{
-            return res.redirect('/login')
-        }
-
-    }
-    catch(error){
-        console.log("error occured")
-
+  
+    let sortCriteria;
+    switch (sortParam) {
+      case 'priceLowHigh':
+        sortCriteria = { salePrice: 1 };
+        break;
+      case 'priceHighLow':
+        sortCriteria = { salePrice: -1 }; 
+        break;
+      case 'newest':
+        sortCriteria = { createdOn: -1 }; 
+        break;
+      case 'popular':
+        sortCriteria = { popularity: -1 }; 
+        break;
+      case 'aToZ':
+        sortCriteria = { productName: 1 }; 
+        break;
+      case 'zToA':
+        sortCriteria = { productName: -1 }; 
+        break;
+      default:
+        sortCriteria = { createdAt: -1 }; 
     }
 
-}
+    // Fetch the products with the determined sort criteria
+    let productData = await Product.find({
+      isBlocked: false,
+      category: { $in: categories.map((category) => category._id) },
+      quantity: { $gt: 0 },
+    }).sort(sortCriteria);
+
+    const breadcrumbs = [
+      { name: 'Home', url: '/' },
+      { name: 'Shop', url: '' }, 
+    ];
+
+    
+    if (userId) {
+      const userData = await User.findOne({ _id: userId });
+      return res.render('shop', {
+        user: userData,
+        products: productData,
+        breadcrumbs,
+        currentSort: sortParam, 
+      });
+    } else {
+      return res.render('shop', {
+        user: null,
+        products: productData,
+        breadcrumbs,
+        currentSort: sortParam, 
+      });
+    }
+  } catch (error) {
+    console.log("Error loading shop page:", error);
+    res.redirect('/pageNotFound');
+  }
+};
+
+
+
 module.exports={
      loadhomepage,
      pageNotFound,
@@ -348,7 +374,7 @@ module.exports={
      loadlogin,
      login,
      logout,
-     loadShopPage,
-     loaduserProfile
+     loadShopPage
+ 
      
 }

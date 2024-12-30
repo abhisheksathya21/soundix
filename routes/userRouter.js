@@ -3,6 +3,7 @@ const router=express.Router();
 const passport=require('passport')
 const usercontroller=require('../controllers/user/usercontroller');
 const productcontroller=require('../controllers/user/productcontroller')
+const profilecontroller=require('../controllers/user/profilecontroller')
 const {UserAuth,AdminAuth}=require('../middlewares/auth')
 
 //page error
@@ -30,7 +31,26 @@ router.get('/logout',usercontroller.logout);
 router.get('/shop',UserAuth,usercontroller.loadShopPage);
 router.get('/productdetails',UserAuth,productcontroller.productDetails);
 
-router.get('/userprofile',UserAuth,usercontroller.loaduserProfile);
+
+//userProfile
+router.get('/userProfile',UserAuth,profilecontroller.userProfile);
+router.post('/userProfile',UserAuth,profilecontroller.userUpdate);
+
+router.get('/password',UserAuth,profilecontroller.password);
+router.post('/password',UserAuth,profilecontroller.UpdatePassword);
+
+
+router.get('/addressManagement',UserAuth,profilecontroller.addressManagement);
+router.post('/addAddress',UserAuth,profilecontroller.addAddress);
+
+
+
+
+
+
+
+
+
 
 router.get('/', (req, res) => {
   res.send("Welcome to the homepage");

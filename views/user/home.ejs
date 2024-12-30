@@ -51,7 +51,7 @@
               </p>
               <!-- CTA Button -->
               <div class="hero__btn" data-animation="fadeInLeft" data-delay=".8s" data-duration="2000ms">
-                <a href="products.html" class="btn hero-btn">Explore Now</a>
+                 <a href="/shop" class="btn view-btn1">Shop</a>
               </div>
             </div>
           </div>
@@ -59,7 +59,7 @@
           <!-- Image Section -->
           <div class="col-lg-5 col-md-5 d-none d-md-block">
             <div class="hero__img" data-animation="zoomIn" data-delay=".4s">
-              <img src="assets/img/headphones/stylish_headphone.png" alt="Stylish Headphones" class="heartbeat" />
+              <img src="/assets/img/black-01-studiopro.jpg.large.2x-removebg.png" alt="Headphones" class="heartbeat" />
             </div>
           </div>
         </div>
@@ -81,29 +81,28 @@
         </div>
       </div>
       <div class="row">
-        <% for (let i = 0; i < products.length; i++) { %>
-        <div class="col-xl-4 col-lg-4 col-md-6 col-sm-6">
-          <div class="single-new-pro mb-30 text-center">
-            <div class="product-img">
-              <img
-                src="<%= products[i].productImage[0] %>"
-                alt="<%= products[i].productName %>"
-              />
-            </div>
-            <div class="product-caption">
-              <h3>
-                <a href="/productDetails?id=<%= products[i]._id %>"
-                  ><%= products[i].productName %></a
-                >
-              </h3>
-              <span>$<%= products[i].salePrice %></span>
-            </div>
-          </div>
+  <% for (let i = products.length - 1; i >= 0; i--) { %>
+    <div class="col-xl-4 col-lg-4 col-md-6 col-sm-6">
+      <div class="single-new-pro mb-30 text-center">
+        <div class="product-img">
+          <img
+            src="<%= products[i].productImage[0] %>"
+            alt="<%= products[i].productName %>"
+          />
         </div>
-        <% } %>
-
-        
+        <div class="product-caption">
+          <h3>
+            <a href="/productDetails?id=<%= products[i]._id %>">
+              <%= products[i].productName %>
+            </a>
+          </h3>
+          <span>$<%= products[i].salePrice %></span>
+        </div>
       </div>
+    </div>
+  <% } %>
+</div>
+
     </div>
   </section>
   <!--  New Product End -->

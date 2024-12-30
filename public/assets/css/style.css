@@ -311,7 +311,7 @@ input:focus::-moz-placeholder {
   background: #ff3500;
 }
 .btn {
-  background: #ff2020;
+  background: #000000;
   font-family: "Josefin Sans", sans-serif;
   text-transform: uppercase;
   color: #fff;
@@ -480,7 +480,7 @@ input:focus::-moz-placeholder {
   color: #888;
 }
 #scrollUp {
-  background: #ff2020;
+  background: #000000;
   height: 50px;
   width: 50px;
   right: 31px;
@@ -2483,7 +2483,7 @@ input:focus {
   top: -25px;
 }
 .mobile_menu .slicknav_menu .slicknav_btn .slicknav_icon-bar {
-  background-color: #ff2020 !important;
+  background-color: #000000 !important;
 }
 .mobile_menu .slicknav_menu .slicknav_nav {
   margin-top: 16px !important;
@@ -2958,6 +2958,7 @@ input:focus {
   z-index: 5;
   position: relative;
 }
+
 .popular-items .nice-select {
   background-color: #f2f2f2;
   border-radius: 30px;

@@ -1,0 +1,199 @@
+.error-message {
+  color: #ff4d4d;
+  font-size: 0.875rem;
+  display: none;
+  margin-top: 5px;
+  line-height: 1.4;
+  font-weight: 500;
+  padding-left: 20px;
+  position: relative;
+}
+
+.error-message::before {
+  content: "\26A0";
+  color: #ff4d4d;
+  font-size: 1rem;
+  position: absolute;
+  left: 0;
+  top: 0;
+}
+
+.form-control.invalid {
+  border-color: #ff4d4d;
+  background-color: #ffe6e6;
+}
+
+.form-control.invalid:focus {
+  border-color: #ff3333;
+  box-shadow: 0 0 5px rgba(255, 0, 0, 0.3);
+}
+.existing-account {
+  margin-top: 15px;
+  font-size: 16px;
+  color: #555;
+}
+
+.existing-account .login-link {
+  color: #3dafe1;
+  text-decoration: none;
+  font-weight: 600;
+}
+
+.existing-account .login-link:hover {
+  text-decoration: underline;
+}
+.logo {
+  font-family: Arial, sans-serif;
+  font-size: 24px;
+  font-weight: bold;
+  display: inline-flex;
+  align-items: center;
+}
+
+.part1 {
+  color: black;
+}
+
+.part2 {
+  color: red;
+}
+.container {
+  box-shadow: 0 0 90px rgba(0, 0, 0, 0.1);
+  border-radius: 10px;
+  overflow: hidden;
+  background-color: #fff;
+}
+
+.welcome-section {
+  /* background: linear-gradient(rgba(0, 0, 0, 0.4), rgba(0, 0, 0, 0.4)),  */
+  background: url("/assets/img/lexicaheadphone.jpg");
+  background-size: cover;
+  background-position: center;
+  color: white;
+  border-radius: 10px;
+  position: relative;
+  height: 70vh; /* Makes it fill the viewport height */
+  min-height: 600px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  overflow: hidden;
+}
+
+.welcome-section h1,
+.welcome-section p {
+  z-index: 1; /* Ensure text is above any background overlays */
+}
+
+.welcome-section::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.2); /* Subtle overlay for readability */
+  z-index: 0;
+}
+
+.welcome-heading {
+  font-size: 2.5rem;
+  margin-bottom: 1rem;
+  font-weight: bold;
+  color: #fff;
+}
+
+.welcome-message {
+  font-size: 1.1rem;
+  margin-bottom: 1.5rem;
+  line-height: 1.6;
+  color: #fff;
+}
+
+.existing-user-prompt {
+  font-size: 0.9rem;
+  color: #fff;
+}
+
+.signin-link {
+  color: #00ffff;
+  text-decoration: none;
+  font-weight: bold;
+  transition: color 0.3s ease;
+}
+
+.signin-link:hover {
+  color: #00cccc;
+  text-decoration: underline;
+}
+
+@media (max-width: 768px) {
+  .welcome-section {
+    padding: 30px;
+    min-height: 300px;
+  }
+
+  .welcome-heading {
+    font-size: 2rem;
+  }
+
+  .welcome-message {
+    font-size: 1rem;
+  }
+}
+.btn-google {
+  background-color: #4285f4; /* Google's blue color */
+  color: white;
+  border: none;
+  width: 100%;
+  height: 45px;
+  font-size: 16px;
+  font-weight: 600;
+  border-radius: 5px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background-color 0.3s;
+}
+
+.btn-google i {
+  margin-right: 8px;
+}
+
+.btn-google:hover {
+  background-color: #357ae8; /* Darker blue on hover */
+}
+
+.logo img {
+  height: 40px; /* Adjust the height as needed */
+  width: auto; /* Maintain the aspect ratio */
+}
+.header-area {
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* Subtle shadow */
+  position: relative; /* Ensures shadow renders correctly */
+  z-index: 10; /* Keeps the navbar above other elements */
+}
+/* Center align Home and Shop */
+.main-menu ul#navigation {
+  display: flex;
+  justify-content: center; /* Center the links horizontally */
+  gap: 2rem; /* Add spacing between links */
+}
+
+.main-menu ul#navigation li {
+  list-style: none; /* Remove bullet points */
+}
+
+.main-menu ul#navigation li a {
+  text-decoration: none;
+  font-weight: 600;
+  color: #333;
+  font-size: 1rem;
+  transition: color 0.3s ease;
+}
+
+/* Optional: Adjust hover styles */
+.main-menu ul#navigation li a:hover {
+  color: #d61500; /* Highlight color */
+}

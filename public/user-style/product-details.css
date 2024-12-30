@@ -17,7 +17,7 @@ body {
     margin: 0 auto;
     padding: 2rem;
     display: grid;
-    grid-template-columns: 120px 1fr 1fr; /* Adjusted column for larger thumbnails */
+    grid-template-columns: 120px 1fr 1fr;
     gap: 2rem;
 }
 
@@ -25,12 +25,12 @@ body {
 .thumbnails {
     display: flex;
     flex-direction: column;
-    gap: 1rem; /* Increased gap between thumbnails */
+    gap: 1rem;
 }
 
 .thumbnail {
-    width: 100px; /* Increased size */
-    height: 100px; /* Increased size */
+    width: 100px;
+    height: 100px;
     border: 1px solid #e2e2e2;
     border-radius: 8px;
     cursor: pointer;
@@ -40,32 +40,32 @@ body {
 
 .thumbnail:hover {
     border-color: #252424;
-    transform: scale(1.1); /* Subtle zoom effect */
+    transform: scale(1.1);
 }
 
 .thumbnail img {
     width: 100%;
     height: 100%;
-    object-fit: cover; /* Ensures image fills thumbnail */
+    object-fit: cover;
     border-radius: 8px;
 }
 
 /* Main image */
 .main-image {
     aspect-ratio: 1;
-    background: #cccccc;
+    background: #ffffff;
     border-radius: 12px;
     display: flex;
     align-items: center;
     justify-content: center;
-    max-width: 600px; /* Increased max size */
+    max-width: 600px;
     margin: 0 auto;
 }
 
 .main-image img {
     width: 100%;
     height: 100%;
-    object-fit: cover; /* Ensures the image fills without distortion */
+    object-fit: cover;
     border-radius: 12px;
 }
 
@@ -76,7 +76,7 @@ body {
 
 .sale-badge {
     display: inline-block;
-    color: #d61500;
+    color: #ac0000;
     font-weight: bold;
     font-size: 0.9rem;
     margin-bottom: 0.3rem;
@@ -92,7 +92,7 @@ body {
 
 .product-subtitle {
     color: #7f8c8d;
-    margin-bottom: 1rem;
+    margin-bottom: 1.5rem;
     font-size: 0.9rem;
 }
 
@@ -100,7 +100,7 @@ body {
     font-weight: bold;
     font-size: 1.2rem;
     margin-bottom: 1rem;
-    color: #d61500;
+    color: #ac0000;
 }
 
 .stock {
@@ -152,47 +152,63 @@ body {
     border-color: #3498db;
 }
 
-/* Add to bag button */
+/* Buttons */
+button {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 10px 20px;
+    font-size: 16px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+button i {
+    font-size: 18px;
+}
+
 .add-to-bag {
-    width: 60%;
-    padding: 0.8rem;
+    width: 60%; /* Keep the same width */
+    padding: 0.5rem; /* Reduce padding to make the button height smaller */
     background: #000000;
     color: #fff;
-    border: none;
-    border-radius: 8px;
+    border: 1px solid transparent; /* Add a transparent border */
+    border-radius: 20px;
     font-size: 0.9rem;
     font-weight: 600;
     cursor: pointer;
     margin-bottom: 1rem;
-    transition: all 0.3s ease;
+    transition: all 0.7s ease;
 }
 
 .add-to-bag:hover {
     background: #fff;
     color: #000000;
-    border: 1px solid #2c3e50;
+    border-color: #2c3e50; /* Only change the border color */
 }
 
-/* Add to cart button */
 .add-to-cart {
-    width: 60%;
-    padding: 0.8rem;
-    background: #d61500;
+    width: 60%; /* Keep the same width */
+    padding: 0.5rem; /* Reduce padding to make the button height smaller */
+    background: #ac0000;
     color: #fff;
-    border: none;
-    border-radius: 8px;
+    border: 1px solid transparent; /* Add a transparent border */
+    border-radius: 20px;
     font-size: 0.9rem;
     font-weight: 600;
     cursor: pointer;
     margin-bottom: 2rem;
-    transition: all 0.3s ease;
+    transition: all 0.7s ease;
 }
 
 .add-to-cart:hover {
-    background: #ff0000;
-    color: #ffffff;
-    border: 1px solid #2c3e50;
+    background: #ffffff;
+    color: #000000;
+    border-color: #2c3e50; /* Only change the border color */
 }
+
 
 /* Features list */
 .features-list {
@@ -224,21 +240,42 @@ body {
     font-size: 0.75rem;
 }
 
+/* Zoom container */
+.zoom-container {
+    position: relative;
+    overflow: hidden;
+    width: 100%;
+    height: auto;
+    max-width: 500px;
+    margin: auto;
+}
+
+.zoom-container img {
+    width: 100%;
+    height: auto;
+    transition: transform 0.3s ease;
+}
+
+.zoom-container:hover img {
+    transform: scale(1.5);
+    cursor: zoom-in;
+}
+
 /* Responsive design */
 @media (max-width: 1024px) {
     .product-container {
-        grid-template-columns: 100px 1fr 1fr; /* Adjust grid for medium screens */
+        grid-template-columns: 100px 1fr 1fr;
         gap: 1.5rem;
         padding: 1.5rem;
     }
 
     .thumbnail {
-        width: 80px; /* Adjusted for medium screens */
+        width: 80px;
         height: 80px;
     }
 
     .main-image {
-        max-width: 500px; /* Adjusted for medium screens */
+        max-width: 500px;
     }
 }
 
@@ -255,7 +292,7 @@ body {
     }
 
     .thumbnail {
-        width: 70px; /* Adjusted for small screens */
+        width: 70px;
         height: 70px;
     }
 
@@ -267,4 +304,75 @@ body {
     .product-info {
         order: 3;
     }
+}
+.breadcrumb {
+  display: flex;
+  list-style: none;
+  padding: 0.5rem 1rem;
+  background-color: #000000;
+  /* border-radius: 0.25rem; */
+}
+.breadcrumb-item {
+  margin-right: 0.5rem;
+}
+.breadcrumb-item a {
+  text-decoration: none;
+  color: #00ff80;
+}
+.breadcrumb-item.active {
+  color: #ffffff;
+}
+
+    :root {
+        --star-color: #15ff00;
+        --star-size: 24px;
+    }
+
+    .rating-container {
+        padding-right: 190px;
+        text-align: center;
+    }
+
+    .stars {
+        display: inline-flex;
+        gap: 4px;
+    }
+
+    .star {
+        width: var(--star-size);
+        height: var(--star-size);
+        cursor: pointer;
+    }
+
+    .star path {
+        fill: #ccc;
+        transition: fill 0.2s ease-in-out;
+    }
+
+    .star.active path {
+        fill: var(--star-color);
+    }
+
+    .rating-text {
+        margin-top: 10px;
+        font-size: 14px;
+        color: #666;
+    }
+
+    @media (max-width: 480px) {
+        :root {
+            --star-size: 20px;
+        }
+
+        .rating-container {
+            padding: 15px;
+        }
+
+        .rating-text {
+            font-size: 12px;
+        }
+    }
+    a {
+  text-decoration: none;
+  color: black; /* Customize the link color */
 }
