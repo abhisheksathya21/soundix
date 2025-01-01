@@ -2774,6 +2774,18 @@ input:focus {
   position: absolute;
   opacity: 0;
 }
+.single-new-pro {
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); /* Add box shadow */
+  border-radius: 10px; /* Optional: Makes the corners rounded */
+  overflow: hidden; /* Ensures content doesn't overflow the border radius */
+  transition: transform 0.3s ease, box-shadow 0.3s ease; /* Smooth transition for hover effect */
+}
+
+.single-new-pro:hover {
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.3); /* Shadow effect on hover */
+  transform: translateY(-5px); /* Slight lift effect on hover */
+}
+
 .single-new-pro .product-img {
   overflow: hidden;
   margin-bottom: 30px;
@@ -2881,6 +2893,17 @@ input:focus {
   -o-transition: all 0.4s ease-out 0s;
   transition: all 0.4s ease-out 0s;
 }
+.single-popular-items {
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* Subtle shadow */
+    border-radius: 5px; /* Optional: Add rounded corners */
+    transition: transform 0.3s ease, box-shadow 0.3s ease; /* Smooth hover effect */
+}
+
+.single-popular-items:hover {
+    transform: translateY(-5px); /* Lift slightly on hover */
+    box-shadow: 0 8px 15px rgba(0, 0, 0, 0.2); /* Stronger shadow on hover */
+}
+
 .popular-items .single-popular-items .popular-img .img-cap span {
   color: #fff;
   background: #000000;

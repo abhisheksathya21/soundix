@@ -113,11 +113,12 @@ body {
 
 .sidebar-nav a:hover,
 .sidebar-nav a.active {
-    background: #f5f5f5;
+    background: #ccc;
+    color: black;
 }
 
 .logout-btn {
-    background: var(--primary);
+    background: linear-gradient(135deg, #1E3A8A, #0F172A);;
     color: white;
     border: none;
     padding: 0.75rem;
@@ -135,7 +136,7 @@ body {
 
 .menu-toggle {
     display: none;
-    background: none;
+    background: linear-gradient(135deg, #1E3A8A, #0F172A);
     border: none;
     font-size: 1.5rem;
     cursor: pointer;
@@ -214,7 +215,7 @@ body {
 .edit-btn,
 .submit-btn,
 .cancel-btn {
-    background: var(--primary);
+    background: linear-gradient(135deg, #1E3A8A, #0F172A);;
     color: white;
     border: none;
     padding: 0.5rem 1rem;
@@ -375,7 +376,7 @@ body {
 .add-btn, .edit-address-btn, .delete-address-btn {
   margin-top: 1rem;
   padding: 0.5rem 1rem;
-  background-color: #007bff;
+  background: linear-gradient(135deg, #1E3A8A, #0F172A);;
   color: white;
   border: none;
   border-radius: 4px;
@@ -391,3 +392,34 @@ body {
   margin-top: 0.25rem;
   display: block;
 }
+/* Flexbox styling for form rows */
+.form-row {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem; /* Adjust spacing between columns as needed */
+  margin-bottom: 1rem;
+}
+
+/* Make each input field take equal space */
+.form-group {
+  flex: 1;
+}
+
+/* Adjust labels and inputs */
+.form-group label {
+  display: block;
+  margin-bottom: 0.5rem;
+  font-size: 14px;
+}
+
+.form-group input {
+  width: 100%;
+  padding: 8px;
+  font-size: 14px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+}
+.hidden {
+  display: none !important;
+}
+

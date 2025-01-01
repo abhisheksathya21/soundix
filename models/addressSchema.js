@@ -1,57 +1,47 @@
-const mongoose = require('mongoose');
+const mongoose = require("mongoose");
 
-const AddressSchema = new mongoose.Schema({
-  addressType: {
-    type: String,
-    enum: ["Home", "Office", "Other"],
-    required: true
-  },
-  name: {
-    type: String,
-    required: true,
-    minlength: 1,
-    maxlength: 100
-  },
-  city: {
-    type: String,
-    required: true,
-    minlength: 1,
-    maxlength: 50
-  },
-  landmark: {
-    type: String,
-    maxlength: 100
-  },
-  district: {
-    type: String,
-    required: true,
-    minlength: 1,
-    maxlength: 50
-  },
-  state: {
-    type: String,
-    required: true,
-    minlength: 1,
-    maxlength: 50
-  },
-  pincode: {
-    type: String,
-    required: true,
-    match: /^[0-9]{6}$/
-  },
-  phone: {
-    type: String,
-    required: true,
-    match: /^[0-9]{10}$/
-  },
-  alternativePhone: {
-    type: String,
-    match: /^[0-9]{10}$/,
-    default: null
-  }
+const addressSchema = new mongoose.Schema({
+  userId: { type: mongoose.Schema.Types.ObjectId, ref: "User", required: true },
+  address: [
+    {
+      addressType: {
+        type: String,
+        required: true,
+      },
+      name: {
+        type: String,
+        required: true,
+      },
+      city: {
+        type: String,
+        required: true,
+      },
+      landmark: {
+        type: String,
+      },
+      district: {
+        type: String,
+        required: true,
+      },
+      state: {
+        type: String,
+        required: true,
+      },
+      pincode: {
+        type: String,
+        required: true,
+      },
+      phone: {
+        type: String,
+        required: true,
+      },
+      alternativePhone: {
+        type: String,
+      },
+    },
+  ],
 });
 
-const Address = mongoose.model('Address', AddressSchema);
+const Address = mongoose.model("Address", addressSchema);
 
-
-module.exports =Address;
+module.exports = Address;
