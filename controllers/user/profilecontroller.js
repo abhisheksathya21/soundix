@@ -9,6 +9,7 @@ const userProfile = async (req, res) => {
     const userId = req.session.user;
     const userData = await User.findOne({ _id: userId });
     const addressData = await Address.findOne({ userId: userId });
+    console.log(addressData);
     if (userId) {
       return res.render("userProfile", {
         user: userData,
@@ -179,6 +180,15 @@ const addAddress = async (req, res) => {
   }
 };
 
+const editAddress = async (req, res) => {
+  try {
+    const userId = req.session.user;
+    const addressId = req.query.id;
+  } catch (error) {
+    return res.status(500).json({ message: "Internal Server Error" });
+  }
+};
+
 module.exports = {
   userProfile,
   userUpdate,
@@ -186,4 +196,5 @@ module.exports = {
   UpdatePassword,
   addressManagement,
   addAddress,
+  editAddress,
 };

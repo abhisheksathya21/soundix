@@ -43,6 +43,8 @@ router.post('/password',UserAuth,profilecontroller.UpdatePassword);
 router.get('/addressManagement',UserAuth,profilecontroller.addressManagement);
 router.post('/addAddress',UserAuth,profilecontroller.addAddress);
 
+router.get('/editAddress',UserAuth,profilecontroller.editAddress);
+
 
 
 

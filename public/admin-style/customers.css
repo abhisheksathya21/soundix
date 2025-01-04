@@ -1,0 +1,159 @@
+
+  /* General Styling */
+  .content-header h2 {
+    font-size: 1.8rem;
+    font-weight: bold;
+    color: #333;
+  }
+
+  /* Search Box Styling */
+  .search-container {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 20px;
+  }
+
+  .search-box {
+    display: flex;
+    width: 100%;
+    max-width: 600px;
+    border-radius: 30px;
+    overflow: hidden;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  }
+
+  .search-input {
+    flex: 1;
+    padding: 10px 15px;
+    border: none;
+    outline: none;
+    font-size: 1rem;
+  }
+
+  .search-button {
+    background-color: #007bff;
+    color: #fff;
+    padding: 10px 20px;
+    border: none;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+  }
+
+  .search-button:hover {
+    background-color: #0056b3;
+  }
+
+  /* Card Styling */
+  .customers-card {
+    background-color: #fff;
+    border-radius: 12px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    overflow: hidden;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+  }
+
+  .customers-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+  }
+
+  .card-body {
+    padding: 20px;
+  }
+
+  /* Table Styling */
+  .table {
+    width: 100%;
+    margin-bottom: 0;
+    background-color: transparent;
+    border-collapse: collapse;
+  }
+
+  .table thead th {
+    background-color: #f8f9fa;
+    padding: 12px;
+    text-align: center;
+    font-weight: bold;
+    border-bottom: 1px solid #ddd;
+  }
+
+  .table tbody td {
+    padding: 10px;
+    text-align: center;
+    border-bottom: 1px solid #eee;
+  }
+
+  .table tbody tr:hover {
+    background-color: #f1f1f1;
+  }
+
+  .btn {
+    padding: 5px 10px;
+    border-radius: 5px;
+    font-size: 0.9rem;
+    text-decoration: none;
+    color: #fff;
+    transition: background-color 0.3s ease, transform 0.2s ease;
+  }
+
+  .btn-danger {
+    background-color: #dc3545;
+  }
+
+  .btn-danger:hover {
+    background-color: #b02a37;
+  }
+
+  .btn-success {
+    background-color: #28a745;
+  }
+
+  .btn-success:hover {
+    background-color: #218838;
+  }
+
+  /* Pagination */
+  .pagination-container {
+    display: flex;
+    justify-content: center;
+    margin-top: 20px;
+  }
+
+  .pagination li {
+    margin: 0 5px;
+  }
+
+  .pagination .page-link {
+    color: #007bff;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    padding: 8px 12px;
+    transition: all 0.3s ease;
+  }
+
+  .pagination .page-link:hover {
+    background-color: #007bff;
+    color: #fff;
+  }
+
+  /* Responsive Design */
+  @media (max-width: 768px) {
+    .search-box {
+      flex-direction: column;
+    }
+
+    .search-input {
+      padding: 12px;
+      font-size: 1rem;
+    }
+
+    .search-button {
+      width: 100%;
+      text-align: center;
+    }
+
+    .table tbody td {
+      font-size: 0.9rem;
+    }
+  }
+

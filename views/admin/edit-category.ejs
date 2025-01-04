@@ -1,89 +1,90 @@
 <%- include("../partials/admin/header") %>
+<link rel="stylesheet" href="/admin-style/editcategory.css">
 <main class="main-content" id="mainContent">
-  <h1 class="h3 mb-4">Edit Category</h1>
-  <!-- Add your dashboard content here -->
+  <h1 class="h3 mb-4 text-center">Edit Category</h1>
   <div class="container">
     <div class="row justify-content-center">
-      <div class="col-md-6 mt-60">
-                <form id="editCategoryForm" method="post" action="/admin/editcategory/<%=category._id%>">
-                <div class="mb-4 mt-30">
-                    <label for="product_name" class="form-label">Name</label>
-                    <input
-                        type="text"
-                        name="categoryName"
-                        value="<%=category.name%>"
-                        class="form-control border"
-                    />
-                </div>
+      <div class="col-md-6">
+        <form id="editCategoryForm" method="post" action="/admin/editcategory/<%=category._id%>" class="edit-category-form">
+          <h3>Edit Category Details</h3>
+          <div class="mb-4">
+            <label for="product_name" class="form-label">Name</label>
+            <input
+              type="text"
+              name="categoryName"
+              value="<%=category.name%>"
+              class="form-control border shadow-sm"
+              required
+            />
+          </div>
 
-                <div class="mb-4">
-                    <label class="form-label">Description</label>
-                    <textarea name="description" class="form-control border">
-                        <%=category.description%>
-                    </textarea>
-                </div>
-                <div class="d-grid text-end mt-30 col-md-5">
-                    <button class="btn btn-primary" type="submit">
-                        Update category
-                    </button>
-                </div>
-            </form>
+          <div class="mb-4">
+            <label class="form-label">Description</label>
+            <textarea
+              name="description"
+              class="form-control border shadow-sm"
+              rows="4"
+              required
+            ><%=category.description%></textarea>
+          </div>
+
+          <div class="d-grid text-end mt-3">
+            <button class="btn btn-primary shadow" type="submit">Update Category</button>
+          </div>
+        </form>
       </div>
     </div>
   </div>
 </main>
+
 <script src="//cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script>
-   document.getElementById('editCategoryForm').addEventListener('submit', function(event) {
+  document.getElementById('editCategoryForm').addEventListener('submit', function(event) {
     event.preventDefault(); 
 
     const formData = new URLSearchParams(new FormData(this)); 
 
-    
     fetch(this.action, {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/x-www-form-urlencoded'
-        },
-        body: formData.toString() 
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/x-www-form-urlencoded'
+      },
+      body: formData.toString()
     })
     .then(response => {
-        if (response.ok) {
-            return response.json(); 
-        }
-        throw new Error('Network response was not ok.');
+      if (response.ok) {
+        return response.json();
+      }
+      throw new Error('Network response was not ok.');
     })
     .then(data => {
-        
-        if (data.success) {
-            Swal.fire({
-                icon: 'success',
-                title: 'Updated!',
-                text: data.message,
-                confirmButtonText: 'Okay'
-            }).then(() => {
-               
-                window.location.href = '/admin/category'; 
-            });
-        } else {
-            Swal.fire({
-                icon: 'error',
-                title: 'Error!',
-                text: data.error || 'Failed to update category.',
-                confirmButtonText: 'Retry'
-            });
-        }
+      if (data.success) {
+        Swal.fire({
+          icon: 'success',
+          title: 'Updated!',
+          text: data.message,
+          confirmButtonText: 'Okay'
+        }).then(() => {
+          window.location.href = '/admin/category';
+        });
+      } else {
+        Swal.fire({
+          icon: 'error',
+          title: 'Error!',
+          text: data.error || 'Failed to update category.',
+          confirmButtonText: 'Retry'
+        });
+      }
     })
     .catch(error => {
-        console.error('Error:', error);
-        Swal.fire({
-            icon: 'error',
-            title: 'Error!',
-            text: 'An error occurred while updating the category.',
-            confirmButtonText: 'Retry'
-        });
+      console.error('Error:', error);
+      Swal.fire({
+        icon: 'error',
+        title: 'Error!',
+        text: 'An error occurred while updating the category.',
+        confirmButtonText: 'Retry'
+      });
     });
-});
-
+  });
 </script>
 <%- include("../partials/admin/footer") %>

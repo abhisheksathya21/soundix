@@ -19,3 +19,93 @@
   max-width: 800px;
   height: 800px;
 }
+
+.banner-wrap {
+  position: relative;
+  text-align: center;
+  border-radius: 10px;
+  overflow: hidden;
+}
+
+.banner-image {
+  width: 100%;
+  height: auto;
+  border-radius: 10px;
+  padding:30px;
+  display: block;
+}
+
+.banner-text-overlay {
+  position: absolute;
+  top: 50%; /* Center vertically */
+  left: 50%; /* Center horizontally */
+  transform: translate(-50%, -50%);
+  z-index: 2; /* Ensure text is above the image */
+  text-align: center;
+}
+
+.banner-title {
+  font-size: 2rem; /* Default size */
+  font-weight: bold;
+  color: white; /* Text color */
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.7); /* Optional text shadow for readability */
+  margin-bottom: 10px;
+}
+
+.banner-subtitle {
+  font-size: 1.2rem; /* Default size */
+  font-weight: 400;
+  color: white;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.7);
+  margin-bottom: 20px;
+}
+
+.banner-button {
+  display: inline-block;
+  padding: 10px 20px;
+  font-size: 1rem;
+  font-weight: bold;
+  color: black; /* Button text color */
+  background-color: white; /* Button background color */
+  border: none;
+  border-radius: 5px;
+  text-decoration: none;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2); /* Optional shadow for the button */
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+.banner-button:hover {
+  background-color: black; /* Hover background color */
+  color: white; /* Hover text color */
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .banner-title {
+    font-size: 1.5rem; /* Adjust title size for smaller screens */
+  }
+
+  .banner-subtitle {
+    font-size: 1rem; /* Adjust subtitle size for smaller screens */
+  }
+
+  .banner-button {
+    font-size: 0.9rem; /* Adjust button text size for smaller screens */
+    padding: 8px 16px; /* Adjust button padding for smaller screens */
+  }
+}
+
+@media (max-width: 480px) {
+  .banner-title {
+    font-size: 1.2rem; /* Smaller size for very small screens */
+  }
+
+  .banner-subtitle {
+    font-size: 0.9rem;
+  }
+
+  .banner-button {
+    font-size: 0.8rem;
+    padding: 6px 12px;
+  }
+}

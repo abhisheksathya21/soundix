@@ -1,197 +1,176 @@
-<%- include('../partials/user/header')%>
-<link rel="stylesheet" href="/user-style/login.css">
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Login - Audiophile Community</title>
+    <link rel="stylesheet" href="/user-style/login.css" />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+  </head>
+  <body>
+    <div class="login-container">
+      <div class="split-container">
+        <!-- Left side -->
+        <div class="left-side">
+          <div class="welcome-content">
+            <h2 class="welcome-heading">
+              Already part of our audiophile community?
+            </h2>
+            <p class="welcome-message">
+              Dive into an immersive sound experience with our premium
+              collection of headphones.
+            </p>
+          </div>
+        </div>
+        <!-- Right side -->
+        <div class="right-side">
+          <form
+            id="sign-form"
+            class="login-form"
+            action="/login"
+            method="post"
+            novalidate
+          >
+            <div class="form-header">
+              <h1>Welcome!</h1>
+              <h3>Please Login Now</h3>
+            </div>
+            <!-- Email -->
+            <div class="form-group">
+              <input
+                type="email"
+                class="form-control"
+                id="email"
+                name="email"
+                placeholder="Email Address"
+                required
+              />
+              <div class="error-message" id="email-error"></div>
+            </div>
+            <!-- Password -->
+            <div class="form-group">
+              <input
+                type="password"
+                class="form-control"
+                id="password"
+                name="password"
+                placeholder="Password"
+                required
+              />
+              <div class="error-message" id="password-error"></div>
+            </div>
+            <!-- Server-side error messages -->
+
+            <!-- Submit Button -->
+            <button type="submit" class="btn btn-primary">Sign In</button>
+            <div class="register-link">
+              <p>New to Our Audio World? <a href="/signup">Register Now</a></p>
+            </div>
+            <!-- Sign Up with Google Button -->
+            <a
+              href="/auth/google"
+              class="btn btn-google"
+              style="text-decoration: none"
+            >
+              <img
+                src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 48 48' width='40px' height='48px'%3E%3Cpath fill='%23FFC107' d='M43.611,20.083H42V20H24v8h11.303c-1.649,4.657-6.08,8-11.303,8c-6.627,0-12-5.373-12-12c0-6.627,5.373-12,12-12c3.059,0,5.842,1.154,7.961,3.039l5.657-5.657C34.046,6.053,29.268,4,24,4C12.955,4,4,12.955,4,24c0,11.045,8.955,20,20,20c11.045,0,20-8.955,20-20C44,22.659,43.862,21.35,43.611,20.083z'/%3E%3Cpath fill='%23FF3D00' d='M6.306,14.691l6.571,4.819C14.655,15.108,18.961,12,24,12c3.059,0,5.842,1.154,7.961,3.039l5.657-5.657C34.046,6.053,29.268,4,24,4C16.318,4,9.656,8.337,6.306,14.691z'/%3E%3Cpath fill='%234CAF50' d='M24,44c5.166,0,9.86-1.977,13.409-5.192l-6.19-5.238C29.211,35.091,26.715,36,24,36c-5.202,0-9.619-3.317-11.283-7.946l-6.522,5.025C9.505,39.556,16.227,44,24,44z'/%3E%3Cpath fill='%231976D2' d='M43.611,20.083H42V20H24v8h11.303c-0.792,2.237-2.231,4.166-4.087,5.571c0.001-0.001,0.002-0.001,0.003-0.002l6.19,5.238C36.971,39.205,44,34,44,24C44,22.659,43.862,21.35,43.611,20.083z'/%3E%3C/svg%3E"
+                alt="Google logo"
+              />
+              Sign Up with Google
+            </a>
+          </form>
+        </div>
+      </div>
+    </div>
+
+    <script src="/user-scripts/login-validation.js"></script>
   </body>
 </html>
 
-  
-<main>
-    <section class="login_part section_padding">
-        <div class="container">
-            <div class="row align-items-center">
-                <!-- Left Side: Welcome Message -->
-                <div class="col-lg-6 col-md-6">
-                  <div class="welcome-section text-center" id="welcomeBox">
-                    <div class="welcome-content">
-                      <h2 class="welcome-heading">Already part of our audiophile community? </h2>
-                      <p class="welcome-message">Dive into an immersive sound experience with our premium collection of headphones.</p>
-                      
-                    </div>
-                  </div>
-                </div>
-                
-               
-                <!-- Right Side: Register Form -->
-                <div class="col-lg-6 col-md-6">
-    <div class="login_part_form" id="register_form">
-        <div class="login_part_form_iner">
-            <h3>Welcome! <br /> Please Login Now</h3>
-            <form id="sign-form" class="row contact_form" action="/login" method="post" novalidate="novalidate">
-                
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
-                <!-- Email -->
-                <div class="col-md-12 form-group p_star">
-                    <input type="email" class="form-control" id="email" name="email" placeholder="Email Address" required />
-                    <div id="error-2" class="error-message"></div>
-                </div>
+<% if (locals.message && message.length > 0) { %>
+<script>
+  document.addEventListener("DOMContentLoaded", function () {
+    Swal.fire({
+      toast: true,
+      position: "top", // Display at the top of the screen
+      icon: "warning", // Icon type: 'warning', 'success', 'info', etc.
+      title: "<%= locals.message %>", // Message from the server
+      showConfirmButton: false, // No confirm button for a toast
+      timer: 5000, // Auto-close after 5 seconds
+      timerProgressBar: true, // Show a progress bar
+      customClass: {
+        popup: "custom-toast", // Custom class for styling
+      },
+    });
+  });
+</script>
+<%}%>
 
-               
-                <!-- Password -->
-                <div class="col-md-12 form-group p_star">
-                    <input type="password" class="form-control" id="password" name="password" placeholder="Password" required />
-                    <div id="error-4" class="error-message"></div>
-                </div>
-                <%if(locals.message && message.length>0){%>
-                  <div class="alert alert-primary text-center">
-                     <span class="alert-icon">&#9888;</span>
-                    <%=locals.message%>
-
-                  </div>
-                  
-               <% }%>
-
-            
-
-                <!-- Submit Button -->
-                <div class="col-md-12 form-group">
-                    <button type="submit" class="btn_3">Sign in</button>
-                </div>
-                <div class="col-md-12 form-group">
-                                  <a href="/signup"><h6>New to Our Audio World? Register Now</h6></a>
-
-                </div>
-
-                <!-- Sign Up with Google Button -->
-                <div class="col-md-12 form-group text-center mt-3">
-    <a href="/auth/google"><button type="button" class="btn btn-google" onclick="googleSignUp()">
-        <i class="fab fa-google mr-2"></i> Sign Up with Google
-    </button></a>
-</div>
-                
-            </form>
-        </div>
-    </div>
-</div>
-
-
-
-            </div>
-        </div>
-    </section>
-</main>
 <script>
   document.addEventListener("DOMContentLoaded", function () {
     setTimeout(() => {
-  const preloader = document.getElementById("preloader-active");
-  if (preloader) {
-    preloader.style.display = "none";
-  }
-}, 2000); // Hides the preloader after 3 seconds
-
+      const preloader = document.getElementById("preloader-active");
+      if (preloader) {
+        preloader.style.display = "none";
+      }
+    }, 2000); // Hides the preloader after 3 seconds
   });
 </script>
-<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-    
 
 <script>
-    document.addEventListener("DOMContentLoaded", function () {
-        const signform = document.getElementById("sign-form");
-        const nameid = document.getElementById("fullname");
-        const emailid = document.getElementById("email");
-        const phoneid = document.getElementById("phone");
-        const passwordid = document.getElementById("password");
-        const confirmid = document.getElementById("confirm_password");
+  document.addEventListener("DOMContentLoaded", function () {
+    const signForm = document.getElementById("sign-form");
+    const emailInput = document.getElementById("email");
+    const passwordInput = document.getElementById("password");
+    const emailError = document.getElementById("email-error");
+    const passwordError = document.getElementById("password-error");
 
-        const error1 = document.getElementById("error-1");
-        const error2 = document.getElementById("error-2");
-        const error3 = document.getElementById("error-3");
-        const error4 = document.getElementById("error-4");
-        const error5 = document.getElementById("error-5");
+    signForm.addEventListener("submit", function (e) {
+      let isValid = true;
 
-        signform.addEventListener("submit", function (e) {
-            nameValidatechecking();
-            emailValidatecheking();
-            phoneValidatecheking();
-            passValidatecheking();
+      // Validate Email
+      const emailValue = emailInput.value.trim();
+      const emailPattern = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+      if (!emailPattern.test(emailValue)) {
+        emailError.textContent = "Invalid email format.";
+        isValid = false;
+      } else {
+        emailError.textContent = "";
+      }
 
-            // Prevent form submission if errors exist
-            if (
-                error1.style.display === 'block' ||
-                error2.style.display === 'block' ||
-                error3.style.display === 'block' ||
-                error4.style.display === 'block' ||
-                error5.style.display === 'block'
-            ) {
-                e.preventDefault();
-            }
-        });
+      // Validate Password
+      const passwordValue = passwordInput.value.trim();
+      const passwordPattern =
+        /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
+      if (!passwordPattern.test(passwordValue)) {
+        passwordError.textContent =
+          "Password must contain at least 8 characters, including uppercase, lowercase, numbers, and special characters.";
+        isValid = false;
+      } else {
+        passwordError.textContent = "";
+      }
 
-        function nameValidatechecking() {
-            const nameval = nameid.value.trim();
-            const namepattern = /^[A-Za-z\s'-]{1,50}$/;
-            if (nameval === "") {
-                error1.style.display = 'block';
-                error1.innerHTML = "Please enter a valid name.";
-            } else if (!namepattern.test(nameval)) {
-                error1.style.display = 'block';
-                error1.innerHTML = "Name can only contain alphabets and spaces.";
-            } else {
-                error1.style.display = 'none';
-                error1.innerHTML = "";
-            }
-        }
-
-        function emailValidatecheking() {
-            const emailval = emailid.value.trim();
-            const emailpattern = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
-            if (!emailpattern.test(emailval)) {
-                error2.style.display = 'block';
-                error2.innerHTML = "Invalid email format.";
-            } else {
-                error2.style.display = 'none';
-                error2.innerHTML = "";
-            }
-        }
-
-        function phoneValidatecheking() {
-            const phoneval = phoneid.value.trim();
-            const phonepattern = /^\d{10}$/;
-            if (phoneval === "") {
-                error3.style.display = 'block';
-                error3.innerHTML = "Please enter a valid number.";
-            } else if (!phonepattern.test(phoneval)) {
-                error3.style.display = 'block';
-                error3.innerHTML = "Enter a 10-digit phone number.";
-            } else {
-                error3.style.display = 'none';
-                error3.innerHTML = "";
-            }
-        }
-
-        function passValidatecheking() {
-            const passval = passwordid.value.trim();
-            const current = confirmid.value.trim();
-            const passpattern = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
-            if (passval === "") {
-                error4.style.display = 'block';
-                error4.innerHTML = "Password should contain at least 8 characters.";
-            } else if (!passpattern.test(passval)) {
-                error4.style.display = 'block';
-                error4.innerHTML = "Password must contain numbers, uppercase, lowercase, and special characters.";
-            } else {
-                error4.style.display = 'none';
-                error4.innerHTML = "";
-            }
-
-            if (passval !== current) {
-                error5.style.display = 'block';
-                error5.innerHTML = "Passwords do not match.";
-            } else {
-                error5.style.display = 'none';
-                error5.innerHTML = "";
-            }
-        }
+      if (!isValid) {
+        e.preventDefault();
+      }
     });
-</script>
 
-</body>
-</html>
+    // Optional: Real-time input validation
+    emailInput.addEventListener("input", function () {
+      if (emailPattern.test(emailInput.value.trim())) {
+        emailError.textContent = "";
+      }
+    });
+
+    passwordInput.addEventListener("input", function () {
+      if (passwordPattern.test(passwordInput.value.trim())) {
+        passwordError.textContent = "";
+      }
+    });
+  });
+</script>

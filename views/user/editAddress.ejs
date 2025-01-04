@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Account Overview</title>
+    <link rel="stylesheet" href="/user-style/userprofile.css" />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css"
+    />
+  </head>
+  <body>
+    <%- include('../partials/user/header')%>
+    <button class="menu-toggle">
+     <i class="fa-solid fa-arrow-right" style="color: #002461;"></i>
+      <!-- Hamburger icon -->
+    </button>
+    <div class="layout">
+      <aside class="sidebar" id="sidebar">
+        <div class="profile">
+          <div class="avatar"></div>
+          <span class="profile-name"><%=user.fullname%></span>
+        </div>
+        <nav class="sidebar-nav">
+          <a href="/userProfile">
+            <i class="fa-solid fa-user fa-lg"></i>Account Overview
+          </a>
+          <a href="/orders"><i class="fa-solid fa-shop fa-lg"></i>My Orders </a>
+          <a href="/addressManagement" class="active">
+            <i class="fa-solid fa-address-book fa-lg"></i> Manage Addresses
+          </a>
+          <a href="wallet.html">
+            <i class="fa-solid fa-wallet fa-lg"></i> Wallet
+          </a>
+          <a href="/password">
+            <i class="fa-solid fa-key fa-lg"></i> Password
+          </a>
+          <a href="wishlist.html">
+            <i class="fa-solid fa-heart fa-lg"></i> Wishlist
+          </a>
+        </nav>
+        <a href="/logout"><button class="logout-btn">LOGOUT</button></a>
+      </aside>
+      <main class="main-content">
+        <h1>Manage Address</h1>
+        <div class="overview-grid">
+          <!-- Address Details Section -->
+          <div class="overview-card" id="address-details">
+            <h2>Address Details</h2>
+            <% if (userAddress && userAddress.address &&
+            userAddress.address.length > 0) { %>
+
+            <ul id="address-list">
+              <% userAddress.address.forEach((address, index) => { %>
+              <li class="address-item">
+                <p>Type: <span><%= address.addressType %></span></p>
+                <p>Name: <span><%= address.name %></span></p>
+                <p>City: <span><%= address.city %></span></p>
+                <p>Landmark: <span><%= address.landmark %></span></p>
+                <p>District: <span><%= address.district %></span></p>
+                <p>State: <span><%= address.state %></span></p>
+                <p>Pincode: <span><%= address.pincode %></span></p>
+                <p>Phone: <span><%= address.phone %></span></p>
+                <p>
+                  Alternate Phone:
+                  <span><%= address.alternativePhone || 'N/A' %></span>
+                </p>
+                <div class="address-actions">
+                  <button class="edit-address-btn" data-index="<%= index %>">
+                    Edit
+                  </button>
+                  <form
+                    method="post"
+                    action="/deleteAddress"
+                    class="delete-address-form"
+                  >
+                    <input
+                      type="hidden"
+                      name="addressIndex"
+                      value="<%= index %>"
+                    />
+                    <button type="submit" class="delete-address-btn">
+                      Delete
+                    </button>
+                  </form>
+                </div>
+              </li>
+              <% }); %>
+            </ul>
+            <% } else { %>
+            <p>No addresses available.</p>
+            <% } %>
+            <button id="add-address-btn" class="add-btn">Add Address</button>
+          </div>
+
+          <!-- Address Form -->
+          <div class="overview-card hidden" id="add-address-form-container">
+            <h3>Add New Address</h3>
+            <form id="add-address-form" method="post">
+              <div class="form-row">
+                <div class="form-group">
+                  <label for="address-type">Address Type:</label>
+                  <input
+                    type="text"
+                    id="address-type"
+                    name="addressType"
+                    required
+                  />
+                </div>
+                <div class="form-group">
+                  <label for="address-name">Name:</label>
+                  <input type="text" id="address-name" name="name" required />
+                </div>
+              </div>
+
+              <div class="form-row">
+                <div class="form-group">
+                  <label for="address-city">City:</label>
+                  <input type="text" id="address-city" name="city" required />
+                </div>
+                <div class="form-group">
+                  <label for="address-landmark">Landmark:</label>
+                  <input type="text" id="address-landmark" name="landmark" />
+                </div>
+              </div>
+
+              <div class="form-row">
+                <div class="form-group">
+                  <label for="address-district">District:</label>
+                  <input
+                    type="text"
+                    id="address-district"
+                    name="district"
+                    required
+                  />
+                </div>
+                <div class="form-group">
+                  <label for="address-state">State:</label>
+                  <input type="text" id="address-state" name="state" required />
+                </div>
+              </div>
+
+              <div class="form-row">
+                <div class="form-group">
+                  <label for="address-pincode">Pincode:</label>
+                  <input
+                    type="text"
+                    id="address-pincode"
+                    name="pincode"
+                    required
+                    pattern="\d{6}"
+                    title="Pincode must be 6 digits."
+                  />
+                </div>
+                <div class="form-group">
+                  <label for="address-phone">Phone:</label>
+                  <input
+                    type="tel"
+                    id="address-phone"
+                    name="phone"
+                    required
+                    pattern="\d{10}"
+                    title="Phone number must be 10 digits."
+                  />
+                </div>
+              </div>
+
+              <div class="form-row">
+                <div class="form-group">
+                  <label for="address-alt-phone">Alternate Phone:</label>
+                  <input
+                    type="tel"
+                    id="address-alt-phone"
+                    name="alternativePhone"
+                    pattern="\d{10}"
+                    title="Phone number must be 10 digits."
+                  />
+                </div>
+              </div>
+
+              <div class="form-actions">
+                <button type="submit" class="submit-btn">Save Address</button>
+                <button
+                  type="button"
+                  id="cancel-address-btn"
+                  class="cancel-btn"
+                >
+                  Cancel
+                </button>
+              </div>
+            </form>
+          </div>
+
+          
+
+
+        </div>
+      </main>
+    </div>
+
+    <%- include('../partials/user/footer')%>
+
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="/user.js"></script>
+    |
+   
+  </body>
+</html>

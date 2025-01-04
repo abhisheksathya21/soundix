@@ -5,29 +5,41 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Account Overview</title>
     <link rel="stylesheet" href="/user-style/userprofile.css" />
-      <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css"
+    />
   </head>
+
   <body>
     <%- include('../partials/user/header')%>
-    <button class="menu-toggle">
-        <i class="fa fa-bars"></i> <!-- Hamburger icon -->
-    </button>
+
+    <button id="openModal" class="open-modal-btn">Open Menu</button>
     <div class="layout">
-      <aside class="sidebar" id="sidebar">
-        <div class="profile">
-          <div class="avatar"></div>
-          <h3><%=user.fullname%></h3>
+    
+    
+
+      <!-- Modal -->
+      <div id="responsiveModal" class="modal">
+        <div class="modal-content">
+          <span class="close-btn">&times;</span>
+          <div class="modal-menu">
+            <a href="/userProfile"
+              ><i class="fa-solid fa-user"></i> Account Overview</a
+            >
+            <a href="/orders"><i class="fa-solid fa-shop"></i> My Orders</a>
+            <a href="/addressManagement"
+              ><i class="fa-solid fa-address-book"></i> Manage Addresses</a
+            >
+            <a href="wallet.html"><i class="fa-solid fa-wallet"></i> Wallet</a>
+            <a href="/password"><i class="fa-solid fa-key"></i> Password</a>
+            <a href="wishlist.html"
+              ><i class="fa-solid fa-heart"></i> Wishlist</a
+            >
+            <button class="logout-btn">Logout</button>
+          </div>
         </div>
-        <nav class="sidebar-nav">
-          <a href="/userProfile" class="active"> <i class="fa-solid fa-user fa-lg" ></i>Account Overview </a>
-          <a href="/orders"><i class="fa-solid fa-shop fa-lg" ></i>My Orders </a>
-          <a href="/addressManagement"> <i class="fa-solid fa-address-book fa-lg" ></i> Manage Addresses </a>
-          <a href="wallet.html"> <i class="fa-solid fa-wallet fa-lg" ></i> Wallet </a>
-          <a href="/password"> <i class="fa-solid fa-key fa-lg" ></i> Password </a>
-          <a href="wishlist.html"> <i class="fa-solid fa-heart fa-lg" ></i> Wishlist </a>
-        </nav>
-        <a href="/logout"><button class="logout-btn">LOGOUT</button></a>
-      </aside>
+      </div>
 
       <main class="main-content">
         <h1>Account Overview</h1>
@@ -102,79 +114,75 @@
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script src="/user.js"></script>
     <script>
-  
+      // Profile edit functionality
+      const editBtn = document.getElementById("edit-profile-btn");
+      const cancelBtn = document.getElementById("cancel-edit-btn");
+      const profileInfo = document.getElementById("profile-info");
+      const editForm = document.getElementById("edit-profile-form");
 
-  // Profile edit functionality
-  const editBtn = document.getElementById("edit-profile-btn");
-  const cancelBtn = document.getElementById("cancel-edit-btn");
-  const profileInfo = document.getElementById("profile-info");
-  const editForm = document.getElementById("edit-profile-form");
+      const nameSpan = document.getElementById("profile-name");
+      const emailSpan = document.getElementById("profile-email");
+      const phoneSpan = document.getElementById("profile-phone");
 
-  const nameSpan = document.getElementById("profile-name");
-  const emailSpan = document.getElementById("profile-email");
-  const phoneSpan = document.getElementById("profile-phone");
+      const nameInput = document.getElementById("edit-name");
+      const emailInput = document.getElementById("edit-email");
+      const phoneInput = document.getElementById("edit-phone");
 
-  const nameInput = document.getElementById("edit-name");
-  const emailInput = document.getElementById("edit-email");
-  const phoneInput = document.getElementById("edit-phone");
+      // Show the edit form when clicking "Edit Profile"
+      editBtn.addEventListener("click", function () {
+        profileInfo.classList.add("hidden");
+        editForm.classList.remove("hidden");
 
-  // Show the edit form when clicking "Edit Profile"
-  editBtn.addEventListener("click", function () {
-    profileInfo.classList.add("hidden");
-    editForm.classList.remove("hidden");
-
-    // Prefill the form fields with current values
-    nameInput.value = nameSpan.textContent.trim();
-    emailInput.value = emailSpan.textContent.trim();
-    phoneInput.value = phoneSpan.textContent.trim();
-  });
-
-  // Cancel editing and revert to profile info view
-  cancelBtn.addEventListener("click", function () {
-    profileInfo.classList.remove("hidden");
-    editForm.classList.add("hidden");
-  });
-
-  // Form submission with validation and SweetAlert
-  editForm.addEventListener("submit", function (e) {
-    e.preventDefault();
-
-    // Validate name
-    if (!/^[A-Za-z\s]{3,}$/.test(nameInput.value)) {
-      Swal.fire({
-        icon: "error",
-        title: "Invalid Name",
-        text: "Name must contain only letters and spaces, and be at least 3 characters long.",
+        // Prefill the form fields with current values
+        nameInput.value = nameSpan.textContent.trim();
+        emailInput.value = emailSpan.textContent.trim();
+        phoneInput.value = phoneSpan.textContent.trim();
       });
-      return;
-    }
 
-    // Validate phone
-    if (!/^\d{10}$/.test(phoneInput.value)) {
-      Swal.fire({
-        icon: "error",
-        title: "Invalid Phone Number",
-        text: "Phone number must be exactly 10 digits.",
+      // Cancel editing and revert to profile info view
+      cancelBtn.addEventListener("click", function () {
+        profileInfo.classList.remove("hidden");
+        editForm.classList.add("hidden");
       });
-      return;
-    }
 
-    // Update profile details dynamically
-    nameSpan.textContent = nameInput.value.trim();
-    phoneSpan.textContent = phoneInput.value.trim();
+      // Form submission with validation and SweetAlert
+      editForm.addEventListener("submit", function (e) {
+        e.preventDefault();
 
-    // Confirmation alert before submission
-    Swal.fire({
-      icon: "success",
-      title: "Profile Updated",
-      text: "Your profile details have been successfully updated.",
-    }).then(() => {
-      // Submit the form to the server
-      editForm.submit();
-    });
-  });
+        // Validate name
+        if (!/^[A-Za-z\s]{3,}$/.test(nameInput.value)) {
+          Swal.fire({
+            icon: "error",
+            title: "Invalid Name",
+            text: "Name must contain only letters and spaces, and be at least 3 characters long.",
+          });
+          return;
+        }
 
+        // Validate phone
+        if (!/^\d{10}$/.test(phoneInput.value)) {
+          Swal.fire({
+            icon: "error",
+            title: "Invalid Phone Number",
+            text: "Phone number must be exactly 10 digits.",
+          });
+          return;
+        }
 
+        // Update profile details dynamically
+        nameSpan.textContent = nameInput.value.trim();
+        phoneSpan.textContent = phoneInput.value.trim();
+
+        // Confirmation alert before submission
+        Swal.fire({
+          icon: "success",
+          title: "Profile Updated",
+          text: "Your profile details have been successfully updated.",
+        }).then(() => {
+          // Submit the form to the server
+          editForm.submit();
+        });
+      });
     </script>
   </body>
 </html>

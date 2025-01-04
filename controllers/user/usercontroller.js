@@ -8,11 +8,11 @@ const bcrypt=require("bcrypt");
 
 
 const pageNotFound= async(req,res)=>{
-    try{
-        res.render('pageNotFound',{user:null})
-    }
-    catch(error){
-        console.error("Error loading 404 page", error);
+    try {
+      res.render("pageNotFound", { user: null });
+    } catch (error) {
+      console.error("Error loading 404 page", error);
+      res.status(500).send("Internal Server Error");
     }
 }
 
@@ -60,60 +60,45 @@ const loadSignup=async(req,res)=>{
     }
 
 }
-const loadlogin=async(req,res)=>{
-    try{
-        console.log( "load signin req.session.user:",req.session.user)
-        if(!req.session.user){
-        return res.render('login',{user:null})
-    }
-    else{
-        res.redirect('/');
-
-    }
-    }
-    catch(error){
+const loadlogin = async (req, res) => {
+    try {
+        const message = req.query.message; // Get the message from the query parameter
+        if (!req.session.user) {
+            return res.render('login', { user: null, message }); // Pass the message to the login page
+        } else {
+            res.redirect('/');
+        }
+    } catch (error) {
         res.redirect('/pageNotFound');
     }
-    
-}
-const login=async(req,res)=>{
-    try{
-        const {email,password}=req.body;
-        console.log(email,password);
-        const findUser=await User.findOne({email});
-        console.log("findUser",findUser)
-        if(!findUser){
-            console.log("user not found")
-            return res.render('login',{message:"User Not Found"})
-        }
-        if(findUser.isBlocked){
-            console.log("user is blocked by the admin ")
-            return res.render('login',{message:"User is blocked by the user"})
-        }
-        const passwordMatch= await bcrypt.compare(password,findUser.password);
-        if(!passwordMatch){
-            console.log("password doesn't match")
-            return res.render('login',{message:"password doesn't match"})
-        }
-        console.log("session user id  before assignment findUser._id",findUser._id)
-        req.session.user=findUser._id;
-        console.log("session user id  after assignment req.session.user",req.session.user)
-        console.log("req session user",req.session.user)
-        console.log("finduser_id",findUser._id);
-        console.log("user found and logined Successfully")
-        res.redirect('/');
+};
 
+
+const login = async (req, res) => {
+  try {
+    const { email, password } = req.body;
+    const findUser = await User.findOne({ email });
+
+    if (!findUser) {
+      return res.render("login", { message: "User Not Found" });
     }
-    catch(error){
-        console.log("the login credentials are not correct")
-        res.render('login',{message:"Please try again later"})
-
+    if (findUser.isBlocked) {
+      return res.render("login", { message: "User is blocked by the admin" });
     }
-    
 
+    const passwordMatch = await bcrypt.compare(password, findUser.password);
+    if (!passwordMatch) {
+      return res.render("login", { message: "Password doesn't match" });
+    }
 
+    req.session.user = findUser._id;
+    res.redirect("/");
+  } catch (error) {
+    console.log("Login error", error);
+    res.render("login", { message: "Please try again later" });
+  }
+};
 
-}
 
 const logout=async(req,res)=>{
     try{
@@ -124,7 +109,7 @@ const logout=async(req,res)=>{
             }
             
                 console.log("the session destroyed succesfully");
-                return res.redirect('/login');
+                return res.redirect('/login?message=You have been logged out successfully');
             
         })
 
@@ -173,55 +158,57 @@ async function sendVerificationEmail(email,otp){
 
 
 
-const signup=async(req,res)=>{
-    try{
-        console.log(req.body)
-        const {fullname,email,phone,password,confirm_password}=req.body;
-        console.log(fullname);
-        console.log(confirm_password);
-        console.log(password)
-        console.log("signup attempt with eamil:",email)
+const signup = async (req, res) => {
+  try {
+    const { fullname, email, phone, password, confirm_password } = req.body;
 
-        if(password!==confirm_password){
-            console.log("password do not match");
-
-            return res.render('signup',{message:"password do not match"});
-        }
-
-
-        const finduser= await User.findOne({email});
-
-
-       if(finduser){
-        console.log("User already exists");
-        return res.render('signup',{user:finduser,message:"user with this email already exsts"})
-       }
-
-
-       const otp=generateOtp();
-       console.log("Generated OTP:", otp); 
-
-       const emailsent=await sendVerificationEmail(email,otp);
-
-
-       if(!emailsent){
-        console.log("Email sending failed");
-        return res.json('email-error')
-       }
-
-
-       req.session.userOtp=otp;
-       req.session.userData={fullname,email,phone,password};
-       console.log("OTP sent and session stored successfully:", otp);
-       res.render('verify-otp');
-       console.log('Otp sent',otp);
+    if (!fullname || !email || !phone || !password || !confirm_password) {
+      console.log("All fields are required");
+      return res.render("signup", { message: "All fields are required" });
     }
-    catch(error){
-        console.log("signup error",error)
-        res.redirect("/pageNotFound")
 
+    if (password !== confirm_password) {
+      console.log("Passwords do not match");
+      return res.render("signup", { message: "Passwords do not match" });
     }
-}
+
+    console.log("Signup attempt with email:", email);
+
+    // Check if user already exists
+    const finduser = await User.findOne({ email });
+    if (finduser) {
+      console.log("User already exists");
+      return res.render("signup", {
+        user: finduser,
+        message: "User with this email already exists",
+      });
+    }
+
+    const otp = generateOtp();
+    console.log("Generated OTP:", otp);
+
+    // Send verification email
+    const emailsent = await sendVerificationEmail(email, otp);
+    if (!emailsent) {
+      console.log("Email sending failed");
+      return res.json({ error: "Email sending failed" });
+    }
+
+    // Store OTP and user data in session
+    req.session.userOtp = otp;
+    req.session.userData = { fullname, email, phone, password };
+    console.log("OTP sent and session stored successfully:", otp);
+
+    // Notify user OTP was sent successfully
+    res.render("verify-otp", {
+      message: "OTP sent successfully to your email.",
+    });
+  } catch (error) {
+    console.error("Signup error:", error);
+    res.redirect("/pageNotFound");
+  }
+};
+
 
 
 

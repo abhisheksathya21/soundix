@@ -12,77 +12,63 @@
   </head>
   <body>
     <%- include('../partials/user/header')%>
-    <button class="menu-toggle">
-      <i class="fa fa-bars"></i>
-      <!-- Hamburger icon -->
-    </button>
+    <button id="openModal" class="open-modal-btn">Open Menu</button>
     <div class="layout">
-      <aside class="sidebar" id="sidebar">
-        <div class="profile">
-          <div class="avatar"></div>
-          <span class="profile-name"><%=user.fullname%></span>
+      <!-- Sidebar -->
+      <!-- Trigger Button -->
+
+      <!-- Modal -->
+      <div id="responsiveModal" class="modal">
+        <div class="modal-content">
+          <span class="close-btn">&times;</span>
+          <div class="modal-menu">
+            <a href="/userProfile"
+              ><i class="fa-solid fa-user"></i> Account Overview</a
+            >
+            <a href="/orders"><i class="fa-solid fa-shop"></i> My Orders</a>
+            <a href="/addressManagement"
+              ><i class="fa-solid fa-address-book"></i> Manage Addresses</a
+            >
+            <a href="wallet.html"><i class="fa-solid fa-wallet"></i> Wallet</a>
+            <a href="/password"><i class="fa-solid fa-key"></i> Password</a>
+            <a href="wishlist.html"
+              ><i class="fa-solid fa-heart"></i> Wishlist</a
+            >
+            <button class="logout-btn">Logout</button>
+          </div>
         </div>
-        <nav class="sidebar-nav">
-          <a href="/userProfile">
-            <i class="fa-solid fa-user fa-lg"></i>Account Overview
-          </a>
-          <a href="/orders"><i class="fa-solid fa-shop fa-lg"></i>My Orders </a>
-          <a href="/addressManagement" class="active">
-            <i class="fa-solid fa-address-book fa-lg"></i> Manage Addresses
-          </a>
-          <a href="wallet.html">
-            <i class="fa-solid fa-wallet fa-lg"></i> Wallet
-          </a>
-          <a href="/password">
-            <i class="fa-solid fa-key fa-lg"></i> Password
-          </a>
-          <a href="wishlist.html">
-            <i class="fa-solid fa-heart fa-lg"></i> Wishlist
-          </a>
-        </nav>
-        <a href="/logout"><button class="logout-btn">LOGOUT</button></a>
-      </aside>
+      </div>
       <main class="main-content">
         <h1>Manage Address</h1>
         <div class="overview-grid">
           <!-- Address Details Section -->
           <div class="overview-card" id="address-details">
             <h2>Address Details</h2>
-            <% if (locals.userAddress.address && userAddress.address.length > 0)
-            { %>
+            <% if (userAddress && userAddress.address &&
+            userAddress.address.length > 0) { %>
+
             <ul id="address-list">
               <% userAddress.address.forEach((address, index) => { %>
               <li class="address-item">
-                <p>Type: <span><%= address.addressType %></span></p>
-                <p>Name: <span><%= address.name %></span></p>
-                <p>City: <span><%= address.city %></span></p>
-                <p>Landmark: <span><%= address.landmark %></span></p>
-                <p>District: <span><%= address.district %></span></p>
-                <p>State: <span><%= address.state %></span></p>
-                <p>Pincode: <span><%= address.pincode %></span></p>
-                <p>Phone: <span><%= address.phone %></span></p>
-                <p>
-                  Alternate Phone:
-                  <span><%= address.alternativePhone || 'N/A' %></span>
-                </p>
+                <span><%= address.addressType %></span>,
+                <span><%= address.name %></span>,
+                <span><%= address.city %></span>,
+                <span><%= address.landmark %></span>,
+                <span><%= address.district %></span>,
+                <span><%= address.state %></span>,
+                <span><%= address.pincode %></span>,
+                <span><%= address.phone %></span>,
+
+                <span><%= address.alternativePhone || 'N/A' %></span>
+
                 <div class="address-actions">
                   <button class="edit-address-btn" data-index="<%= index %>">
-                    Edit
+                    <a href="/editAddress?id=<%=address._id%>">Edit</a>
                   </button>
-                  <form
-                    method="post"
-                    action="/deleteAddress"
-                    class="delete-address-form"
-                  >
-                    <input
-                      type="hidden"
-                      name="addressIndex"
-                      value="<%= index %>"
-                    />
-                    <button type="submit" class="delete-address-btn">
-                      Delete
-                    </button>
-                  </form>
+
+                  <button type="submit" class="delete-address-btn">
+                    <a href="/deleteAddress?id=<%=address._id%>">Delete</a>
+                  </button>
                 </div>
               </li>
               <% }); %>
@@ -193,7 +179,7 @@
         </div>
       </main>
     </div>
-
+    <hr />
     <%- include('../partials/user/footer')%>
 
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>

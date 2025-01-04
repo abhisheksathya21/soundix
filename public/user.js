@@ -1,30 +1,31 @@
     document.addEventListener("DOMContentLoaded", function () {
-  // Hide preloader after 2 seconds
-  setTimeout(() => {
-    const preloader = document.getElementById("preloader-active");
-    if (preloader) {
-      preloader.style.display = "none";
-    }
-  }, 2000);
+      // Hide preloader after 2 seconds
+      setTimeout(() => {
+        const preloader = document.getElementById("preloader-active");
+        if (preloader) {
+          preloader.style.display = "none";
+        }
+      }, 2000);
 
-  // Sidebar toggle functionality
-  const sidebar = document.getElementById("sidebar");
-  const menuToggle = document.querySelector(".menu-toggle");
+      // Get modal and buttons
+      const modal = document.getElementById("responsiveModal");
+      const openModalBtn = document.getElementById("openModal");
+      const closeModalBtn = document.querySelector(".close-btn");
 
-  // Toggle sidebar on mobile view
-  menuToggle.addEventListener("click", function () {
-    sidebar.classList.toggle("active");
-  });
+      // Open modal on button click
+      openModalBtn.addEventListener("click", () => {
+        modal.style.display = "block";
+      });
 
-  // Close sidebar if clicking outside of it on mobile
-  document.addEventListener("click", function (event) {
-    if (
-      window.innerWidth <= 768 &&
-      !sidebar.contains(event.target) &&
-      !menuToggle.contains(event.target) &&
-      sidebar.classList.contains("active")
-    ) {
-      sidebar.classList.remove("active");
-    }
-  });
+      // Close modal on 'X' button click
+      closeModalBtn.addEventListener("click", () => {
+        modal.style.display = "none";
+      });
+
+      // Close modal on outside click
+      window.addEventListener("click", (event) => {
+        if (event.target === modal) {
+          modal.style.display = "none";
+        }
+      });
     })

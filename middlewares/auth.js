@@ -1,27 +1,36 @@
 const User=require('../models/userSchema');
 
-const UserAuth=async (req,res,next)=>{
-    try{
-        console.log("user Auth session checking",req.session.user);
-         if(req.session.user){
-        const data=await User.findById(req.session.user);
-    
-        if(data && !data.isBlocked){
-               console.log("data");
-           return  next();
-        }
-    }
-    else{
-        res.redirect('/login');
-    }
+const UserAuth = async (req, res, next) => {
+  try {
+    console.log("User Auth session checking", req.session.user);
 
+    if (req.session.user) {
+      const user = await User.findById(req.session.user);
+
+      // Check if user exists and is not blocked
+      if (user && !user.isBlocked) {
+        console.log("User is authenticated and not blocked");
+        return next();
+      } else {
+        console.log("User is blocked, logging out");
+        req.session.destroy((err) => {
+          if (err) {
+            console.error("Error while destroying session:", err);
+          }
+          res.redirect("/login?message=Your account has been blocked.");
+        });
+        return; 
+      }
+    } else {
+      console.log("User not authenticated, redirecting to login");
+      res.redirect("/login"); 
     }
-    catch(error){
-        console.error("Error in userAuth middleware:", error);
-        res.status(500).send("Internal Server Error");
-    }
-   
-}
+  } catch (error) {
+    console.error("Error in UserAuth middleware:", error);
+    res.status(500).send("Internal Server Error");
+  }
+};
+
 
 
 const AdminAuth=async(req,res,next)=>{

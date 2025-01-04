@@ -1,0 +1,151 @@
+:root {
+    --adidas-black: #000000;
+    --adidas-white: #FFFFFF;
+    --adidas-gray: #767677;
+}
+
+body, html {
+    margin: 0;
+    padding: 0;
+    font-family: Arial, sans-serif;
+    background-color: var(--adidas-white);
+    color: var(--adidas-black);
+}
+
+#main-header {
+    background-color: var(--adidas-black);
+    color: var(--adidas-white);
+    padding: 1rem;
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 1000;
+}
+
+.container {
+    display: flex;
+    margin-top: 60px; /* Adjust based on your header height */
+}
+
+.sidebar {
+    background-color: var(--adidas-black);
+    color: var(--adidas-white);
+    width: 250px;
+    height: calc(100vh - 60px); /* Adjust based on your header height */
+    position: fixed;
+    left: 0;
+    top: 60px; /* Adjust based on your header height */
+    padding: 20px;
+    box-sizing: border-box;
+    overflow-y: auto;
+}
+
+.profile {
+    text-align: center;
+    margin-bottom: 30px;
+}
+
+.avatar {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    background-color: var(--adidas-gray);
+    margin: 0 auto 10px;
+}
+
+.profile-name {
+    font-size: 18px;
+    font-weight: bold;
+}
+
+.sidebar-nav a {
+    display: block;
+    color: var(--adidas-white);
+    text-decoration: none;
+    padding: 10px 0;
+    transition: background-color 0.2s;
+}
+
+.sidebar-nav a:hover,
+.sidebar-nav a.active {
+    background-color: var(--adidas-gray);
+}
+
+.sidebar-nav i {
+    margin-right: 10px;
+    width: 20px;
+    text-align: center;
+}
+
+.logout-btn {
+    background-color: var(--adidas-white);
+    color: var(--adidas-black);
+    border: none;
+    padding: 10px 20px;
+    font-size: 16px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: background-color 0.2s;
+    width: 100%;
+    margin-top: 20px;
+}
+
+.logout-btn:hover {
+    background-color: var(--adidas-gray);
+    color: var(--adidas-white);
+}
+
+#main-content {
+    margin-left: 250px;
+    padding: 20px;
+    flex-grow: 1;
+}
+
+.content-section {
+    display: none;
+}
+
+.content-section.active {
+    display: block;
+}
+
+/* Responsive styles */
+@media (max-width: 768px) {
+    .container {
+        flex-direction: column;
+    }
+
+    .sidebar {
+        width: 100%;
+        height: auto;
+        position: static;
+        padding: 10px;
+    }
+
+    #main-content {
+        margin-left: 0;
+        padding: 10px;
+    }
+
+    .menu-toggle {
+        display: block;
+        position: fixed;
+        top: 70px; /* Adjust based on your header height */
+        right: 20px;
+        z-index: 1001;
+        background: none;
+        border: none;
+        font-size: 30px;
+        color: var(--adidas-black);
+        cursor: pointer;
+    }
+
+    .sidebar {
+        display: none;
+    }
+
+    .sidebar.open {
+        display: block;
+    }
+}
