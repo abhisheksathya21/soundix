@@ -22,13 +22,14 @@ body {
 .split-container {
     display: flex;
     width: 90%;
-    max-width: 1500px;
+    max-width: 1200px;
     margin: 0 auto;
     background: white;
     border-radius: 20px;
     overflow: hidden;
     box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
-    height: 80vh;
+    height: auto;
+     flex-wrap: wrap;
     transition: transform 0.3s ease, box-shadow 0.3s ease;
 }
 
@@ -47,7 +48,9 @@ body {
     justify-content: center;
     position: relative;
     overflow: hidden;
+    min-height: 300px; /* Ensure minimum height for smaller screens */
 }
+
 
 .left-side::before {
     content: '';
@@ -85,12 +88,19 @@ body {
     flex: 1;
     padding: 60px 40px;
     background: white;
+
+    /* Flexbox styles to center the content */
+    display: flex;
+    justify-content: center; /* Center horizontally */
+    align-items: center;    /* Center vertically */
 }
 
 .login-form {
     max-width: 400px;
-    margin: 0 auto;
+    width: 100%; /* Ensure responsiveness */
     padding: 20px;
+    border-radius: 8px; /* Optional: Rounded corners */
+    
 }
 
 .form-header {
@@ -99,19 +109,18 @@ body {
 }
 
 .form-header h1 {
-    font-size: 2.4rem;
+    font-size: 2rem;
     font-weight: bold;
     color: #212529;
-    letter-spacing: 1px;
-    line-height: 1.5;
 }
+
 .form-header h3 {
-    font-size: 1.5rem;
+    font-size: 1rem;
     font-weight: bold;
     color: #212529;
-    letter-spacing: 1px;
-    line-height: 1.3;
+     line-height: 1.3;
 }
+
 
 .form-group {
     margin-bottom: 20px;
@@ -249,3 +258,18 @@ body {
   .swal2-container {
     margin-top: 20px !important; /* Add a margin from the top of the screen */
   }
+  .forgot-password {
+  margin: 10px 0;
+  text-align: right;
+  
+}
+
+.forgot-password a {
+  color: #007bff;
+  text-decoration: none;
+  font-size: 14px;
+}
+
+.forgot-password a:hover {
+  text-decoration: underline;
+}

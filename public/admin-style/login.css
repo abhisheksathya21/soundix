@@ -22,13 +22,14 @@ body {
 .split-container {
     display: flex;
     width: 90%;
-    max-width: 1500px;
+    max-width: 1200px;
     margin: 0 auto;
     background: white;
     border-radius: 20px;
     overflow: hidden;
     box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
-    height: 80vh;
+    height: auto;
+     flex-wrap: wrap;
     transition: transform 0.3s ease, box-shadow 0.3s ease;
 }
 
@@ -85,12 +86,19 @@ body {
     flex: 1;
     padding: 60px 40px;
     background: white;
+
+    /* Flexbox styles to center the content */
+    display: flex;
+    justify-content: center; /* Center horizontally */
+    align-items: center;    /* Center vertically */
 }
 
 .login-form {
     max-width: 400px;
-    margin: 0 auto;
+    width: 100%; /* Ensure responsiveness */
     padding: 20px;
+    border-radius: 8px; /* Optional: Rounded corners */
+    
 }
 
 .form-header {

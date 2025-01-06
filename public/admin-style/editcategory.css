@@ -70,9 +70,31 @@ h1 {
   transform: translateY(-2px);
 }
 
+/* Cancel Button Styles */
+.edit-category-form .btn-secondary {
+  background-color: #6c757d;
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  padding: 10px 20px;
+  font-size: 1rem;
+  transition: background-color 0.3s ease, transform 0.2s ease;
+}
+
+.edit-category-form .btn-secondary:hover {
+  background-color: #5a6268;
+  transform: translateY(-2px);
+}
+
 /* Textarea Styles */
 .edit-category-form textarea {
   resize: none;
+}
+
+/* Flexbox Layout for Buttons */
+.edit-category-form .d-flex {
+  display: flex;
+  justify-content: space-between;
 }
 
 /* Responsive Design */
@@ -89,4 +111,17 @@ h1 {
     font-size: 0.9rem;
     padding: 8px 16px;
   }
+
+  .edit-category-form .btn-secondary {
+    font-size: 0.9rem;
+    padding: 8px 16px;
+  }
+}
+
+.error-message {
+  color: red;
+  font-size: 0.875rem;
+  margin-top: 5px;
+  padding: 2px 0;
+  display: none;
 }

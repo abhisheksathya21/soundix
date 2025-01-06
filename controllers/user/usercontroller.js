@@ -121,10 +121,15 @@ const logout=async(req,res)=>{
     }
 }
 
+
+
+//otp generator
 function generateOtp(){
     return Math.floor(100000 +Math.random()*900000).toString();
 }
 
+
+//Signup verification email
 async function sendVerificationEmail(email,otp){
     try{
         const transporter=nodemailer.createTransport({
@@ -142,8 +147,8 @@ async function sendVerificationEmail(email,otp){
             from: process.env.NODEMAILER_EMAIL,
             to: email,
             subject: "Verify your account",
-            text: `Your OTP is ${otp}`,
-            html: `<b>Your OTP: ${otp}</b>`,
+            text: `<b><h1>Your OTP is ${otp}</h1><b>`,
+            html: `<b><h3>Your OTP: ${otp}</h3></b>`,
         });
         
         return info.accepted.length>0
@@ -156,6 +161,165 @@ async function sendVerificationEmail(email,otp){
     }
 }
 
+//Email for forgot password reset 
+
+async function resetPasswordEmail(email, otp) {
+  try {
+    const transporter = nodemailer.createTransport({
+      service: "gmail",
+      port: 587,
+      secure: false,
+      requireTLS: true,
+      auth: {
+        user: process.env.NODEMAILER_EMAIL,
+        pass: process.env.NODEMAILER_PASSWORD,
+      },
+    });
+
+    const info = await transporter.sendMail({
+      from: process.env.NODEMAILER_EMAIL,
+      to: email,
+      subject: "OTP for your password reset",
+      text: `<b><h1>Your OTP is ${otp}</h1><b>`,
+      html: `<b><h3>Your OTP: ${otp}</h3></b>`,
+    });
+
+    return info.accepted.length > 0;
+  } catch (error) {
+    console.error("Error sending email", error);
+    return false;
+  }
+}
+
+const loadforgot=async(req,res)=>{
+  try{
+    const message=req.query.message;
+    return res.render('forgot-password',{message});
+  }
+  catch(error){
+    console.log("error occured while loading forgot password")
+  }
+}
+
+const emailvalid=async(req,res)=>{
+  try{
+  
+    const {email}=req.body;
+   
+    const findUser = await User.findOne({email:email});
+    if(findUser){
+      const otp = generateOtp();
+      const emailSent = await resetPasswordEmail(email,otp)
+      if(emailSent){
+        req.session.email=email;
+        req.session.userPassOtp=otp;
+        res.render("forgot-PassOtp",{message:'OTP sent successfully to your email'});
+        console.log("Reset Password Otp :",otp);
+      }
+      else{
+        res.redirect("/forgot-password?message=Failed to send otp please try again");
+        console.log("failed to sent otp");
+      }
+    }
+    else{
+      res.render('forgot-password',{message:"User with this email does not exist"})
+    }
+
+  }
+  catch(error){
+    console.error("forgot pasword otp sent error:", error);
+    res.redirect("/pageNotFound");
+
+  }
+  
+}
+
+const PassresendOtp = async (req, res) => {
+  try {
+    const email = req.session.email;
+
+    // Check if email is present in the session
+    if (!email) {
+      return res.status(400).json({
+        success: false,
+        message: "Email not found in session. Please restart the process.",
+      });
+    }
+
+    // Generate a new OTP and update the session
+    const otp = generateOtp();
+    req.session.userPassOtp = otp;
+
+    // Resend the OTP via email
+    const emailSent = await resetPasswordEmail(email, otp);
+    if (emailSent) {
+      console.log("Resend OTP:", otp);
+      return res.status(200).json({
+        success: true,
+        message: "OTP resent successfully. Please check your email.",
+      });
+    } else {
+      return res.status(500).json({
+        success: false,
+        message: "Failed to resend OTP. Please try again.",
+      });
+    }
+  } catch (error) {
+    console.error("Error resending OTP:", error);
+    res.status(500).json({
+      success: false,
+      message: "Internal Server Error. Please try again.",
+    });
+  }
+};
+
+const verifyPassOtp = async (req, res) => {
+  try {
+    const { otpInput } = req.body;
+
+    // Check if the OTP exists in the session
+    if (!req.session.userPassOtp) {
+      return res.status(400).json({
+        success: false,
+        message: "Session expired. Please request a new OTP.",
+      });
+    }
+
+    // Compare the input OTP with the session OTP
+    if (otpInput === req.session.userPassOtp) {
+      // OTP verified successfully
+      console.log("OTP verified successfully");
+      req.session.userPassOtp = null; // Clear OTP from session for security
+      return res.status(200).json({
+        success: true,
+        message: "OTP verified successfully. You may proceed.",
+      });
+    } else {
+      // Incorrect OTP
+      console.log("Invalid OTP");
+      return res.status(400).json({
+        success: false,
+        message: "Invalid OTP. Please try again.",
+      });
+    }
+  } catch (error) {
+    console.error("Error verifying OTP:", error);
+    res.status(500).json({
+      success: false,
+      message: "Internal Server Error. Please try again.",
+    });
+  }
+};
+
+const loadresetPassword=async(req,res)=>{
+  try{
+      return res.render("reset-password");
+  }
+  catch(error){
+    console.log("reset password page load errorr ")
+
+  }
+}
 
 
 const signup = async (req, res) => {
@@ -258,30 +422,83 @@ const verifyOtp = async (req, res) => {
 };
 
 
-const resendOtp=async (req,res)=>{
-    try{
-        const {email}=req.session.userData;
-        if(!email){
-            return res.status(400).json({success:false,message:"Email not found  in session"});
-        }
-        const otp=generateOtp();
-        req.session.userOtp=otp;
-        const emailSent= await sendVerificationEmail(email,otp);
-        if(emailSent){
-            console.log("resend OTP:",otp);
-            res.status(200).json({success:true,message:"OTP resend Successfully"})
-        }
-        else{
-            res.status(500).json({success:false,message:"Failed to Resend OTP. Please try again "})
-        }
+const resendOtp = async (req, res) => {
+  try {
+    const { email } = req.session.userData;
+    if (!email) {
+      return res
+        .status(400)
+        .json({ success: false, message: "Email not found  in session" });
     }
-    catch(error){
-        console.log("Error resending OTP",error);
-        res.status(500).json({success:false,message:"Internal Server Erorr.Please try again"})
+    const otp = generateOtp();
+    req.session.userOtp = otp;
+    const emailSent = await sendVerificationEmail(email, otp);
+    if (emailSent) {
+      console.log("resend OTP:", otp);
+      res
+        .status(200)
+        .json({ success: true, message: "OTP resend Successfully" });
+    } else {
+      res
+        .status(500)
+        .json({
+          success: false,
+          message: "Failed to Resend OTP. Please try again ",
+        });
     }
-}
+  } catch (error) {
+    console.log("Error resending OTP", error);
+    res
+      .status(500)
+      .json({
+        success: false,
+        message: "Internal Server Erorr.Please try again",
+      });
+  }
+};
 
-const loadShopPage = async (req, res) => {
+
+const resetPassword = async (req, res) => {
+  try {
+   
+    const email = req.session.email;
+    console.log("Email from session:", email);
+    const {newPassword}=req.body;
+
+    if (!email) {
+      return res.status(400).json({
+        success: false,
+        message: "Email not found in session",
+      });
+    }
+
+    const user = await User.findOne({ email: email });
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        message: "User not found",
+      });
+    }
+
+    const hashedPassword = await bcrypt.hash(newPassword, 10);
+    await User.updateOne(
+      { email: email },
+      { $set: { password: hashedPassword } }
+    );
+
+    delete req.session.email;
+    delete req.session.userOtp;
+
+   return res.redirect('/login?message=Password updated Successfully');
+  } catch (error) {
+    console.error("Error in password reset:", error);
+    return res.status(500).json({
+      success: false,
+      message: "Internal server error. Please try again later",
+    });
+  }
+};
+const loadShopPage = async (req, res) => { 
   try {
     const userId = req.session.user;
     const categories = await Category.find({ isListed: true });
@@ -351,17 +568,21 @@ const loadShopPage = async (req, res) => {
 
 
 
-module.exports={
-     loadhomepage,
-     pageNotFound,
-     loadSignup,
-     signup,
-     verifyOtp,
-     resendOtp,
-     loadlogin,
-     login,
-     logout,
-     loadShopPage
- 
-     
-}
+module.exports = {
+  loadhomepage,
+  pageNotFound,
+  loadSignup,
+  signup,
+  verifyOtp,
+  resendOtp,
+  loadlogin,
+  login,
+  logout,
+  loadShopPage,
+  loadforgot,
+  emailvalid,
+  verifyPassOtp,
+  PassresendOtp,
+  loadresetPassword,
+  resetPassword,
+};

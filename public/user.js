@@ -1,11 +1,21 @@
     document.addEventListener("DOMContentLoaded", function () {
-      // Hide preloader after 2 seconds
-      setTimeout(() => {
-        const preloader = document.getElementById("preloader-active");
-        if (preloader) {
-          preloader.style.display = "none";
-        }
-      }, 2000);
+      // Wait for the window to fully load
+      window.onload = function () {
+        // Add an artificial delay (e.g., 2 seconds)
+        setTimeout(function () {
+          // Get the preloader element
+          var preloader = document.getElementById("preloader-active");
+
+          // Add a fade-out effect
+          preloader.style.transition = "opacity 0.6s";
+          preloader.style.opacity = 0;
+
+          // Remove the preloader from the DOM after the fade-out
+          setTimeout(function () {
+            preloader.style.display = "none";
+          }, 600); // Match this timeout with the transition duration
+        }, 2000); // Add delay here (2000ms = 2 seconds)
+      };
 
       // Get modal and buttons
       const modal = document.getElementById("responsiveModal");

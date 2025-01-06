@@ -1,81 +1,235 @@
- body, html {
-            height: 100%;
-            margin: 0;
-            font-family: 'Nunito Sans', sans-serif;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            background-color: #f8f9fa;
-        }
-        .container {
-            background: #fff;
-            padding: 2rem;
-            border-radius: 0.5rem;
-            box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
-            width: 100%;
-            max-width: 400px;
-        }
-        .heading_s1 h3 {
-            font-size: 1.75rem;
-            font-weight: 700;
-            color: #212529;
-            margin-bottom: 1.5rem;
-            text-align: center;
-        }
-        .form-group {
-            margin-bottom: 1.5rem;
-        }
-        .otp-input-container {
-            display: flex;
-            justify-content: space-between;
-            gap: 0.5rem;
-        }
-        .otp-input {
-            width: 3rem;
-            height: 3rem;
-            font-size: 1.5rem;
-            text-align: center;
-            border: 2px solid #ced4da;
-            border-radius: 0.25rem;
-            transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
-        }
-        .otp-input:focus {
-            border-color: #80bdff;
-            box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
-            outline: none;
-        }
-        .btn {
-            font-weight: 600;
-            padding: 0.5rem 1rem;
-            font-size: 1rem;
-            border-radius: 0.25rem;
-            transition: all 0.15s ease-in-out;
-        }
-        .btn-primary {
-            background-color: #007bff;
-            border-color: #007bff;
-        }
-        .btn-primary:hover {
-            background-color: #0069d9;
-            border-color: #0062cc;
-        }
-        .btn-secondary {
-            background-color: #6c757d;
-            border-color: #6c757d;
-        }
-        .btn-secondary:hover {
-            background-color: #5a6268;
-            border-color: #545b62;
-        }
-        .otp-timer {
-            margin-top: 1rem;
-            font-size: 0.875rem;
-            color: #6c757d;
-        }
-        #timerValue {
-            font-weight: bold;
-        }
-        /* Toast Popup Styling */
+:root {
+  --primary-color: #007bff;
+  --primary-hover: #0056b3;
+  --text-color: #333;
+  --border-color: #e1e1e1;
+  --background-color: #ffffff;
+  --shadow-color: rgba(0, 0, 0, 0.1);
+  --gradient-start: #007bff;
+  --gradient-end: #0056b3;
+}
+
+body {
+  font-family: 'Nunito Sans', sans-serif;
+  background-color: #f5f5f5;
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0;
+  padding: 20px;
+}
+
+.container {
+  background: var(--background-color);
+  padding: 2.5rem;
+  border-radius: 12px;
+  box-shadow: 0 8px 24px var(--shadow-color);
+  width: 100%;
+  max-width: 400px;
+}
+
+.heading_s1 {
+  text-align: center;
+  margin-bottom: 2rem;
+}
+
+.heading_s1 h3 {
+  font-size: 2rem;
+  font-weight: 700;
+  color: var(--text-color);
+  margin: 0;
+}
+
+.form-label {
+  font-weight: 600;
+  color: var(--text-color);
+  margin-bottom: 0.5rem;
+  display: block;
+}
+
+.otp-input-container {
+  display: flex;
+  gap: 10px;
+  justify-content: center;
+  margin-bottom: 1.5rem;
+}
+
+.otp-input {
+  width: 45px;
+  height: 45px;
+  padding: 0;
+  border: 2px solid var(--border-color);
+  border-radius: 8px;
+  text-align: center;
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: var(--text-color);
+  transition: all 0.3s ease;
+}
+
+.otp-input:focus {
+  border-color: var(--primary-color);
+  box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.25);
+  outline: none;
+}
+
+/* Updated Button Styles */
+.btn {
+  width: 100%;
+  font-weight: 600;
+  padding: 1rem 1.5rem;
+  border-radius: 8px;
+  transition: all 0.3s ease;
+  font-size: 1rem;
+  cursor: pointer;
+  border: none;
+  position: relative;
+  overflow: hidden;
+}
+
+.btn::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: rgba(255, 255, 255, 0.1);
+  transition: all 0.5s ease;
+}
+
+.btn:hover::before {
+  left: 100%;
+}
+
+.btn-primary {
+  background: linear-gradient(135deg, var(--gradient-start), var(--gradient-end));
+  color: white;
+  box-shadow: 0 4px 15px rgba(0, 123, 255, 0.3);
+}
+
+.btn-primary:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(0, 123, 255, 0.4);
+}
+
+.btn-primary:active {
+  transform: translateY(0);
+}
+
+.btn-secondary {
+  background: linear-gradient(135deg, #f8f9fa, #e9ecef);
+  color: var(--text-color);
+  border: 1px solid var(--border-color);
+  margin-top: 1rem;
+}
+
+.btn-secondary:not(:disabled):hover {
+  background: linear-gradient(135deg, #e9ecef, #dee2e6);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+}
+
+.btn-secondary:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+  background: #f8f9fa;
+}
+
+/* Timer and Text Styles */
+.otp-timer {
+  color: var(--text-color);
+  font-size: 0.9rem;
+  margin: 1rem 0;
+  text-align: center;
+  font-weight: 500;
+}
+
+#timerValue {
+  color: var(--primary-color);
+  font-weight: 700;
+}
+
+.text-muted {
+  text-align: center;
+  color: #6c757d;
+  margin-top: 1.5rem;
+  font-size: 0.95rem;
+}
+
+.text-muted a {
+  color: var(--primary-color);
+  text-decoration: none;
+  font-weight: 600;
+  transition: all 0.3s ease;
+}
+
+.text-muted a:hover {
+  color: var(--primary-hover);
+  text-decoration: underline;
+}
+
+/* Responsive Styles */
+@media (max-width: 480px) {
+  .container {
+    padding: 1.5rem;
+  }
+
+  .heading_s1 h3 {
+    font-size: 1.75rem;
+  }
+
+  .otp-input {
+    width: 40px;
+    height: 40px;
+    font-size: 1.1rem;
+  }
+
+  .otp-input-container {
+    gap: 8px;
+  }
+
+  .btn {
+    padding: 0.875rem 1.25rem;
+  }
+}
+
+/* Animation for OTP inputs */
+@keyframes shake {
+  0%, 100% { transform: translateX(0); }
+  25% { transform: translateX(-5px); }
+  75% { transform: translateX(5px); }
+}
+
+.otp-input.error {
+  border-color: #dc3545;
+  animation: shake 0.3s ease-in-out;
+}
+
+/* Add loading state for buttons */
+.btn.loading {
+  position: relative;
+  color: transparent;
+}
+
+.btn.loading::after {
+  content: "";
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 20px;
+  height: 20px;
+  border: 2px solid #ffffff;
+  border-radius: 50%;
+  border-top-color: transparent;
+  animation: spin 0.8s linear infinite;
+  transform: translate(-50%, -50%);
+}
+
+@keyframes spin {
+  to { transform: translate(-50%, -50%) rotate(360deg); }
+}
 .swal2-toast {
     border-radius: 15px;
   }

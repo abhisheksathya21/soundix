@@ -91,6 +91,7 @@
                             <!-- Submit Button -->
                             <div>
                                 <button class="btn btn-primary" type="submit">Update Product</button>
+                                <button type="button" class="btn btn-secondary" id="cancelButton">Cancel</button>
                             </div>
                         </form>
                     </div>
@@ -113,6 +114,16 @@
 
     <script src="https://cdn.jsdelivr.net/npm/cropperjs/dist/cropper.min.js"></script>
     <script>
+        
+          document.getElementById("cancelButton").addEventListener("click", function() {
+        // Redirect to another page (e.g., product list or homepage)
+        window.location.href = '/admin/products';  // Modify this URL as needed
+
+        // Or clear the form (if desired)
+        // document.getElementById('addProductForm').reset();
+    });
+
+
         document.addEventListener('DOMContentLoaded', function() {
     const form = document.getElementById('editProductForm');
     const dropZone = document.getElementById('dropZone');

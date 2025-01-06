@@ -1,37 +1,49 @@
 <%- include("../partials/admin/header") %>
-<link rel="stylesheet" href="/admin-style/editcategory.css">
+<link rel="stylesheet" href="/admin-style/editcategory.css" />
 <main class="main-content" id="mainContent">
   <h1 class="h3 mb-4 text-center">Edit Category</h1>
   <div class="container">
     <div class="row justify-content-center">
       <div class="col-md-6">
-        <form id="editCategoryForm" method="post" action="/admin/editcategory/<%=category._id%>" class="edit-category-form">
-          <h3>Edit Category Details</h3>
-          <div class="mb-4">
-            <label for="product_name" class="form-label">Name</label>
-            <input
-              type="text"
-              name="categoryName"
-              value="<%=category.name%>"
-              class="form-control border shadow-sm"
-              required
-            />
-          </div>
+     <form
+  id="editCategoryForm"
+  method="post"
+  action="/admin/editcategory/<%=category._id%>"
+  class="edit-category-form"
+  onsubmit="return handleEditFormSubmit(event)"
+>
+  <h3>Edit Category Details</h3>
+  <div class="mb-4">
+    <label for="product_name" class="form-label">Name</label>
+    <input
+      type="text"
+      name="categoryName"
+      value="<%=category.name%>"
+      class="form-control border shadow-sm"
+      id="edit_product_name"
+    />
+    <div id="edit-name-error" class="error-message"></div>
+  </div>
 
-          <div class="mb-4">
-            <label class="form-label">Description</label>
-            <textarea
-              name="description"
-              class="form-control border shadow-sm"
-              rows="4"
-              required
-            ><%=category.description%></textarea>
-          </div>
+  <div class="mb-4">
+    <label class="form-label">Description</label>
+    <textarea
+      name="description"
+      class="form-control border shadow-sm"
+      rows="4"
+      id="edit_descriptionId"
+    >
+      <%=category.description%>
+    </textarea>
+    <div id="edit-description-error" class="error-message"></div>
+  </div>
 
-          <div class="d-grid text-end mt-3">
-            <button class="btn btn-primary shadow" type="submit">Update Category</button>
-          </div>
-        </form>
+  <div class="d-grid text-end mt-3 d-flex justify-content-between">
+    <button class="btn btn-primary shadow" type="submit">Update Category</button>
+    <a href="/admin/category" class="btn btn-secondary shadow text-white">Cancel</a>
+  </div>
+</form>
+
       </div>
     </div>
   </div>
@@ -39,52 +51,107 @@
 
 <script src="//cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script>
-  document.getElementById('editCategoryForm').addEventListener('submit', function(event) {
-    event.preventDefault(); 
+  document
+  .getElementById("editCategoryForm")
+  .addEventListener("submit", function (event) {
+    event.preventDefault(); // Prevent default form submission
 
-    const formData = new URLSearchParams(new FormData(this)); 
+    // Clear previous error messages
+    clearErrorMessages();
 
+    const name = document.getElementById('edit_product_name').value.trim();
+    const description = document.getElementById('edit_descriptionId').value.trim();
+
+    let isValid = true;
+
+    // Validate category name
+    if (name === "") {
+      displayErrorMessage("edit-name-error", "Please enter a name.");
+      isValid = false;
+    } else if (name.length < 3 || name.length > 50) {
+      displayErrorMessage("edit-name-error", "Category name must be between 3 and 50 characters.");
+      isValid = false;
+    } else if (!/^[a-zA-Z0-9\s-_]+$/.test(name)) {
+      displayErrorMessage("edit-name-error", "Category name should only contain alphanumeric characters, spaces, underscores, or hyphens.");
+      isValid = false;
+    }
+
+    // Validate category description
+    if (description === "") {
+      displayErrorMessage("edit-description-error", "Please enter a description.");
+      isValid = false;
+    } else if (description.length < 10 || description.length > 500) {
+      displayErrorMessage("edit-description-error", "Description must be between 10 and 500 characters.");
+      isValid = false;
+    }
+
+    // If validation fails, return early
+    if (!isValid) {
+      return;
+    }
+
+    // Form data to be submitted
+    const formData = new URLSearchParams(new FormData(this));
+
+    // Send data via fetch
     fetch(this.action, {
-      method: 'POST',
+      method: "POST",
       headers: {
-        'Content-Type': 'application/x-www-form-urlencoded'
+        "Content-Type": "application/x-www-form-urlencoded",
       },
-      body: formData.toString()
+      body: formData.toString(),
     })
-    .then(response => {
-      if (response.ok) {
-        return response.json();
-      }
-      throw new Error('Network response was not ok.');
-    })
-    .then(data => {
-      if (data.success) {
+      .then((response) => {
+        if (response.ok) {
+          return response.json();
+        }
+        throw new Error("Network response was not ok.");
+      })
+      .then((data) => {
+        if (data.success) {
+          Swal.fire({
+            icon: "success",
+            title: "Updated!",
+            text: data.message,
+            confirmButtonText: "Okay",
+          }).then(() => {
+            window.location.href = "/admin/category";
+          });
+        } else {
+          Swal.fire({
+            icon: "error",
+            title: "Error!",
+            text: data.error || "Failed to update category.",
+            confirmButtonText: "Retry",
+          });
+        }
+      })
+      .catch((error) => {
+        console.error("Error:", error);
         Swal.fire({
-          icon: 'success',
-          title: 'Updated!',
-          text: data.message,
-          confirmButtonText: 'Okay'
-        }).then(() => {
-          window.location.href = '/admin/category';
+          icon: "error",
+          title: "Error!",
+          text: "An error occurred while updating the category.",
+          confirmButtonText: "Retry",
         });
-      } else {
-        Swal.fire({
-          icon: 'error',
-          title: 'Error!',
-          text: data.error || 'Failed to update category.',
-          confirmButtonText: 'Retry'
-        });
-      }
-    })
-    .catch(error => {
-      console.error('Error:', error);
-      Swal.fire({
-        icon: 'error',
-        title: 'Error!',
-        text: 'An error occurred while updating the category.',
-        confirmButtonText: 'Retry'
       });
-    });
   });
+
+
+function displayErrorMessage(elementId, message) {
+  var errorElement = document.getElementById(elementId);
+  errorElement.innerText = message;
+  errorElement.style.display = "block"; // Show the error message
+}
+
+
+function clearErrorMessages() {
+  const errorElements = document.getElementsByClassName('error-message');
+  Array.from(errorElements).forEach((element) => {
+    element.innerHTML = "";
+    element.style.display = "none";
+  });
+}
+
 </script>
 <%- include("../partials/admin/footer") %>

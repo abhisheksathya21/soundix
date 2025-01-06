@@ -155,3 +155,10 @@ h3 {
     flex-wrap: wrap;
   }
 }
+.error-message {
+    color: red;
+    font-size: 0.875rem; /* Slightly smaller font for error messages */
+    margin-top: 5px; /* Add some space between the input field and the error message */
+    padding: 2px 0; /* Add padding for better readability */
+    display: none; /* Start with the message hidden */
+}

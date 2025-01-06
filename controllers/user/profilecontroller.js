@@ -3,6 +3,8 @@ const Category = require("../../models/categorySchema");
 const Address = require("../../models/addressSchema");
 const User = require("../../models/userSchema");
 const bcrypt = require("bcrypt");
+const nodemailer = require("nodemailer");
+const env = require("dotenv").config();
 
 const userProfile = async (req, res) => {
   try {

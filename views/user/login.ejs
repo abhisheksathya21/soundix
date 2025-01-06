@@ -3,21 +3,41 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Login - Audiophile Community</title>
+    <title>Login - Beats</title>
     <link rel="stylesheet" href="/user-style/login.css" />
+    <link rel="stylesheet" href="/user-style/preloader.css">
     <link
       href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"
       rel="stylesheet"
     />
+    <link
+      rel="shortcut icon"
+      type="image/x-icon"s
+      href="assets/img/favicon.ico"
+    />
   </head>
   <body>
+           <!--? Preloader Start -->
+<div id="preloader-active">
+  <div class="preloader">
+    <div class="preloader-inner">
+      <div class="preloader-img pere-text">
+        <img src="assets/img/logo/logo.png" alt="" />
+        <strong>Loading</strong>
+      </div>
+    </div>
+  </div>
+</div>
+<!-- Preloader End -->
+
+
     <div class="login-container">
       <div class="split-container">
         <!-- Left side -->
         <div class="left-side">
           <div class="welcome-content">
             <h2 class="welcome-heading">
-              Already part of our audiophile community?
+              Part of our family?
             </h2>
             <p class="welcome-message">
               Dive into an immersive sound experience with our premium
@@ -62,8 +82,11 @@
               />
               <div class="error-message" id="password-error"></div>
             </div>
-            <!-- Server-side error messages -->
-
+            
+             <!-- Forgotten Password Link -->
+            <div class="forgot-password">
+              <a href="/forgot-password">Forgot Password?</a>
+            </div>
             <!-- Submit Button -->
             <button type="submit" class="btn btn-primary">Sign In</button>
             <div class="register-link">
@@ -87,40 +110,50 @@
     </div>
 
     <script src="/user-scripts/login-validation.js"></script>
-  </body>
-</html>
+<script>
+  // Wait for the DOM to fully load
+  window.addEventListener("load", function () {
+    // Get the preloader element
+    var preloader = document.getElementById("preloader-active");
+
+    // Add a fade-out effect
+    preloader.style.transition = "opacity 0.6s";
+    preloader.style.opacity = 0;
+
+    // Remove the preloader from the DOM after the fade-out
+    preloader.addEventListener("transitionend", function () {
+      preloader.style.display = "none";
+    });
+  });
+</script>
+
+
+
 
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
 <% if (locals.message && message.length > 0) { %>
-<script>
-  document.addEventListener("DOMContentLoaded", function () {
-    Swal.fire({
-      toast: true,
-      position: "top", // Display at the top of the screen
-      icon: "warning", // Icon type: 'warning', 'success', 'info', etc.
-      title: "<%= locals.message %>", // Message from the server
-      showConfirmButton: false, // No confirm button for a toast
-      timer: 5000, // Auto-close after 5 seconds
-      timerProgressBar: true, // Show a progress bar
-      customClass: {
-        popup: "custom-toast", // Custom class for styling
-      },
-    });
-  });
-</script>
+    <script>
+      document.addEventListener("DOMContentLoaded", function () {
+        setTimeout(() => {
+          Swal.fire({
+            toast: true,
+            position: "top",
+            icon: "success",
+            title: "<%= locals.message %>",
+            showConfirmButton: false,
+            timer: 5000,
+            timerProgressBar: true,
+            customClass: {
+              popup: "custom-toast",
+            },
+          });
+        }, 1000); // 1000ms = 1 second delay
+      });
+    </script>
 <%}%>
 
-<script>
-  document.addEventListener("DOMContentLoaded", function () {
-    setTimeout(() => {
-      const preloader = document.getElementById("preloader-active");
-      if (preloader) {
-        preloader.style.display = "none";
-      }
-    }, 2000); // Hides the preloader after 3 seconds
-  });
-</script>
+ 
 
 <script>
   document.addEventListener("DOMContentLoaded", function () {
@@ -174,3 +207,5 @@
     });
   });
 </script>
+ </body>
+</html>

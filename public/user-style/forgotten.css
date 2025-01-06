@@ -4,7 +4,7 @@
     margin: 0;
     padding: 0;
     box-sizing: border-box;
-    font-family: "Josefin Sans", sans-serif;
+    font-family: "Josefin Sans", sans-serif;;
 }
 
 body {
@@ -17,8 +17,6 @@ body {
     display: flex;
     min-height: 100vh;
     align-items: center;
-    justify-content: center; /* Center the container horizontally */
-    padding: 20px; /* Ensure spacing around the edges */
 }
 
 .split-container {
@@ -30,8 +28,8 @@ body {
     border-radius: 20px;
     overflow: hidden;
     box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
-    height: auto; /* Adjust height dynamically */
-    flex-wrap: wrap; /* Allow wrapping for smaller screens */
+    height: auto;
+     flex-wrap: wrap;
     transition: transform 0.3s ease, box-shadow 0.3s ease;
 }
 
@@ -53,6 +51,7 @@ body {
     min-height: 300px; /* Ensure minimum height for smaller screens */
 }
 
+
 .left-side::before {
     content: '';
     position: absolute;
@@ -68,7 +67,7 @@ body {
     text-align: center;
     position: relative;
     z-index: 1;
-    padding: 20px;
+    padding: 40px;
     color: #fff;
 }
 
@@ -87,23 +86,25 @@ body {
 /* Right Side */
 .right-side {
     flex: 1;
-    padding: 40px;
+    padding: 60px 40px;
     background: white;
+
+    /* Flexbox styles to center the content */
     display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
+    justify-content: center; /* Center horizontally */
+    align-items: center;    /* Center vertically */
 }
 
 .login-form {
-    width: 100%;
     max-width: 400px;
-    margin: 0 auto;
+    width: 100%; /* Ensure responsiveness */
     padding: 20px;
+    border-radius: 8px; /* Optional: Rounded corners */
+    
 }
 
 .form-header {
-    margin-bottom: 30px;
+    margin-bottom: 40px;
     text-align: center;
 }
 
@@ -111,13 +112,13 @@ body {
     font-size: 2rem;
     font-weight: bold;
     color: #212529;
+   
 }
-
 .form-header h3 {
     font-size: 1rem;
     font-weight: bold;
     color: #212529;
-     line-height: 1.3;
+    line-height: 1.3;
 }
 
 .form-group {
@@ -126,7 +127,7 @@ body {
 
 .form-control {
     width: 100%;
-    padding: 12px;
+    padding: 14px 18px;
     border: 1px solid #ddd;
     border-radius: 8px;
     font-size: 16px;
@@ -160,6 +161,7 @@ body {
 .btn-primary {
     background: #007bff;
     color: white;
+    
 }
 
 .btn-primary:hover {
@@ -169,7 +171,7 @@ body {
 }
 
 .btn-google {
-    height: 50px;
+   height: 50px; 
     background: #fff;
     color: #757575;
     border: 1px solid #ddd;
@@ -178,8 +180,6 @@ body {
     justify-content: center;
     gap: 10px;
     margin-top: 20px;
-    width: 100%; /* Ensure it fits within the form */
-    padding: 12px;
 }
 
 .btn-google:hover {
@@ -197,16 +197,17 @@ body {
     text-decoration: none;
 }
 
-.register-link a:hover {
-    text-decoration: underline;
-}
-
 /* Error Message */
-.error-message {
+#emailError {
     color: #dc3545;
     font-size: 14px;
     margin-top: 5px;
 }
+.error {
+    border-color: #dc3545; /* Red border for invalid fields */
+    background-color: #ffe5e5; /* Light red background */
+}
+
 
 /* Responsive Styles */
 @media (max-width: 768px) {
@@ -220,23 +221,23 @@ body {
     }
 
     .left-side {
-        padding: 20px;
-        height: 250px; /* Optional fixed height for smaller devices */
+        padding: 40px 20px;
+        height: 300px; /* Optional fixed height for smaller devices */
     }
 
     .right-side {
-        padding: 20px;
+        padding: 40px 20px;
     }
 
     .welcome-heading {
-        font-size: 1.8rem;
+        font-size: 2em;
     }
 
     .welcome-message {
-        font-size: 1rem;
+        font-size: 1em;
     }
 }
-.swal2-toast {
+ .swal2-toast {
     border-radius: 15px;
   }
 
@@ -256,3 +257,18 @@ body {
   .swal2-container {
     margin-top: 20px !important; /* Add a margin from the top of the screen */
   }
+  .forgot-password {
+  margin: 10px 0;
+  text-align: right;
+  
+}
+
+.forgot-password a {
+  color: #007bff;
+  text-decoration: none;
+  font-size: 14px;
+}
+
+.forgot-password a:hover {
+  text-decoration: underline;
+}

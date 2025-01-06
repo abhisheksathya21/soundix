@@ -20,6 +20,18 @@ router.post('/verify-otp',usercontroller.verifyOtp);
 router.post("/resend-otp",usercontroller.resendOtp);
 
 
+//forgot-password
+
+router.get("/forgot-password",usercontroller.loadforgot);
+router.post("/resetPassword", usercontroller.emailvalid);
+
+//forgot password otp verficatoon 
+router.post("/forgot-password/verify-otp", usercontroller.verifyPassOtp);
+router.post("/forgot-password/resend-otp",usercontroller.PassresendOtp);
+router.get('/reset-Password',usercontroller.loadresetPassword);
+//forgot password reset
+
+router.post('/reset-password',usercontroller.resetPassword);
 
 //home page and logout
 router.get('/',UserAuth,usercontroller.loadhomepage);
