@@ -1,134 +1,201 @@
 <%- include('../partials/user/header')%>
-<style>
-     .breadcrumb {
-  display: flex;
-  list-style: none;
-  padding: 0.5rem 1rem;
-  background-color: #000000;
-  /* border-radius: 0.25rem; */
-}
-.breadcrumb-item {
-  margin-right: 0.5rem;
-}
-.breadcrumb-item a {
-  text-decoration: none;
-  color: #00ff80;
-}
-.breadcrumb-item.active {
-  color: #ffffff;
-}
-</style>
+
+<!-- Include SweetAlert2 -->
+<!-- Include SweetAlert2 -->
+<link
+  rel="stylesheet"
+  href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css"
+/>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<link rel="stylesheet" href="/user-style/shop.css" />
 
 <ol class="breadcrumb">
-    <% breadcrumbs.forEach(function(crumb, index) { %>
-      <% if (index === breadcrumbs.length - 1) { %>
-        <li class="breadcrumb-item active" aria-current="page"><%= crumb.name %></li>
-      <% } else { %>
-        <li class="breadcrumb-item">
-          <a href="<%= crumb.url %>"><%= crumb.name %></a>
-        </li>
-      <% } %>
-    <% }); %>
-  </ol>
-    <main>
-      
-        
-        <!-- Latest Products Start -->
-        <section class="popular-items latest-padding">
-            <div class="container">
-                <div class="row product-btn justify-content-between mb-40">
-                    <div class="properties__button">
-                        <!--Nav Button  -->
-                        <nav>                                                      
-                            <div class="nav nav-tabs" id="nav-tab" role="tablist">
-  <a class="nav-item nav-link <%= currentSort === 'newest' ? 'active' : '' %>" href="/shop?sort=newest">Newest Arrivals</a>
-  <a class="nav-item nav-link <%= currentSort === 'priceHighLow' ? 'active' : '' %>" href="/shop?sort=priceHighLow">Price High to Low</a>
-  <a class="nav-item nav-link <%= currentSort === 'priceLowHigh' ? 'active' : '' %>" href="/shop?sort=priceLowHigh">Price Low to High</a>
-  <!-- <a class="nav-item nav-link <%= currentSort === 'popular' ? 'active' : '' %>" href="/shop?sort=popular">Most Popular</a> -->
-  <a class="nav-item nav-link <%= currentSort === 'aToZ' ? 'active' : '' %>" href="/shop?sort=aToZ">A-Z</a>
-  <a class="nav-item nav-link <%= currentSort === 'zToA' ? 'active' : '' %>" href="/shop?sort=zToA">Z-A</a>
-</div>
+  <% breadcrumbs.forEach(function(crumb, index) { %> <% if (index ===
+  breadcrumbs.length - 1) { %>
+  <li class="breadcrumb-item active" aria-current="page"><%= crumb.name %></li>
+  <% } else { %>
+  <li class="breadcrumb-item">
+    <a href="<%= crumb.url %>"><%= crumb.name %></a>
+  </li>
+  <% } %> <% }); %>
+</ol>
 
-
-                        </nav>
-                        <!--End Nav Button  -->
-                    </div>
-                    <!-- Grid and List view -->
-                    <div class="grid-list-view">
-                    </div>
-                    <!-- Select items -->
-                    <div class="select-this">
-                        <form action="#">
-                            
-                        </form>
-                    </div>
-                </div>
-                <!-- Nav Card -->
-                <div class="tab-content" id="nav-tabContent">
-                    <!-- card one -->
-                    <div class="tab-pane fade show active" id="nav-home" role="tabpanel" aria-labelledby="nav-home-tab">
-                        <div class="row">
-                            <%for(i=0;i<products.length;i++){%>
-                            <div class="col-xl-4 col-lg-4 col-md-6 col-sm-6">
-                                <div class="single-popular-items mb-50 text-center">
-                                    <div class="popular-img">
-                                      <img src="<%=products[i].productImage[0]%>" alt="<%=products[i].productName%>" />
-                                        <div class="img-cap">
-                                            <span>Add to cart</span>
-                                        </div>
-                                        <div class="favorit-items">
-                                            <span class="flaticon-heart"></span>
-                                        </div>
-                                    </div>
-                                    <div class="popular-caption">
-                                       <h3>
-                                            <a href="/productDetails?id=<%=products[i]._id%>"><%=products[i].productName%></a>
-                                        </h3>
-                                      <span>&#8377;<%= products[i].salePrice %></span>
-                                    </div>
-                                </div>
-                            </div>
-                        <%}%>
-                        </div>
-                    </div>
-                </div>
-                    
-                   
+<main>
+  <section class="popular-items latest-padding">
+    <div class="container">
+      <div class="row product-btn justify-content-between mb-40">
+        <div class="properties__button">
+          <nav>
+            <div class="nav nav-tabs" id="nav-tab" role="tablist">
+              <a
+                class="nav-item nav-link <%= currentSort === 'newest' ? 'active' : '' %>"
+                href="/shop?sort=newest"
+                >Newest Arrivals</a
+              >
+              <a
+                class="nav-item nav-link <%= currentSort === 'priceHighLow' ? 'active' : '' %>"
+                href="/shop?sort=priceHighLow"
+                >Price High to Low</a
+              >
+              <a
+                class="nav-item nav-link <%= currentSort === 'priceLowHigh' ? 'active' : '' %>"
+                href="/shop?sort=priceLowHigh"
+                >Price Low to High</a
+              >
+              <a
+                class="nav-item nav-link <%= currentSort === 'aToZ' ? 'active' : '' %>"
+                href="/shop?sort=aToZ"
+                >A-Z</a
+              >
+              <a
+                class="nav-item nav-link <%= currentSort === 'zToA' ? 'active' : '' %>"
+                href="/shop?sort=zToA"
+                >Z-A</a
+              >
             </div>
-                <!-- End Nav Card -->
-            </div>
-        </section>
-        <!-- Latest Products End -->
-        <!--? Shop Method Start-->
-        <div class="shop-method-area">
-            <div class="container">
-                <div class="method-wrapper">
-                    <div class="row d-flex justify-content-between">
-                        <div class="col-xl-4 col-lg-4 col-md-6">
-                            <div class="single-method mb-40">
-                                <i class="ti-package"></i>
-                                <h6>Free Shipping Method</h6>
-                                <p>aorem ixpsacdolor sit ameasecur adipisicing elitsf edasd.</p>
-                            </div>
-                        </div>
-                        <div class="col-xl-4 col-lg-4 col-md-6">
-                            <div class="single-method mb-40">
-                                <i class="ti-unlock"></i>
-                                <h6>Secure Payment System</h6>
-                                <p>aorem ixpsacdolor sit ameasecur adipisicing elitsf edasd.</p>
-                            </div>
-                        </div> 
-                        <div class="col-xl-4 col-lg-4 col-md-6">
-                            <div class="single-method mb-40">
-                                <i class="ti-reload"></i>
-                                <h6>Secure Payment System</h6>
-                                <p>aorem ixpsacdolor sit ameasecur adipisicing elitsf edasd.</p>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
+          </nav>
         </div>
-        <!-- Shop Method End-->
-    </main>
-   <%- include('../partials/user/footer')%>
+      </div>
+      <div class="tab-content" id="nav-tabContent">
+        <div class="tab-pane fade show active" id="nav-home" role="tabpanel">
+          <div class="row product-grid">
+            <% for (i = 0; i < products.length; i++) { %>
+            <div class="col-xl-4 col-lg-4 col-md-6 col-sm-6">
+              <div class="product-card">
+                <div class="product-img-wrapper">
+                  <img
+                    src="<%= products[i].productImage[0] %>"
+                    alt="<%= products[i].productName %>"
+                    class="product-img"
+                  />
+                  <div class="product-actions">
+                    <button
+                      class="add-to-cart"
+                      data-product-id="<%= products[i]._id %>"
+                      data-price="<%= products[i].salePrice %>"
+                    >
+                      Add to cart
+                    </button>
+                    <button class="wishlist-btn">
+                      <i class="fas fa-heart"></i>
+                    </button>
+                  </div>
+                </div>
+                <div class="product-info">
+                  <h3 class="product-name">
+                    <a href="/productDetails?id=<%= products[i]._id %>"
+                      ><%= products[i].productName %></a
+                    >
+                  </h3>
+                  <span class="product-price"
+                    >₹<%= products[i].salePrice %></span
+                  >
+                </div>
+              </div>
+            </div>
+            <% } %>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <div class="shop-method-area">
+    <div class="container">
+      <div class="method-wrapper">
+        <div class="row d-flex justify-content-between">
+          <div class="col-xl-4 col-lg-4 col-md-6">
+            <div class="single-method mb-40">
+              <i class="ti-package"></i>
+              <h6>Free Shipping Method</h6>
+              <p>Enjoy free shipping on all orders.</p>
+            </div>
+          </div>
+          <div class="col-xl-4 col-lg-4 col-md-6">
+            <div class="single-method mb-40">
+              <i class="ti-unlock"></i>
+              <h6>Secure Payment System</h6>
+              <p>Your payment information is safe with us.</p>
+            </div>
+          </div>
+          <div class="col-xl-4 col-lg-4 col-md-6">
+            <div class="single-method mb-40">
+              <i class="ti-reload"></i>
+              <h6>Easy Return Policy</h6>
+              <p>Hassle-free returns within 30 days.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</main>
+<script>
+ document.addEventListener("DOMContentLoaded", function () {
+  // Get all add to cart buttons
+  const addToCartButtons = document.querySelectorAll(".add-to-cart");
+
+  addToCartButtons.forEach((button) => {
+    button.addEventListener("click", async function (e) {
+      try {
+        const productId = this.getAttribute("data-product-id");
+        const price = parseFloat(this.getAttribute("data-price"));
+
+        const response = await fetch("/cart-add", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            productId,
+            price,
+            quantity: 1,
+          }),
+        });
+
+        const result = await response.json(); // Parse the response as JSON
+
+        if (!response.ok) {
+          // Backend returned an error
+          throw new Error(result.error || "Failed to add to cart");
+        }
+
+        // Show success toast message
+        Swal.fire({
+          position: "center",
+          icon: "success",
+          title: "Success!",
+          text: "Product added to cart successfully!",
+          showConfirmButton: true,
+          confirmButtonText: "OK",
+        });
+
+        // Optional: Update cart count in header if you have one
+        updateCartCount(result.items.length);
+      } catch (error) {
+        console.error("Error adding to cart:", error);
+
+        // Show error toast message
+        Swal.fire({
+          icon: "error", // Error icon
+          title: "Failed!", // Main title
+          text: error.message, // Use the error message from backend
+          position: "center",
+          showConfirmButton: true,
+          confirmButtonText: "OK",
+        });
+      }
+    });
+  });
+
+  // Optional: Function to update cart count in header
+  function updateCartCount(count) {
+    const cartCountElement = document.querySelector(".cart-count");
+    if (cartCountElement) {
+      cartCountElement.textContent = count;
+    }
+  }
+});
+</script>
+
+<%- include('../partials/user/footer')%>

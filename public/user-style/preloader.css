@@ -21,26 +21,10 @@
 
 .preloader .preloader-img img {
   max-width: 50px;
-  animation: pulse 1.5s infinite ease-in-out;
+  /* No animation applied here */
 }
 
-/* Pulsating animation for the logo */
-@keyframes pulse {
-  0% {
-    transform: scale(1);
-    opacity: 0.9;
-  }
-  50% {
-    transform: scale(1.2);
-    opacity: 0.6;
-  }
-  100% {
-    transform: scale(1);
-    opacity: 0.9;
-  }
-}
-
-/* Loading text animation */
+/* Loading text styles */
 .pere-text strong {
   font-weight: 800;
   color: #dca73a;
@@ -48,11 +32,13 @@
   display: block;
   margin-top: 10px;
   font-size: 14px;
+  position: relative; /* To ensure proper positioning of the dots */
 }
 
 .pere-text strong::after {
-  content: ''; /* Start with no dots */
+  content: '...'; /* The dots will animate */
   display: inline-block;
+  position: absolute;
   animation: dots 1s steps(3, end) infinite;
 }
 

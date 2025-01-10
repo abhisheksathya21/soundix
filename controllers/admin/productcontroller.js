@@ -114,7 +114,7 @@ const geteditProduct=async (req,res)=>{
    console.log("edit product page loaded")
    res.render("edit-product",{
     Product:product,
-    Category:category
+    Category:category,
 
    })
 

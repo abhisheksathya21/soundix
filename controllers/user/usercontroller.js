@@ -347,6 +347,14 @@ const signup = async (req, res) => {
         message: "User with this email already exists",
       });
     }
+    const findphone= await User.findOne({phone});
+    if(findphone){
+      console.log("this phone number alresy  exist");
+      return res.render("signup",{
+        message:"user with this phone number exists"
+      })
+
+    }
 
     const otp = generateOtp();
     console.log("Generated OTP:", otp);

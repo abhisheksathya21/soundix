@@ -5,6 +5,7 @@ const admincontroller=require('../controllers/admin/admincontroller');
 const customercontroller=require('../controllers/admin/customercontroller');
 const categorycontroller=require('../controllers/admin/categorycontroller');
 const productcontroller=require('../controllers/admin/productcontroller');
+const ordercontroller=require('../controllers/admin/ordercontroller');
 const {UserAuth,AdminAuth}=require('../middlewares/auth');
 
 
@@ -55,6 +56,10 @@ router.get('/products',AdminAuth,productcontroller.getAllproducts);
 router.get('/blockProduct',AdminAuth,productcontroller.blockProduct);
 router.get('/UnblockProduct',AdminAuth,productcontroller.UnblockProduct);
 router.get('/editProduct',AdminAuth,productcontroller.geteditProduct);
-router.post('/editProduct/:id',AdminAuth,uploads.array("images", 6), productcontroller.editProduct)
+router.post('/editProduct/:id',AdminAuth,uploads.array("images", 6), productcontroller.editProduct);
+//order lists
+router.get("/orders",AdminAuth, ordercontroller.getAllOrders);
+//order status
+router.post("/update-order-status",AdminAuth,ordercontroller.updateOrderStatus);
 
 module.exports=router;

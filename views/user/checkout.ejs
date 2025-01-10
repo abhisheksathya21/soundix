@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Checkout</title>
+    <link rel="stylesheet" href="/user-style/checkout.css">
+     <link
+      rel="shortcut icon"
+      type="image/x-icon"s
+      href="assets/img/favicon.ico"
+    />
+</head>
+<body>
+    <header>
+        <nav>
+            <ul>
+                <li><a href="/">Home</a></li>
+                <li><a href="/shop">Products</a></li>
+                <li><a href="/cart">Cart</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <div class="container">
+        <h1>Checkout</h1>
+        <div class="progress-bar">
+            <div class="progress-step">
+                <div class="step-number">1</div>
+                <p>Cart</p>
+            </div>
+            <div class="progress-step">
+                <div class="step-number">2</div>
+                <p>Details</p>
+            </div>
+            <div class="progress-step">
+                <div class="step-number">3</div>
+                <p>Payment</p>
+            </div>
+        </div>
+
+        <div class="checkout-grid">
+            <!-- Checkout Details Section -->
+            <div class="checkout-details">
+                <!-- Cart Section -->
+                <div class="section">
+                    <h2>Your Cart</h2>
+                    <% if (cart && cart.items.length > 0) { %>
+                        <% cart.items.forEach(item => { %>
+                            <div class="product-summary">
+                                <img   src="<%= item.product.productImage[0] %>" alt="<%= item.product.productName %>" class="product-image">
+                                <div>
+                                    <h3><%= item.product.productName %></h3>
+                                   
+                                    <p>Quantity: <%= item.quantity %></p>
+                                    <p>Price: ₹<%= item.price %></p>
+                                </div>
+                            </div>
+                        <% }); %>
+                    <% } else { %>
+                        <p>Your cart is empty.</p>
+                    <% } %>
+                </div>
+
+                <!-- Shipping Address Section -->
+                <div class="section">
+                    <h2>Shipping Address</h2>
+                    <form id="shipping-form">
+                        <% if (Address && Address.address && Address.address.length > 0) { %>
+                            <% Address.address.forEach((address, index) => { %>
+                                <div class="address-option">
+                                    <input 
+                                        type="radio" 
+                                        id="address<%= index %>" 
+                                        name="address" 
+                                        value="<%= address._id %>" 
+                                        <%= index === 0 ? 'checked' : '' %>>
+                                    <label for="address<%= index %>">
+                                       <b><%= address.addressType %></b><br>
+                                       <%= address.city %>,<%= address.landmark %>, <%= address.district %><br>
+                                        <%= address.pincode %>, <%= address.phone %>
+                                    </label>
+                                </div>
+                            <% }); %>
+                        <% } else { %>
+                            <p>No address found. Please add an address.</p>
+                              <a href="/addressManagement" class="continue-shopping">Add address</a>
+                        <% } %>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Payment Summary Section -->
+            <div class="payment-summary">
+                <!-- Payment Method -->
+                <div class="section">
+                    <h2>Payment Method</h2>
+                    <form id="payment-form">
+                        <div class="form-group">
+                            <label>Select a payment method:</label>
+                            <div class="payment-option">
+                                <input type="radio" id="cod" name="payment" value="cod" checked>
+                                <label for="cod">Cash on Delivery</label>
+                            </div>
+                            <div class="payment-option">
+                                <input type="radio" id="razorpay" name="payment" value="razorpay">
+                                <label for="razorpay">Razorpay</label>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+
+                <!-- Order Summary -->
+                <div class="section">
+                    <h2>Order Summary</h2>
+                    <% if (cart && cart.items.length > 0) { %>
+                        <p>Subtotal:₹<%= cart.totalAmount %></p>
+                        <p>Shipping: ₹10.00</p>
+                        <p>Tax:₹0.00 </p>
+                        <div class="total">
+                            Total: ₹<%= cart.totalAmount + 10 %>
+                        </div>
+                    <% } else { %>
+                        <p>No items to display.</p>
+                    <% } %>
+                    <button class="btn" onclick="submitOrder()">Place Order</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <footer>
+        <p>&copy; 2023 Your Company. All rights reserved.</p>
+        <nav>
+            <ul>
+                <li><a href="#">Privacy Policy</a></li>
+                <li><a href="#">Terms of Service</a></li>
+                <li><a href="#">FAQ</a></li>
+            </ul>
+        </nav>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script>
+  async function submitOrder() {
+    const shippingForm = document.getElementById('shipping-form');
+    const selectedAddress = shippingForm.querySelector('input[name="address"]:checked');
+
+    if (selectedAddress) {
+        const addressId = selectedAddress.value;
+        console.log("addressId front",addressId);
+        const cartItems = <%- JSON.stringify(cart.items || []) %>;
+
+        const addressLabel = selectedAddress.nextElementSibling.innerHTML.trim();
+        const paymentLabel = "Cash on Delivery"; // Only COD is supported
+
+        Swal.fire({
+            title: 'Confirm Your Order',
+            html: `
+                <h3>Shipping Address</h3>
+                <p>${addressLabel}</p>
+                <h3>Payment Method</h3>
+                <p>${paymentLabel}</p>
+            `,
+            icon: 'info',
+            showCancelButton: true,
+            confirmButtonText: 'Place Order',
+            cancelButtonText: 'Cancel',
+        }).then(async (result) => {
+            if (result.isConfirmed) {
+                // Send data to backend for validation
+                try {
+                    const response = await fetch('/place-order', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({
+                            
+                            addressId: addressId,
+                            paymentMethod: 'COD', // Fixed payment method to COD
+                            cartItems: cartItems,
+                        }),
+                    });
+
+                    const data = await response.json();
+
+                    if (response.ok) {
+                        Swal.fire(
+                            'Order Placed',
+                            'Your order has been placed successfully.',
+                            'success'
+                        ).then(() => {
+                            window.location.href = '/order-success'; // Redirect to order success page
+                        });
+                    } else {
+                        Swal.fire('Error', data.message || 'Failed to place the order.', 'error');
+                    }
+                } catch (error) {
+                    Swal.fire('Error', 'An unexpected error occurred. Please try again.', 'error');
+                }
+            } else {
+                Swal.fire('Order Cancelled', 'Your order was not placed.', 'error');
+            }
+        });
+    } else {
+        Swal.fire({
+            title: 'Missing Information',
+            text: 'Please select a shipping address before placing your order.',
+            icon: 'warning',
+        });
+    }
+}</script>
+</body>
+</html>

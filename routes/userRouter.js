@@ -2,8 +2,10 @@ const express=require('express');
 const router=express.Router();
 const passport=require('passport')
 const usercontroller=require('../controllers/user/usercontroller');
-const productcontroller=require('../controllers/user/productcontroller')
-const profilecontroller=require('../controllers/user/profilecontroller')
+const productcontroller=require('../controllers/user/productcontroller');
+const profilecontroller=require('../controllers/user/profilecontroller');
+const cartcontroller=require('../controllers/user/cartcontroller');
+const checkoutcontroller=require('../controllers/user/checkoutcontroller');
 const {UserAuth,AdminAuth}=require('../middlewares/auth')
 
 //page error
@@ -43,6 +45,21 @@ router.get('/logout',usercontroller.logout);
 router.get('/shop',UserAuth,usercontroller.loadShopPage);
 router.get('/productdetails',UserAuth,productcontroller.productDetails);
 
+//cart
+router.get("/cart", UserAuth, cartcontroller.loadCart);
+router.post("/cart-add", UserAuth, cartcontroller.addtoCart);
+router.post("/removeCart", UserAuth, cartcontroller.removeCart);
+router.post("/updateQuantity", UserAuth, cartcontroller.updateQuantity);
+
+//checkout
+router.get('/checkout',UserAuth,checkoutcontroller.loadCheckout);
+//place-Order
+router.post("/place-order", UserAuth, checkoutcontroller.placeOrder);
+//Order Success
+router.get("/order-success", UserAuth, checkoutcontroller.orderSuccess);
+
+
+
 
 //userProfile
 router.get('/userProfile',UserAuth,profilecontroller.userProfile);
@@ -56,6 +73,8 @@ router.get('/addressManagement',UserAuth,profilecontroller.addressManagement);
 router.post('/addAddress',UserAuth,profilecontroller.addAddress);
 
 router.get('/editAddress',UserAuth,profilecontroller.editAddress);
+
+router.get('/orders',UserAuth,profilecontroller.orders);
 
 
 

@@ -28,18 +28,7 @@ body, html {
     margin-top: 60px; /* Adjust based on your header height */
 }
 
-.sidebar {
-    background-color: var(--adidas-black);
-    color: var(--adidas-white);
-    width: 250px;
-    height: calc(100vh - 60px); /* Adjust based on your header height */
-    position: fixed;
-    left: 0;
-    top: 60px; /* Adjust based on your header height */
-    padding: 20px;
-    box-sizing: border-box;
-    overflow-y: auto;
-}
+
 
 .profile {
     text-align: center;
@@ -59,24 +48,9 @@ body, html {
     font-weight: bold;
 }
 
-.sidebar-nav a {
-    display: block;
-    color: var(--adidas-white);
-    text-decoration: none;
-    padding: 10px 0;
-    transition: background-color 0.2s;
-}
 
-.sidebar-nav a:hover,
-.sidebar-nav a.active {
-    background-color: var(--adidas-gray);
-}
 
-.sidebar-nav i {
-    margin-right: 10px;
-    width: 20px;
-    text-align: center;
-}
+
 
 .logout-btn {
     background-color: var(--adidas-white);
@@ -116,13 +90,6 @@ body, html {
         flex-direction: column;
     }
 
-    .sidebar {
-        width: 100%;
-        height: auto;
-        position: static;
-        padding: 10px;
-    }
-
     #main-content {
         margin-left: 0;
         padding: 10px;
@@ -141,11 +108,7 @@ body, html {
         cursor: pointer;
     }
 
-    .sidebar {
-        display: none;
-    }
+    
 
-    .sidebar.open {
-        display: block;
-    }
+    
 }

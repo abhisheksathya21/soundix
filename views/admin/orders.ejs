@@ -1,0 +1,190 @@
+
+<%- include('../partials/admin/header') %>
+
+<main class="main-content" id="mainContent">
+        <h1 class="h3 mb-4">Orders</h1>
+        <!-- Add your dashboard content here -->
+         
+<head>
+  
+    <link rel="stylesheet" href="/admin-style/order.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="container">
+        <div class="table-wrapper">
+            <table class="order-table">
+                <thead>
+                    <tr>
+                        <th>Customer</th>
+                        <th>Email</th>
+                        <th>Total Price</th>
+                        <th>Status</th>
+                        <th>Date</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+    <% orders.forEach(order => { %>
+        <tr>
+            <td><%= order.userId.fullname %></td>
+            <td><%= order.userId.email %></td>
+            <td>₹<%= order.totalAmount.toFixed(2) %></td>
+            <td>
+                <select class="status-select" data-order-id="<%= order._id %>">
+                    <option value="Pending" <%= order.status === 'Pending' ? 'selected' : '' %>>Pending</option>
+                    <option value="Processing" <%= order.status === 'Processing' ? 'selected' : '' %>>Processing</option>
+                    <option value="Shipped" <%= order.status === 'Shipped' ? 'selected' : '' %>>Shipped</option>
+                    <option value="Delivered" <%= order.status === 'Delivered' ? 'selected' : '' %>>Delivered</option>
+                    <option value="Cancelled" <%= order.status === 'Cancelled' ? 'selected' : '' %>>Cancelled</option>
+                </select>
+            </td>
+            <td><%= new Date(order.orderDate).toLocaleDateString() %></td>
+            <td>
+                <button class="view-details-btn" data-order-id="<%= order._id %>">View Details</button>
+            </td>
+        </tr>
+    <% }); %>
+</tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Modal -->
+   <div class="modal-body">
+    <div class="order-info">
+        <div class="info-section">
+            <h3>Customer Information</h3>
+            <div class="detail-row">
+                <strong>Name:</strong>
+                <span id="modalCustomer"></span>
+            </div>
+            <div class="detail-row">
+                <strong>Email:</strong>
+                <span id="modalEmail"></span>
+            </div>
+            <div class="detail-row">
+                <strong>Order Date:</strong>
+                <span id="modalDate"></span>
+            </div>
+            <div class="detail-row">
+                <strong>Status:</strong>
+                <span id="modalStatus"></span>
+            </div>
+        </div>
+        
+        <div class="info-section">
+            <h3>Products</h3>
+            <div class="products-grid" id="modalProducts">
+                <!-- Products will be dynamically inserted here -->
+            </div>
+        </div>
+
+        <div class="info-section">
+            <h3>Order Summary</h3>
+            <div class="detail-row">
+                <strong>Subtotal:</strong>
+                <span id="modalSubtotal"></span>
+            </div>
+            <div class="detail-row">
+                <strong>Shipping:</strong>
+                <span id="modalShipping"></span>
+            </div>
+            <div class="detail-row total">
+                <strong>Total:</strong>
+                <span id="modalPrice"></span>
+            </div>
+        </div>
+    </div>
+</div>
+
+    <script>
+     document.addEventListener('DOMContentLoaded', function() {
+    const modal = document.getElementById('orderModal');
+    const closeBtn = document.getElementsByClassName('close')[0];
+    const viewDetailsBtns = document.querySelectorAll('.view-details-btn');
+    const orders = <%- JSON.stringify(orders) %>; 
+
+    // Function to update order status
+    async function updateOrderStatus(orderId, status) {
+        try {
+            const response = await fetch('/admin/update-order-status', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ orderId, status })
+            });
+
+            if (!response.ok) {
+                throw new Error('Failed to update status');
+            }
+
+            // Show success message
+            alert('Order status updated successfully');
+        } catch (error) {
+            console.error('Error updating status:', error);
+            alert('Failed to update order status');
+        }
+    }
+
+    // Handle status change
+    document.querySelectorAll('.status-select').forEach(select => {
+        select.addEventListener('change', function() {
+            const orderId = this.dataset.orderId;
+            const status = this.value;
+            this.className = 'status-select ' + status.toLowerCase();
+            updateOrderStatus(orderId, status);
+        });
+        // Set initial class
+        select.className = 'status-select ' + select.value.toLowerCase();
+    });
+
+    // Handle view details
+    viewDetailsBtns.forEach(btn => {
+        btn.addEventListener('click', function() {
+            const orderId = this.dataset.orderId;
+            const order = orders.find(o => o._id === orderId);
+
+            if (!order) return;
+
+            // Update modal content
+            document.getElementById('modalCustomer').textContent = order.userId.fullname;
+            document.getElementById('modalEmail').textContent = order.userId.email;
+            document.getElementById('modalDate').textContent = new Date(order.orderDate).toLocaleDateString();
+            document.getElementById('modalStatus').textContent = order.orderStatus;
+            document.getElementById('modalPrice').textContent = `₹${order.totalAmount.toFixed(2)}`;
+            document.getElementById('modalSubtotal').textContent = `₹${order.totalAmount.toFixed(2)}`;
+            document.getElementById('modalShipping').textContent = 'Free'; // Update if you have shipping costs
+
+            // Render products
+            const productsGrid = document.getElementById('modalProducts');
+            productsGrid.innerHTML = order.items.map(item => `
+                <div class="product-card">
+                    <img src="${item.productId.productImage[0]}" alt="${item.productId.productName}">
+                    <h4>${item.productId.productName}</h4>
+                    <p>Quantity: ${item.quantity}</p>
+                    <p class="price">₹${item.productId.salePrice.toFixed(2)}</p>
+                </div>
+            `).join('');
+
+            modal.style.display = "block";
+        });
+    });
+
+    // Close modal functionality
+    closeBtn.onclick = function() {
+        modal.style.display = "none";
+    }
+
+    window.onclick = function(event) {
+        if (event.target == modal) {
+            modal.style.display = "none";
+        }
+    }
+});
+    </script>
+</body>
+    </main>
+
+<%- include('../partials/admin/footer') %>

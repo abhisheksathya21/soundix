@@ -2,6 +2,7 @@ const Product = require("../../models/productSchema");
 const Category = require("../../models/categorySchema");
 const Address = require("../../models/addressSchema");
 const User = require("../../models/userSchema");
+const Order = require("../../models/orderSchema");
 const bcrypt = require("bcrypt");
 const nodemailer = require("nodemailer");
 const env = require("dotenv").config();
@@ -191,6 +192,55 @@ const editAddress = async (req, res) => {
   }
 };
 
+
+const orders = async (req, res) => {
+  try {
+    const userId = req.session.user;
+
+    if (!userId) {
+      return res.redirect("/login");
+    }
+
+   
+    const userData = await User.findOne({ _id: userId });
+
+    
+    const orderData = await Order.find({ userId: userId }).populate(
+      "items.productId"
+    );
+
+   
+    const formattedOrders = orderData.map((order) => ({
+      id: order.orderId,
+      date: new Date(order.orderDate).toLocaleDateString(),
+      status: order.orderStatus,
+      total: order.totalAmount,
+      paymentMethod: order.paymentMethod,
+      shippingMethod: "Standard Shipping",
+      products: order.items.map((item) => ({
+        name: item.productId?.productName || "Unknown Product", 
+        price: item.price || 0,
+        quantity: item.quantity || 0,
+        image:
+          item.productId?.productImage?.[0] 
+           
+      })),
+      shippingAddress: {
+        name: order.shippingAddress.name,
+        address: `${order.shippingAddress.street}, ${order.shippingAddress.city}, ${order.shippingAddress.state}, ${order.shippingAddress.pinCode}`,
+        phone: order.shippingAddress.phoneNumber,
+      },
+    }));
+
+    
+    res.render("order-details", { orders: formattedOrders, user: userData });
+  } catch (error) {
+    console.error("Error in loading orders page:", error);
+    res.status(500).render("error", { message: "Failed to load orders" });
+  }
+};
+
+
 module.exports = {
   userProfile,
   userUpdate,
@@ -199,4 +249,5 @@ module.exports = {
   addressManagement,
   addAddress,
   editAddress,
+  orders
 };

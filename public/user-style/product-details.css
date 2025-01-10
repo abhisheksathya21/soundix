@@ -169,7 +169,7 @@ button i {
     font-size: 18px;
 }
 
-.add-to-bag {
+.add-to-cart {
     width: 60%; /* Keep the same width */
     padding: 0.5rem; /* Reduce padding to make the button height smaller */
     background: #000000;
@@ -183,31 +183,13 @@ button i {
     transition: all 0.7s ease;
 }
 
-.add-to-bag:hover {
+.add-to-cart:hover {
     background: #fff;
     color: #000000;
     border-color: #2c3e50; /* Only change the border color */
 }
 
-.add-to-cart {
-    width: 60%; /* Keep the same width */
-    padding: 0.5rem; /* Reduce padding to make the button height smaller */
-    background: #ac0000;
-    color: #fff;
-    border: 1px solid transparent; /* Add a transparent border */
-    border-radius: 20px;
-    font-size: 0.9rem;
-    font-weight: 600;
-    cursor: pointer;
-    margin-bottom: 2rem;
-    transition: all 0.7s ease;
-}
 
-.add-to-cart:hover {
-    background: #ffffff;
-    color: #000000;
-    border-color: #2c3e50; /* Only change the border color */
-}
 
 
 /* Features list */
@@ -375,4 +357,151 @@ button i {
     a {
   text-decoration: none;
   color: black; /* Customize the link color */
+}
+.rp-row {
+  padding: 2rem 0;
+  display: flex;
+  flex-wrap: wrap;
+  margin: -15px;
+}
+
+.rp-col {
+  flex: 0 0 33.333333%;
+  max-width: 33.333333%;
+  padding: 15px;
+}
+
+.rp-product-card {
+  background: #fff;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.08);
+  margin-bottom: 2rem;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  overflow: hidden;
+}
+
+.rp-product-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.rp-product-img-wrapper {
+  position: relative;
+  overflow: hidden;
+  aspect-ratio: 1;
+}
+
+.rp-product-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.5s ease;
+}
+
+.rp-product-card:hover .rp-product-img {
+  transform: scale(1.05);
+}
+
+.rp-product-actions {
+  position: absolute;
+  bottom: -60px;
+  left: 0;
+  right: 0;
+  display: flex;
+  justify-content: center;
+  gap: 1rem;
+  padding: 1rem;
+  background: rgba(255, 255, 255, 0.9);
+  transition: bottom 0.3s ease;
+}
+
+.rp-product-card:hover .rp-product-actions {
+  bottom: 0;
+}
+
+.rp-add-to-cart {
+  padding: 0.5rem 1.5rem;
+  background: #000;
+  color: #fff;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.rp-add-to-cart:hover {
+  background: #333;
+}
+
+.rp-wishlist-btn {
+  background: #fff;
+  border: none;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  transition: transform 0.3s ease;
+}
+
+.rp-wishlist-btn:hover {
+  transform: scale(1.1);
+}
+
+.rp-heart-icon {
+  color: #ff4b4b;
+}
+
+.rp-heart-icon::before {
+  content: "\2665";
+  font-size: 30px;
+}
+
+.rp-product-info {
+  padding: 1rem;
+  text-align: center;
+}
+
+.rp-product-name {
+  margin: 0 0 0.5rem;
+  font-size: 1.1rem;
+}
+
+.rp-product-name a {
+  color: #333;
+  text-decoration: none;
+  transition: color 0.3s ease;
+}
+
+.rp-product-name a:hover {
+  color: #000;
+}
+
+.rp-product-price {
+  font-size: 1.2rem;
+  font-weight: 600;
+  color: #000;
+}
+
+@media (max-width: 991px) {
+  .rp-col {
+    flex: 0 0 50%;
+    max-width: 50%;
+  }
+}
+
+@media (max-width: 575px) {
+  .rp-col {
+    flex: 0 0 100%;
+    max-width: 100%;
+  }
+}
+
+@media (max-width: 768px) {
+  .rp-product-card {
+    margin-bottom: 1.5rem;
+  }
 }

@@ -1,21 +1,25 @@
     document.addEventListener("DOMContentLoaded", function () {
-      // Wait for the window to fully load
-      window.onload = function () {
-        // Add an artificial delay (e.g., 2 seconds)
-        setTimeout(function () {
-          // Get the preloader element
-          var preloader = document.getElementById("preloader-active");
+     
+ 
+  // Wait for the entire page, including images, to load completely
+  window.onload = function () {
+    // Get the preloader element
+    var preloader = document.getElementById("preloader-active");
 
-          // Add a fade-out effect
-          preloader.style.transition = "opacity 0.6s";
-          preloader.style.opacity = 0;
+    // Add a 2-second delay before starting the fade-out effect
+    setTimeout(function () {
+      // Add a fade-out effect
+      preloader.style.transition = "opacity 0.6s";
+      preloader.style.opacity = 0;
 
-          // Remove the preloader from the DOM after the fade-out
-          setTimeout(function () {
-            preloader.style.display = "none";
-          }, 600); // Match this timeout with the transition duration
-        }, 2000); // Add delay here (2000ms = 2 seconds)
-      };
+      // Remove the preloader from the DOM after the fade-out effect is complete
+      preloader.addEventListener("transitionend", function () {
+        preloader.style.display = "none";
+      });
+    }, 2000); // 2 seconds = 2000 milliseconds
+  };
+
+
 
       // Get modal and buttons
       const modal = document.getElementById("responsiveModal");

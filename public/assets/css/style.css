@@ -1793,18 +1793,18 @@ input:focus::-moz-placeholder {
   }
 }
 .latest-padding {
-  padding-top: 190px;
+  padding-top: 60px;
   padding-bottom: 135px;
 }
 @media only screen and (min-width: 1200px) and (max-width: 1600px) {
   .latest-padding {
-    padding-top: 190px;
+    padding-top: 60px;
     padding-bottom: 135px;
   }
 }
 @media only screen and (min-width: 992px) and (max-width: 1199px) {
   .latest-padding {
-    padding-top: 190px;
+    padding-top: 45px;
     padding-bottom: 135px;
   }
 }

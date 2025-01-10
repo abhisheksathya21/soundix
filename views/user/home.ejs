@@ -172,30 +172,29 @@
           </div>
         </div>
       </div>
-      <div class="row">
-         
-                            <%for(i=3;i<products.length;i++){%>
-                            <div class="col-xl-4 col-lg-4 col-md-6 col-sm-6">
-                                <div class="single-popular-items mb-50 text-center">
-                                    <div class="popular-img">
-                                      <img src="<%=products[i].productImage[0]%>" alt="<%=products[i].productName%>" />
-                                        <div class="img-cap">
-                                            <span>Add to cart</span>
-                                        </div>
-                                        <div class="favorit-items">
-                                            <span class="flaticon-heart"></span>
-                                        </div>
-                                    </div>
-                                    <div class="popular-caption">
-                                       <h3>
-                                            <a href="/productDetails?id=<%=products[i]._id%>"><%=products[i].productName%></a>
-                                        </h3>
-                                        <span>&#8377;<%=products[i].salePrice%></span>
-                                    </div>
-                                </div>
-                            </div>
-                        <%}%>
-                        </div>
+       <div class="row product-grid">
+            <% for (i = 0; i < products.length; i++) { %>
+              <div class="col-xl-4 col-lg-4 col-md-6 col-sm-6">
+                <div class="product-card">
+                  <div class="product-img-wrapper">
+                    <img src="<%= products[i].productImage[0] %>" alt="<%= products[i].productName %>" class="product-img" />
+                    <div class="product-actions">
+                      <button class="add-to-cart">Add to cart</button>
+                      <button class="wishlist-btn">
+                        <i class="fas fa-heart"></i>
+                      </button>
+                    </div>
+                  </div>
+                  <div class="product-info">
+                    <h3 class="product-name">
+                      <a href="/productDetails?id=<%= products[i]._id %>"><%= products[i].productName %></a>
+                    </h3>
+                    <span class="product-price">₹<%= products[i].salePrice %></span>
+                  </div>
+                </div>
+              </div>
+            <% } %>
+          </div>
                     
        
 
@@ -235,49 +234,7 @@
 
 
 
-  <!-- Video Area End -->
-  <!--? Watch Choice  Start-->
-  <!-- <div class="watch-area section-padding30">
-    <div class="container">
-      <div class="row align-items-center justify-content-between padding-130">
-        <div class="col-lg-5 col-md-6">
-          <div class="watch-details mb-40">
-            <h2>Choice The Beats</h2>
-            <p>
-              Enim ad minim veniam, quis nostrud exercitation ullamco laboris
-              nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in
-              reprehenderit in voluptate velit esse.
-            </p>
-            <a href="/shop" class="btn">Show Products</a>
-          </div>
-        </div>
-        <div class="col-lg-6 col-md-6 col-sm-10">
-          <div class="choice-watch-img mb-40">
-            <img src="assets/img/gallery/output.jpg" alt="" />
-          </div>
-        </div>
-      </div>
-      <div class="row align-items-center justify-content-between">
-        <div class="col-lg-6 col-md-6 col-sm-10">
-          <div class="choice-watch-img mb-40">
-            <img src="assets/img/gallery/output4.jpg" alt="" />
-          </div>
-        </div>
-        <div class="col-lg-5 col-md-6">
-          <div class="watch-details mb-40">
-            <h2>Feel The Beats</h2>
-            <p>
-              Enim ad minim veniam, quis nostrud exercitation ullamco laboris
-              nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in
-              reprehenderit in voluptate velit esse.
-            </p>
-            <a href="/shop" class="btn">Show Products</a>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div> -->
-  <!-- Watch Choice  End-->
+  
   <!--? Shop Method Start-->
   <div class="shop-method-area">
     <div class="container">
