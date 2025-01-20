@@ -1,271 +1,78 @@
 <%- include('../partials/user/header')%>
 <main>
-  <link rel="stylesheet" href="/user-style/home.css">
-  <link rel="stylesheet" href="/assets/css/css.css">
+  <link rel="stylesheet" href="/assets/user-style/home.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
 
-  <!--? slider Area Start -->
-    <!-- slider -->
-    <div class="custom-slider-body">
-    <div class="custom-slider">
-        <!-- list Items -->
-        <div class="custom-list">
-            <div class="custom-item active">
-                <img src="/assets/img/image/img1.jpg">
-                <div class="custom-content">
-                    <p>Design</p>
-<h2 style="color: aliceblue;">Premium Sound Experience</h2>
-<p>
-    Discover the ultimate sound quality with our range of headphones. Whether you're looking for crystal-clear highs or deep, rich bass, we’ve got the perfect pair for you. Elevate your audio experience with state-of-the-art technology.
-</p>
-                </div>
-            </div>
-            <div class="custom-item">
-                <img src="/assets/img/image/img1.jpg">
-                <div class="custom-content">
-                    <p>Design</p>
-<h2  style="color: aliceblue;">Comfort Meets Style</h2>
-<p>
-    Our headphones are designed for both style and comfort, making them perfect for all-day wear. Soft ear cushions, adjustable headbands, and sleek, modern designs ensure you’ll look and feel great no matter where you go.
-</p>
+  <!-- Hero Slider -->
+ 
+  
+  <div class="content">
+<section class="hero">
+   <img src="/assets/img/hp-register--fitpro-solo3.png.large.2x.png" alt="Floating PNG" />
+      <div>
+        <h1>Welcome to SoundZone</h1>
+        <p>Experience the ultimate sound like never before.</p>
+      </div>
+     
+    </section>
 
-                </div>
-            </div>
-            <div class="custom-item">
-                <img src="/assets/img/image/img2.jpg">
-                <div class="custom-content">
-                    <p>Design</p>
-<h2  style="color: aliceblue;">Wireless Freedom</h2>
-<p>
-    Say goodbye to tangled wires. With Bluetooth connectivity, you’ll enjoy wireless freedom and seamless connectivity to all your devices. Move freely and enjoy your music without the hassle of cords.
-</p>
-
-                </div>
-            </div>
-            <div class="custom-item">
-                <img src="/assets/img/image/img3.jpg">
-                <div class="custom-content">
-<p>Design</p>
-<h2  style="color: aliceblue;">Noise Cancellation Technology</h2>
-<p>
-    Block out distractions with our advanced noise-canceling headphones. Whether you're traveling or working, immerse yourself in your music or calls without any background noise interfering.
-</p>
-
-                </div>
-            </div>
-            <div class="custom-item">
-                <img src="/assets/img/image/img4.jpg">
-                <div class="custom-content">
-                   <p>Design</p>
-<h2  style="color: aliceblue;">Long-lasting Battery Life</h2>
-<p>
-    Our headphones are built to last with a long battery life. Enjoy hours of uninterrupted listening or talking on the go, without worrying about frequent recharging. Perfect for your daily adventures.
-</p>
-
-                </div>
+  <!-- New Arrivals -->
+ <section class="new-arrivals">
+        <div class="container">
+            <h2 class="section-title">New Arrivals</h2>
+            <div class="product-grid">
+                <% for (let i = Math.max(products.length - 4, 0); i < products.length; i++) { %>
+                    <div class="product-card">
+                        <img src="<%= products[i].productImage[0] %>" alt="<%= products[i].productName %>">
+                        <div class="product-info">
+                            <h3><a href="/productDetails?id=<%= products[i]._id %>"><%= products[i].productName %></a></h3>
+                            <span class="price">&#8377;<%= products[i].salePrice %></span>
+                        </div>
+                    </div>
+                <% } %>
             </div>
         </div>
-        <!-- button arrows -->
-        <div class="custom-arrows">
-            <button id="custom-prev"><</button>
-            <button id="custom-next">></button>
-        </div>
-    </div>
-</div>
+    </section>
 
-
-  <!-- slider Area End-->
-  <!-- ? New Product Start -->
-  <section class="new-product-area section-padding30">
+  <!-- Popular Items -->
+  <section class="popular-items">
     <div class="container">
-      <!-- Section tittle -->
-      <div class="row">
-        <div class="col-xl-12">
-          <div class="section-tittle mb-70">
-            <h2>New Arrivals</h2>
-          </div>
-        </div>
-      </div>
-   <div class="row">
-  <% for (let i = Math.max(products.length - 3, 0); i < products.length; i++) { %>
-    <div class="col-xl-4 col-lg-4 col-md-6 col-sm-6">
-      <div class="single-new-pro mb-30 text-center">
-        <div class="product-img">
-          <img
-            src="<%= products[i].productImage[0] %>"
-            alt="<%= products[i].productName %>"
-          />
-        </div>
-        <div class="product-caption">
-          <h3>
-            <a href="/productDetails?id=<%= products[i]._id %>">
-              <%= products[i].productName %>
-            </a>
-          </h3>
-          <span>&#8377;<%= products[i].salePrice %></span>
-        </div>
-      </div>
-    </div>
-  <% } %>
-</div>
-
-
+      <h2 class="section-title">Popular Items</h2>
+      <p class="section-description">Discover our most loved products, chosen by customers like you.</p>
+     <div class="product-grid">
+                <% for (i = 0; i < products.length; i++) { %>
+                    <div class="product-card">
+                        <div class="product-image">
+                            <img src="<%= products[i].productImage[0] %>" alt="<%= products[i].productName %>">
+                            <div class="product-actions">
+                                <button class="add-to-cart" data-product-id="<%= products[i]._id %>" data-price="<%= products[i].salePrice %>">
+                                    Add to cart
+                                </button>
+                                <button class="wishlist-btn">
+                                    <i class="fas fa-heart"></i>
+                                </button>
+                            </div>
+                        </div>
+                        <div class="product-info">
+                            <h3 class="product-name">
+                                <a href="/productDetails?id=<%= products[i]._id %>"><%= products[i].productName %></a>
+                            </h3>
+                            <span class="product-price">₹<%= products[i].salePrice %></span>
+                        </div>
+                    </div>
+                <% } %>
+            </div>
     </div>
   </section>
-  <!--  New Product End -->
-  <!--? Gallery Area Start -->
-  <div class="gallery-area">
-    <div class="container-fluid p-0 fix">
-      <div class="row">
-        <div class="col-xl-6 col-lg-4 col-md-6 col-sm-6">
-          <div class="single-gallery mb-30">
-            <div
-              class="gallery-img big-img"
-              style="background-image: url(assets/img/gallery/menlook.png)"
-            ></div>
-          </div>
-        </div>
-        <div class="col-xl-3 col-lg-4 col-md-6 col-sm-6">
-          <div class="single-gallery mb-30">
-            <div
-              class="gallery-img big-img"
-              style="background-image: url(assets/img/gallery/look.png)"
-            ></div>
-          </div>
-        </div>
-        <div class="col-xl-3 col-lg-4 col-md-12">
-          <div class="row">
-            <div class="col-xl-12 col-lg-12 col-md-6 col-sm-6">
-              <div class="single-gallery mb-30">
-                <div
-                  class="gallery-img small-img"
-                  style="background-image: url(assets/img/gallery/black22.png)"
-                ></div>
-              </div>
-            </div>
-            <div class="col-xl-12 col-lg-12 col-md-6 col-sm-6">
-              <div class="single-gallery mb-30">
-                <div
-                  class="gallery-img small-img"
-                  style="background-image: url(assets/img/gallery/headfac.png)"
-                ></div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
-  <!-- Gallery Area End -->
-  <!--? Popular Items Start -->
-  <div class="popular-items section-padding30">
-    <div class="container">
-      <!-- Section tittle -->
-      <div class="row justify-content-center">
-        <div class="col-xl-7 col-lg-8 col-md-10">
-          <div class="section-tittle mb-70 text-center">
-            <h2>Popular Items</h2>
-            <p>
-              Consectetur adipiscing elit, sed do eiusmod tempor incididunt ut
-              labore et dolore magna aliqua. Quis ipsum suspendisse ultrices
-              gravida.
-            </p>
-          </div>
-        </div>
-      </div>
-       <div class="row product-grid">
-            <% for (i = 0; i < products.length; i++) { %>
-              <div class="col-xl-4 col-lg-4 col-md-6 col-sm-6">
-                <div class="product-card">
-                  <div class="product-img-wrapper">
-                    <img src="<%= products[i].productImage[0] %>" alt="<%= products[i].productName %>" class="product-img" />
-                    <div class="product-actions">
-                      <button class="add-to-cart">Add to cart</button>
-                      <button class="wishlist-btn">
-                        <i class="fas fa-heart"></i>
-                      </button>
-                    </div>
-                  </div>
-                  <div class="product-info">
-                    <h3 class="product-name">
-                      <a href="/productDetails?id=<%= products[i]._id %>"><%= products[i].productName %></a>
-                    </h3>
-                    <span class="product-price">₹<%= products[i].salePrice %></span>
-                  </div>
-                </div>
-              </div>
-            <% } %>
-          </div>
-                    
-       
 
-      <!-- Button -->
-     
-    </div>
-  </div>
-  <!-- Popular Items End -->
-  <!--? Video Area Start -->
-<div class="banner-area">
-  <div class="container-fluid">
-    <div class="row align-items-center">
-      <!-- Banner Section -->
-      <div class="col-lg-12">
-        <div class="banner-wrap">
-          <!-- Image -->
-          <img
-            src="/assets/img/image/banner1.jpg"
-            alt="Banner"
-            class="banner-image"
-          />
-          <!-- Text and Button -->
-          <div class="banner-text-overlay">
-            <h2 class="banner-title">Discover Premium Headphones</h2>
-            <p class="banner-subtitle">Experience unmatched sound quality</p>
-            <a href="#" class="banner-button">Explore Now</a>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
+  <!-- Banner -->
+ 
+
+  <!-- Shop Features -->
+  
+</main>
 </div>
 
 
 
-
-
-
-
-  
-  <!--? Shop Method Start-->
-  <div class="shop-method-area">
-    <div class="container">
-      <div class="method-wrapper">
-        <div class="row d-flex justify-content-between">
-          <div class="col-xl-4 col-lg-4 col-md-6">
-            <div class="single-method mb-40">
-              <i class="ti-package"></i>
-              <h6>Free Shipping Method</h6>
-              <p>aorem ixpsacdolor sit ameasecur adipisicing elitsf edasd.</p>
-            </div>
-          </div>
-          <div class="col-xl-4 col-lg-4 col-md-6">
-            <div class="single-method mb-40">
-              <i class="ti-unlock"></i>
-              <h6>Secure Payment System</h6>
-              <p>aorem ixpsacdolor sit ameasecur adipisicing elitsf edasd.</p>
-            </div>
-          </div>
-          <div class="col-xl-4 col-lg-4 col-md-6">
-            <div class="single-method mb-40">
-              <i class="ti-reload"></i>
-              <h6>Secure Payment System</h6>
-              <p>aorem ixpsacdolor sit ameasecur adipisicing elitsf edasd.</p>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
-  <!-- Shop Method End-->
-</main>
-<script src="/assets/js/js.js"></script>
 <%- include('../partials/user/footer')%>

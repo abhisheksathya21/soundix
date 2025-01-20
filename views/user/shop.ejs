@@ -1,137 +1,116 @@
-<%- include('../partials/user/header')%>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Shop Page</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
+    <link rel="stylesheet" href="/assets/user-style/shop.css">
+</head>
+<body>
+    <%- include('../partials/user/header')%>
 
-<!-- Include SweetAlert2 -->
-<!-- Include SweetAlert2 -->
-<link
-  rel="stylesheet"
-  href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css"
-/>
-<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-<link rel="stylesheet" href="/user-style/shop.css" />
+    <main class="container">
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb">
+                <% breadcrumbs.forEach(function(crumb, index) { %>
+                    <% if (index === breadcrumbs.length - 1) { %>
+                        <li class="breadcrumb-item active" aria-current="page"><%= crumb.name %></li>
+                    <% } else { %>
+                        <li class="breadcrumb-item">
+                            <a href="<%= crumb.url %>"><%= crumb.name %></a>
+                        </li>
+                    <% } %>
+                <% }); %>
+            </ol>
+        </nav>
 
-<ol class="breadcrumb">
-  <% breadcrumbs.forEach(function(crumb, index) { %> <% if (index ===
-  breadcrumbs.length - 1) { %>
-  <li class="breadcrumb-item active" aria-current="page"><%= crumb.name %></li>
-  <% } else { %>
-  <li class="breadcrumb-item">
-    <a href="<%= crumb.url %>"><%= crumb.name %></a>
-  </li>
-  <% } %> <% }); %>
-</ol>
+        <section class="products">
+            <div class="sort-options">
+                <a href="/shop?sort=newest" class="sort-option <%= currentSort === 'newest' ? 'active' : '' %>">Newest Arrivals</a>
+                <a href="/shop?sort=priceHighLow" class="sort-option <%= currentSort === 'priceHighLow' ? 'active' : '' %>">Price High to Low</a>
+                <a href="/shop?sort=priceLowHigh" class="sort-option <%= currentSort === 'priceLowHigh' ? 'active' : '' %>">Price Low to High</a>
+                <a href="/shop?sort=aToZ" class="sort-option <%= currentSort === 'aToZ' ? 'active' : '' %>">A-Z</a>
+                <a href="/shop?sort=zToA" class="sort-option <%= currentSort === 'zToA' ? 'active' : '' %>">Z-A</a>
+            </div>
 
-<main>
-  <section class="popular-items latest-padding">
-    <div class="container">
-      <div class="row product-btn justify-content-between mb-40">
-        <div class="properties__button">
-          <nav>
-            <div class="nav nav-tabs" id="nav-tab" role="tablist">
-              <a
-                class="nav-item nav-link <%= currentSort === 'newest' ? 'active' : '' %>"
-                href="/shop?sort=newest"
-                >Newest Arrivals</a
-              >
-              <a
-                class="nav-item nav-link <%= currentSort === 'priceHighLow' ? 'active' : '' %>"
-                href="/shop?sort=priceHighLow"
-                >Price High to Low</a
-              >
-              <a
-                class="nav-item nav-link <%= currentSort === 'priceLowHigh' ? 'active' : '' %>"
-                href="/shop?sort=priceLowHigh"
-                >Price Low to High</a
-              >
-              <a
-                class="nav-item nav-link <%= currentSort === 'aToZ' ? 'active' : '' %>"
-                href="/shop?sort=aToZ"
-                >A-Z</a
-              >
-              <a
-                class="nav-item nav-link <%= currentSort === 'zToA' ? 'active' : '' %>"
-                href="/shop?sort=zToA"
-                >Z-A</a
-              >
+            <div class="product-grid">
+                <% for (i = 0; i < products.length; i++) { %>
+                    <div class="product-card">
+                        <div class="product-image">
+                            <img src="<%= products[i].productImage[0] %>" alt="<%= products[i].productName %>">
+                            <div class="product-actions">
+                                <button class="add-to-cart" data-product-id="<%= products[i]._id %>" data-price="<%= products[i].salePrice %>">
+                                    Add to cart
+                                </button>
+                                <button class="wishlist-btn">
+                                    <i class="fas fa-heart"></i>
+                                </button>
+                            </div>
+                        </div>
+                        <div class="product-info">
+                            <h3 class="product-name">
+                                <a href="/productDetails?id=<%= products[i]._id %>"><%= products[i].productName %></a>
+                            </h3>
+                            <span class="product-price">₹<%= products[i].salePrice %></span>
+                        </div>
+                    </div>
+                <% } %>
             </div>
-          </nav>
-        </div>
-      </div>
-      <div class="tab-content" id="nav-tabContent">
-        <div class="tab-pane fade show active" id="nav-home" role="tabpanel">
-          <div class="row product-grid">
-            <% for (i = 0; i < products.length; i++) { %>
-            <div class="col-xl-4 col-lg-4 col-md-6 col-sm-6">
-              <div class="product-card">
-                <div class="product-img-wrapper">
-                  <img
-                    src="<%= products[i].productImage[0] %>"
-                    alt="<%= products[i].productName %>"
-                    class="product-img"
-                  />
-                  <div class="product-actions">
-                    <button
-                      class="add-to-cart"
-                      data-product-id="<%= products[i]._id %>"
-                      data-price="<%= products[i].salePrice %>"
-                    >
-                      Add to cart
-                    </button>
-                    <button class="wishlist-btn">
-                      <i class="fas fa-heart"></i>
-                    </button>
-                  </div>
-                </div>
-                <div class="product-info">
-                  <h3 class="product-name">
-                    <a href="/productDetails?id=<%= products[i]._id %>"
-                      ><%= products[i].productName %></a
-                    >
-                  </h3>
-                  <span class="product-price"
-                    >₹<%= products[i].salePrice %></span
-                  >
-                </div>
-              </div>
-            </div>
-            <% } %>
-          </div>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <div class="shop-method-area">
-    <div class="container">
-      <div class="method-wrapper">
-        <div class="row d-flex justify-content-between">
-          <div class="col-xl-4 col-lg-4 col-md-6">
-            <div class="single-method mb-40">
-              <i class="ti-package"></i>
-              <h6>Free Shipping Method</h6>
-              <p>Enjoy free shipping on all orders.</p>
-            </div>
-          </div>
-          <div class="col-xl-4 col-lg-4 col-md-6">
-            <div class="single-method mb-40">
-              <i class="ti-unlock"></i>
-              <h6>Secure Payment System</h6>
-              <p>Your payment information is safe with us.</p>
-            </div>
-          </div>
-          <div class="col-xl-4 col-lg-4 col-md-6">
-            <div class="single-method mb-40">
-              <i class="ti-reload"></i>
-              <h6>Easy Return Policy</h6>
-              <p>Hassle-free returns within 30 days.</p>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
+        </section>
+        <div class="pagination">
+  <% if (pagination.hasPrevPage) { %>
+    <a href="<%= generatePageUrl(pagination.currentPage - 1) %>" class="pagination-link">&laquo; Previous</a>
+  <% } %>
+  
+  <% pagination.links.forEach(link => { %>
+    <% if (link.active) { %>
+      <span class="pagination-link active"><%= link.page %></span>
+    <% } else { %>
+      <a href="<%= link.url %>" class="pagination-link"><%= link.page %></a>
+    <% } %>
+  <% }) %>
+  
+  <% if (pagination.hasNextPage) { %>
+    <a href="<%= generatePageUrl(pagination.currentPage + 1) %>" class="pagination-link">Next &raquo;</a>
+  <% } %>
+  
+  <div class="pagination-info">
+    Showing <%= (pagination.currentPage - 1) * 12 + 1 %> - 
+    <%= Math.min(pagination.currentPage * 12, pagination.totalProducts) %> 
+    of <%= pagination.totalProducts %> products
   </div>
-</main>
-<script>
- document.addEventListener("DOMContentLoaded", function () {
+</div>
+
+        <section class="features">
+            <div class="feature">
+                <i class="fas fa-box"></i>
+                <h3>Free Shipping Method</h3>
+                <p>Enjoy free shipping on all orders.</p>
+            </div>
+            <div class="feature">
+                <i class="fas fa-lock"></i>
+                <h3>Secure Payment System</h3>
+                <p>Your payment information is safe with us.</p>
+            </div>
+            <div class="feature">
+                <i class="fas fa-undo"></i>
+                <h3>Easy Return Policy</h3>
+                <p>Hassle-free returns within 30 days.</p>
+            </div>
+        </section>
+    </main>
+    <br>
+    <br>
+
+    <%- include('../partials/user/footer')%>
+
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+   
+    <script>
+        // Your existing JavaScript code here
+        document.addEventListener("DOMContentLoaded", function () {
   // Get all add to cart buttons
   const addToCartButtons = document.querySelectorAll(".add-to-cart");
 
@@ -196,6 +175,6 @@
     }
   }
 });
-</script>
-
-<%- include('../partials/user/footer')%>
+    </script>
+</body>
+</html>

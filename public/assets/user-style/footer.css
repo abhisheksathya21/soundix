@@ -1,0 +1,137 @@
+  :root {
+            --sidebar-width: 300px;
+            --primary-color: #4a90e2;
+            --secondary-color: #f5f7fa;
+            --text-color: #333;
+            --hover-color: #e1e8ed;
+            --active-color: #3498db;
+        }
+
+.custom-footer-area {
+  background: linear-gradient(to bottom, #ffffff, var(--secondary-color));;
+    color: #000000;
+    padding: 60px 0 30px;
+    font-family: 'Helvetica Neue', Arial, sans-serif;
+}
+
+.custom-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 20px;
+}
+
+.custom-footer-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 40px;
+}
+
+.custom-footer-logo img {
+    max-width: 60px;
+    height: auto;
+}
+
+.custom-footer-description {
+    max-width: 400px;
+    font-size: 14px;
+    line-height: 1.5;
+}
+
+.custom-footer-content {
+    display: flex;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    margin-bottom: 40px;
+}
+
+.custom-footer-section {
+    flex: 1;
+    min-width: 200px;
+    margin-bottom: 20px;
+}
+
+.custom-footer-section h4 {
+    font-size: 18px;
+    margin-bottom: 20px;
+    color: #000000;
+}
+
+.custom-footer-section ul {
+    list-style: none;
+    padding: 0;
+}
+
+.custom-footer-section ul li {
+    margin-bottom: 10px;
+}
+
+.custom-footer-section ul li a {
+    color: #000000;
+    text-decoration: none;
+    font-size: 14px;
+    transition: color 0.3s ease;
+}
+
+.custom-footer-section ul li a:hover {
+    color: var(--primary-color);
+}
+
+.custom-footer-bottom {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-top: 1px solid #333333;
+    padding-top: 20px;
+}
+
+.custom-footer-bottom p {
+    font-size: 14px;
+}
+
+.custom-footer-social a {
+    color: #ffffff;
+    font-size: 18px;
+    margin-left: 20px;
+    transition: color 0.3s ease;
+}
+
+.custom-footer-social a:hover {
+    color:var(--primary-color);
+}
+
+@media (max-width: 768px) {
+    .custom-footer-top {
+        flex-direction: column;
+        text-align: center;
+    }
+
+    .custom-footer-logo {
+        margin-bottom: 20px;
+    }
+
+    .custom-footer-description {
+        margin: 0 auto;
+    }
+
+    .custom-footer-content {
+        flex-direction: column;
+    }
+
+    .custom-footer-section {
+        text-align: center;
+    }
+
+    .custom-footer-bottom {
+        flex-direction: column;
+        text-align: center;
+    }
+
+    .custom-footer-social {
+        margin-top: 20px;
+    }
+
+    .custom-footer-social a {
+        margin: 0 10px;
+    }
+}

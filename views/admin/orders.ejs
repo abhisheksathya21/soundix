@@ -1,13 +1,10 @@
-
 <%- include('../partials/admin/header') %>
 
 <main class="main-content" id="mainContent">
         <h1 class="h3 mb-4">Orders</h1>
-        <!-- Add your dashboard content here -->
          
 <head>
-  
-    <link rel="stylesheet" href="/admin-style/order.css">
+    <link rel="stylesheet" href="/assets/admin-style/order.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
 </head>
 <body>
@@ -31,7 +28,9 @@
             <td><%= order.userId.email %></td>
             <td>₹<%= order.totalAmount.toFixed(2) %></td>
             <td>
-                <select class="status-select" data-order-id="<%= order._id %>">
+                <select class="status-select <%= order.status.toLowerCase() %>" 
+                        data-order-id="<%= order._id %>"
+                        <%= order.status === 'Cancelled' || order.status === 'Delivered' ? 'disabled' : '' %>>
                     <option value="Pending" <%= order.status === 'Pending' ? 'selected' : '' %>>Pending</option>
                     <option value="Processing" <%= order.status === 'Processing' ? 'selected' : '' %>>Processing</option>
                     <option value="Shipped" <%= order.status === 'Shipped' ? 'selected' : '' %>>Shipped</option>
@@ -49,6 +48,25 @@
             </table>
         </div>
     </div>
+
+    <div class="pagination-container mt-4">
+  <% if (currentPage > 1) { %>
+    <a href="?page=1" class="pagination-link">First</a>
+    <a href="?page=<%= currentPage - 1 %>" class="pagination-link">&laquo; Previous</a>
+  <% } %>
+  <% for (let i = 1; i <= totalPages; i++) { %>
+    <% if (i === currentPage) { %>
+      <span class="current-page"><%= i %></span>
+    <% } else { %>
+      <a href="?page=<%= i %>" class="pagination-link"><%= i %></a>
+    <% } %>
+  <% } %>
+  <% if (currentPage < totalPages) { %>
+    <a href="?page=<%= currentPage + 1 %>" class="pagination-link">Next &raquo;</a>
+    <a href="?page=<%= totalPages %>" class="pagination-link">Last</a>
+  <% } %>
+</div>
+
 
     <!-- Modal -->
    <div class="modal-body">
@@ -97,6 +115,7 @@
         </div>
     </div>
 </div>
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
     <script>
      document.addEventListener('DOMContentLoaded', function() {
@@ -106,8 +125,28 @@
     const orders = <%- JSON.stringify(orders) %>; 
 
     // Function to update order status
-    async function updateOrderStatus(orderId, status) {
+    async function updateOrderStatus(orderId, status, selectElement) {
         try {
+            // Show confirmation dialog for cancellation
+            if (status === 'Cancelled') {
+                const result = await Swal.fire({
+                    title: 'Are you sure?',
+                    text: "This will cancel the order and return items to stock. This action cannot be undone!",
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonColor: '#3085d6',
+                    cancelButtonColor: '#d33',
+                    confirmButtonText: 'Yes, cancel it!'
+                });
+
+                if (!result.isConfirmed) {
+                    // Reset select to previous value if user cancels
+                    const order = orders.find(o => o._id === orderId);
+                    selectElement.value = order.status;
+                    return;
+                }
+            }
+
             const response = await fetch('/admin/update-order-status', {
                 method: 'POST',
                 headers: {
@@ -116,15 +155,43 @@
                 body: JSON.stringify({ orderId, status })
             });
 
+            const data = await response.json();
+
             if (!response.ok) {
-                throw new Error('Failed to update status');
+                throw new Error(data.error || 'Failed to update status');
+            }
+
+            // Update the select element's state
+            selectElement.className = 'status-select ' + status.toLowerCase();
+            if (status === 'Cancelled' || status === 'Delivered') {
+                selectElement.disabled = true;
             }
 
             // Show success message
-            alert('Order status updated successfully');
+            Swal.fire({
+                icon: 'success',
+                title: 'Success',
+                text: 'Order status updated successfully!',
+                timer: 2000,
+                showConfirmButton: false,
+            });
+
+            // Update the order in the orders array
+            const orderIndex = orders.findIndex(o => o._id === orderId);
+            if (orderIndex !== -1) {
+                orders[orderIndex].status = status;
+            }
+
         } catch (error) {
             console.error('Error updating status:', error);
-            alert('Failed to update order status');
+            // Show error message and reset select to previous value
+            Swal.fire({
+                icon: 'error',
+                title: 'Error',
+                text: error.message || 'Failed to update order status.',
+            });
+            const order = orders.find(o => o._id === orderId);
+            selectElement.value = order.status;
         }
     }
 
@@ -132,13 +199,11 @@
     document.querySelectorAll('.status-select').forEach(select => {
         select.addEventListener('change', function() {
             const orderId = this.dataset.orderId;
-            const status = this.value;
-            this.className = 'status-select ' + status.toLowerCase();
-            updateOrderStatus(orderId, status);
+            const newStatus = this.value;
+            updateOrderStatus(orderId, newStatus, this);
         });
-        // Set initial class
-        select.className = 'status-select ' + select.value.toLowerCase();
     });
+
 
     // Handle view details
     viewDetailsBtns.forEach(btn => {

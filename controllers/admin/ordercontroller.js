@@ -6,12 +6,37 @@ const Order = require("../../models/orderSchema");
 
 const getAllOrders = async (req, res) => {
   try {
-    const orders = await Order.find()
-      .populate("userId", "fullname email") // Populate user details
-      .populate("items.productId") // Populate product details
-      .sort({ orderDate: -1 }); // Sort by newest first
+    const page = parseInt(req.query.page) || 1;
+    const limit = 5;
+    const skip = (page - 1) * limit;
 
-    res.render("orders", { orders });
+    const totalOrders = await Order.countDocuments();
+    const totalPages = Math.ceil(totalOrders / limit);
+
+    const orders = await Order.find()
+      .populate("userId", "fullname email")
+      .populate("items.productId")
+      .sort({ orderDate: -1 })
+      .skip(skip)
+      .limit(limit);
+
+    const transformedOrders = orders.map((order) => ({
+      ...order.toObject(),
+      status: order.orderStatus,
+      isCancellable:
+        order.orderStatus !== "Cancelled" && order.orderStatus !== "Delivered",
+    }));
+
+    res.render("orders", {
+      orders: transformedOrders,
+      currentPage: page,
+      totalPages,
+      hasNextPage: page < totalPages,
+      hasPrevPage: page > 1,
+      nextPage: page + 1,
+      prevPage: page - 1,
+      lastPage: totalPages,
+    });
   } catch (error) {
     console.error("Error fetching orders:", error);
     res.status(500).render("error", { message: "Failed to load orders" });
@@ -29,29 +54,76 @@ const updateOrderStatus = async (req, res) => {
       "Delivered",
       "Cancelled",
     ];
+
     if (!validStatuses.includes(status)) {
-      return res.status(400).json({ error: "Invalid status value" });
+      return res.status(400).json({
+        success: false,
+        error: "Invalid status value",
+      });
     }
 
-    const updatedOrder = await Order.findByIdAndUpdate(
-      orderId,
-      {
-        orderStatus: status,
-        $push: {
-          statusHistory: { status, updatedAt: new Date() },
-        },
-      },
-      { new: true }
-    );
+    const order = await Order.findById(orderId)
+      .populate("userId", "fullname email")
+      .populate("items.productId");
 
-    if (!updatedOrder) {
-      return res.status(404).json({ error: "Order not found" });
+    if (!order) {
+      return res.status(404).json({
+        success: false,
+        error: "Order not found",
+      });
     }
 
-    res.json({ success: true, updatedOrder });
+    // Check if order is already cancelled or delivered
+    if (
+      order.orderStatus === "Cancelled" ||
+      order.orderStatus === "Delivered"
+    ) {
+      return res.status(400).json({
+        success: false,
+        error: "Cannot modify cancelled or delivered orders",
+      });
+    }
+
+    // Handle stock updates if order is being cancelled
+    if (status === "Cancelled") {
+      try {
+        // Update stock for each product in the order
+        for (const item of order.items) {
+          await Product.findByIdAndUpdate(item.productId._id, {
+            $inc: { stock: item.quantity },
+          });
+        }
+      } catch (error) {
+        console.error("Error updating product stock:", error);
+        return res.status(500).json({
+          success: false,
+          error: "Failed to update product stock",
+        });
+      }
+    }
+
+    // Update order status
+    order.orderStatus = status;
+    order.statusHistory.push({ status, updatedAt: new Date() });
+    await order.save();
+
+    // Transform the updated order to match frontend expectations
+    const transformedOrder = {
+      ...order.toObject(),
+      status: order.orderStatus,
+      isCancellable: status !== "Cancelled" && status !== "Delivered",
+    };
+
+    res.json({
+      success: true,
+      order: transformedOrder,
+    });
   } catch (error) {
     console.error("Error updating order status:", error);
-    res.status(500).json({ error: "Failed to update order status" });
+    res.status(500).json({
+      success: false,
+      error: "Failed to update order status",
+    });
   }
 };
 

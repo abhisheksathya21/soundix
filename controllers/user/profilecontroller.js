@@ -12,7 +12,7 @@ const userProfile = async (req, res) => {
     const userId = req.session.user;
     const userData = await User.findOne({ _id: userId });
     const addressData = await Address.findOne({ userId: userId });
-    console.log(addressData);
+   
     if (userId) {
       return res.render("userProfile", {
         user: userData,
@@ -94,7 +94,7 @@ const addressManagement = async (req, res) => {
     const userId = req.session.user;
     const userData = await User.findOne({ _id: userId });
     const addressData = await Address.findOne({ userId: userId });
-    console.log(addressData);
+  
     if (userId) {
       return res.render("addressManagement", {
         user: userData,
@@ -183,15 +183,73 @@ const addAddress = async (req, res) => {
   }
 };
 
-const editAddress = async (req, res) => {
+const getEditAddress = async (req, res) => {
   try {
-    const userId = req.session.user;
     const addressId = req.query.id;
+   
+    const userId = req.session.user;
+    
+
+    const user = await User.findById(userId);
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        message: "User not found",
+      });
+    }
+
+    const addressData = await Address.findOne({
+      userId: userId,
+      "address._id": addressId,
+    });
+    if (!addressData) {
+      return res.status(404).json({
+        success: false,
+        message: "Address not found or unauthorized access",
+      });
+    }
+   
+
+    res.render("editAddress", { address: addressData, user });
   } catch (error) {
-    return res.status(500).json({ message: "Internal Server Error" });
+    console.error("Error fetching address:", error);
+    res.status(500).json({
+      success: false,
+      message: "Internal server error",
+    });
   }
 };
 
+const deleteAddress = async (req, res) => {
+  try {
+    const addressId = req.query.id;
+    const userId = req.session.user;
+
+    const user = await User.findById(userId);
+    if (!user) {
+      return res
+        .status(404)
+        .json({ success: false, message: "User not found" });
+    }
+
+    const addressIndex = user.address.findIndex(
+      (addr) => addr._id.toString() === addressId
+    );
+    if (addressIndex === -1) {
+      return res
+        .status(404)
+        .json({ success: false, message: "Address not found" });
+    }
+
+    user.address.splice(addressIndex, 1);
+    await user.save();
+
+    res.redirect("/addressManagement");
+  } catch (error) {
+    console.error("Error deleting address:", error);
+    res.status(500).json({ success: false, message: "Error deleting address" });
+  }
+};
 
 const orders = async (req, res) => {
   try {
@@ -201,15 +259,24 @@ const orders = async (req, res) => {
       return res.redirect("/login");
     }
 
-   
+    // Pagination parameters
+    const page = parseInt(req.query.page) || 1;
+    const limit = 3; // Orders per page
+    const skip = (page - 1) * limit;
+
     const userData = await User.findOne({ _id: userId });
 
-    
-    const orderData = await Order.find({ userId: userId }).populate(
-      "items.productId"
-    );
+    // Get total count of orders for pagination
+    const totalOrders = await Order.countDocuments({ userId: userId });
+    const totalPages = Math.ceil(totalOrders / limit);
 
-   
+    // Get paginated orders
+    const orderData = await Order.find({ userId: userId })
+      .populate("items.productId")
+      .sort({ orderDate: -1 }) // Sort by newest first
+      .skip(skip)
+      .limit(limit);
+
     const formattedOrders = orderData.map((order) => ({
       id: order.orderId,
       date: new Date(order.orderDate).toLocaleDateString(),
@@ -218,12 +285,10 @@ const orders = async (req, res) => {
       paymentMethod: order.paymentMethod,
       shippingMethod: "Standard Shipping",
       products: order.items.map((item) => ({
-        name: item.productId?.productName || "Unknown Product", 
+        name: item.productId?.productName || "Unknown Product",
         price: item.price || 0,
         quantity: item.quantity || 0,
-        image:
-          item.productId?.productImage?.[0] 
-           
+        image: item.productId?.productImage?.[0],
       })),
       shippingAddress: {
         name: order.shippingAddress.name,
@@ -232,14 +297,22 @@ const orders = async (req, res) => {
       },
     }));
 
-    
-    res.render("order-details", { orders: formattedOrders, user: userData });
+    res.render("order-details", {
+      orders: formattedOrders,
+      user: userData,
+      currentPage: page,
+      totalPages,
+      hasNextPage: page < totalPages,
+      hasPrevPage: page > 1,
+      nextPage: page + 1,
+      prevPage: page - 1,
+      lastPage: totalPages,
+    });
   } catch (error) {
     console.error("Error in loading orders page:", error);
     res.status(500).render("error", { message: "Failed to load orders" });
   }
 };
-
 
 module.exports = {
   userProfile,
@@ -248,6 +321,7 @@ module.exports = {
   UpdatePassword,
   addressManagement,
   addAddress,
-  editAddress,
-  orders
+  getEditAddress,
+  deleteAddress,
+  orders,
 };

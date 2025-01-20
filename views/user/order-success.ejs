@@ -5,14 +5,19 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Order Success - Adidas</title>
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;700&display=swap" rel="stylesheet">
-   <link rel="stylesheet" href="/user-style/order-succes.css">
+   <link rel="stylesheet" href="/assets/user-style/order-succes.css">
     <link
       rel="shortcut icon"
       type="image/x-icon"s
       href="assets/img/favicon.ico"
     />
+    
 </head>
 <body>
+      <%- include('../partials/user/header')%>
+  
+  
+  <div class="content">
     <div class="container">
         <header>
            <img src="" alt="">
@@ -42,8 +47,9 @@
             <p>&copy; 2023 Adidas. All rights reserved.</p>
         </footer>
     </div>
-
-    
+ </div>
+ <%- include('../partials/user/footer')%>
+  
         <script>
     document.addEventListener('DOMContentLoaded', function() {
         // Generate a random order number

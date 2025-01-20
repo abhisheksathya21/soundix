@@ -9,12 +9,41 @@ const bcrypt=require("bcrypt");
 
 const pageNotFound= async(req,res)=>{
     try {
-      res.render("pageNotFound", { user: null });
+      res.render("pageNotFound", {
+        user: req.user || null,
+        message:
+          "Oops! The page you're looking for doesn't exist. Please check the URL or return to the homepage.",
+      });
     } catch (error) {
       console.error("Error loading 404 page", error);
       res.status(500).send("Internal Server Error");
     }
 }
+
+const googleAuth = async (req, res) => {
+  try {
+    const user = req.user; 
+
+    if (!user) {
+      throw new Error("User not found in req.user");
+    }
+
+    if (user.isBlocked) {
+      return res.render("login", { message: "User is blocked by the admin" });
+    }
+
+  
+    req.session.user = user._id;
+
+    
+    res.redirect("/");
+  } catch (error) {
+    console.error("Google Authentication Error:", error);
+    res.redirect("/login");
+  }
+};
+
+
 
 const loadhomepage=async(req,res)=>{
     try{ 
@@ -28,11 +57,9 @@ const loadhomepage=async(req,res)=>{
         
 
 
-        console.log("loadhome page req.session.user",req.session.user)
-        console.log("user",userId)
         if(userId){
             const userData=await User.findOne({_id:userId})
-            console.log("userData",userData)
+           
             return res.render('home',{user:userData,products:productData});
 
 
@@ -80,10 +107,16 @@ const login = async (req, res) => {
     const findUser = await User.findOne({ email });
 
     if (!findUser) {
-      return res.render("login", { message: "User Not Found" });
+      return res.render("login", {
+        message:
+          "We couldn't find an account with this email. Please try again or sign up.",
+      });
     }
     if (findUser.isBlocked) {
-      return res.render("login", { message: "User is blocked by the admin" });
+      return res.render("login", {
+        message:
+          "Your account has been disabled. Please contact support for assistance.",
+      });
     }
 
     const passwordMatch = await bcrypt.compare(password, findUser.password);
@@ -104,7 +137,7 @@ const logout=async(req,res)=>{
     try{
         req.session.destroy((error)=>{
             if(error){
-                console.log("the session doesnt destroyed there is an error");
+              
                 return res.redirect('/pageNotFound');
             }
             
@@ -161,7 +194,7 @@ async function sendVerificationEmail(email,otp){
     }
 }
 
-//Email for forgot password reset 
+
 
 async function resetPasswordEmail(email, otp) {
   try {
@@ -194,7 +227,7 @@ async function resetPasswordEmail(email, otp) {
 const loadforgot=async(req,res)=>{
   try{
     const message=req.query.message;
-    return res.render('forgot-password',{message});
+    return res.render("forgot-password", { message });
   }
   catch(error){
     console.log("error occured while loading forgot password")
@@ -205,9 +238,10 @@ const emailvalid=async(req,res)=>{
   try{
   
     const {email}=req.body;
-   
+   console.log(email);
     const findUser = await User.findOne({email:email});
     if(findUser){
+      console.log("User found");
       const otp = generateOtp();
       const emailSent = await resetPasswordEmail(email,otp)
       if(emailSent){
@@ -238,7 +272,7 @@ const PassresendOtp = async (req, res) => {
   try {
     const email = req.session.email;
 
-    // Check if email is present in the session
+   
     if (!email) {
       return res.status(400).json({
         success: false,
@@ -246,11 +280,11 @@ const PassresendOtp = async (req, res) => {
       });
     }
 
-    // Generate a new OTP and update the session
+    
     const otp = generateOtp();
     req.session.userPassOtp = otp;
 
-    // Resend the OTP via email
+  
     const emailSent = await resetPasswordEmail(email, otp);
     if (emailSent) {
       console.log("Resend OTP:", otp);
@@ -277,7 +311,7 @@ const verifyPassOtp = async (req, res) => {
   try {
     const { otpInput } = req.body;
 
-    // Check if the OTP exists in the session
+    
     if (!req.session.userPassOtp) {
       return res.status(400).json({
         success: false,
@@ -285,17 +319,17 @@ const verifyPassOtp = async (req, res) => {
       });
     }
 
-    // Compare the input OTP with the session OTP
+    
     if (otpInput === req.session.userPassOtp) {
-      // OTP verified successfully
+     
       console.log("OTP verified successfully");
-      req.session.userPassOtp = null; // Clear OTP from session for security
+      req.session.userPassOtp = null;
       return res.status(200).json({
         success: true,
         message: "OTP verified successfully. You may proceed.",
       });
     } else {
-      // Incorrect OTP
+      
       console.log("Invalid OTP");
       return res.status(400).json({
         success: false,
@@ -313,7 +347,7 @@ const verifyPassOtp = async (req, res) => {
 
 const loadresetPassword=async(req,res)=>{
   try{
-      return res.render("reset-password");
+      return res.render("reset-Password");
   }
   catch(error){
     console.log("reset password page load errorr ")
@@ -338,7 +372,7 @@ const signup = async (req, res) => {
 
     console.log("Signup attempt with email:", email);
 
-    // Check if user already exists
+    
     const finduser = await User.findOne({ email });
     if (finduser) {
       console.log("User already exists");
@@ -349,7 +383,7 @@ const signup = async (req, res) => {
     }
     const findphone= await User.findOne({phone});
     if(findphone){
-      console.log("this phone number alresy  exist");
+    
       return res.render("signup",{
         message:"user with this phone number exists"
       })
@@ -359,19 +393,19 @@ const signup = async (req, res) => {
     const otp = generateOtp();
     console.log("Generated OTP:", otp);
 
-    // Send verification email
+    
     const emailsent = await sendVerificationEmail(email, otp);
     if (!emailsent) {
       console.log("Email sending failed");
       return res.json({ error: "Email sending failed" });
     }
 
-    // Store OTP and user data in session
+    
     req.session.userOtp = otp;
     req.session.userData = { fullname, email, phone, password };
     console.log("OTP sent and session stored successfully:", otp);
 
-    // Notify user OTP was sent successfully
+    
     res.render("verify-otp", {
       message: "OTP sent successfully to your email.",
     });
@@ -402,7 +436,7 @@ const securePassword=async(password)=>{
 
 const verifyOtp = async (req, res) => {
     try {
-        console.log("Request body", req.body);
+       
         console.log("Stored OTP in session", req.session.userOtp);
         const { otpInput } = req.body;
         console.log(otpInput);
@@ -468,12 +502,13 @@ const resendOtp = async (req, res) => {
 
 const resetPassword = async (req, res) => {
   try {
-   
+   console.log("reset password");
     const email = req.session.email;
-    console.log("Email from session:", email);
+   console.log(email);
     const {newPassword}=req.body;
-
+    console.log(newPassword);
     if (!email) {
+      console.log("Email not found in session");
       return res.status(400).json({
         success: false,
         message: "Email not found in session",
@@ -493,7 +528,7 @@ const resetPassword = async (req, res) => {
       { email: email },
       { $set: { password: hashedPassword } }
     );
-
+    console.log("Password updated successfully");
     delete req.session.email;
     delete req.session.userOtp;
 
@@ -506,77 +541,125 @@ const resetPassword = async (req, res) => {
     });
   }
 };
-const loadShopPage = async (req, res) => { 
+const loadShopPage = async (req, res) => {
   try {
     const userId = req.session.user;
+
+    // Pagination parameters
+    const page = parseInt(req.query.page) || 1; // Current page
+    const limit = 12; // Products per page
+    const skip = (page - 1) * limit;
+
+    // Fetch categories from the database
     const categories = await Category.find({ isListed: true });
 
-    // Retrieve the `sort` query parameter (default to 'newest')
-    const sortParam = req.query.sort || 'newest';
+    // Retrieve query parameters
+    const sortParam = req.query.sort || "newest";
+    const selectedCategory = req.query.category || null;
 
-  
+    // Define sort criteria
     let sortCriteria;
     switch (sortParam) {
-      case 'priceLowHigh':
+      case "priceLowHigh":
         sortCriteria = { salePrice: 1 };
         break;
-      case 'priceHighLow':
-        sortCriteria = { salePrice: -1 }; 
+      case "priceHighLow":
+        sortCriteria = { salePrice: -1 };
         break;
-      case 'newest':
-        sortCriteria = { createdOn: -1 }; 
+      case "newest":
+        sortCriteria = { createdOn: -1 };
         break;
-      case 'popular':
-        sortCriteria = { popularity: -1 }; 
+      case "popular":
+        sortCriteria = { popularity: -1 };
         break;
-      case 'aToZ':
-        sortCriteria = { productName: 1 }; 
+      case "aToZ":
+        sortCriteria = { productName: 1 };
         break;
-      case 'zToA':
-        sortCriteria = { productName: -1 }; 
+      case "zToA":
+        sortCriteria = { productName: -1 };
         break;
       default:
-        sortCriteria = { createdAt: -1 }; 
+        sortCriteria = { createdOn: -1 };
     }
-
-    // Fetch the products with the determined sort criteria
-    let productData = await Product.find({
-      isBlocked: false,
-      category: { $in: categories.map((category) => category._id) },
-      quantity: { $gt: 0 },
-    }).sort(sortCriteria);
-
-    const breadcrumbs = [
-      { name: 'Home', url: '/' },
-      { name: 'Shop', url: '' }, 
-    ];
 
     
-    if (userId) {
-      const userData = await User.findOne({ _id: userId });
-      return res.render('shop', {
-        user: userData,
-        products: productData,
-        breadcrumbs,
-        currentSort: sortParam, 
-      });
-    } else {
-      return res.render('shop', {
-        user: null,
-        products: productData,
-        breadcrumbs,
-        currentSort: sortParam, 
+    const productFilter = {
+      isBlocked: false,
+      quantity: { $gt: 0 },
+    };
+
+    // Add category filter if selected
+    if (selectedCategory) {
+      const category = categories.find((cat) => cat.slug === selectedCategory);
+      if (category) {
+        productFilter.category = category._id;
+      }
+    }
+
+    // Get total number of products matching the filter
+    const totalProducts = await Product.countDocuments(productFilter);
+    const totalPages = Math.ceil(totalProducts / limit);
+
+    // Fetch paginated products
+    const productData = await Product.find(productFilter)
+      .sort(sortCriteria)
+      .skip(skip)
+      .limit(limit);
+
+    // Generate pagination links
+    const paginationLinks = [];
+    for (let i = 1; i <= totalPages; i++) {
+      paginationLinks.push({
+        page: i,
+        active: i === page,
+        url: generatePageUrl(req, i),
       });
     }
+
+    // Breadcrumbs
+    const breadcrumbs = [
+      { name: "Home", url: "/" },
+      { name: "Shop", url: "" },
+    ];
+
+    // Render data
+    const renderData = {
+      user: userId ? await User.findOne({ _id: userId }) : null,
+      products: productData,
+      breadcrumbs,
+      currentSort: sortParam,
+      categories,
+      currentCategory: selectedCategory,
+      pagination: {
+        currentPage: page,
+        totalPages: totalPages,
+        hasNextPage: page < totalPages,
+        hasPrevPage: page > 1,
+        links: paginationLinks,
+        totalProducts,
+      },
+    };
+
+    res.render("shop", renderData);
   } catch (error) {
-    console.log("Error loading shop page:", error);
-    res.redirect('/pageNotFound');
+    console.error("Error loading shop page:", error);
+    res.redirect("/pageNotFound");
   }
+};
+
+// Helper function to generate pagination URLs
+const generatePageUrl = (req, pageNum) => {
+  const url = new URL(req.protocol + "://" + req.get("host") + req.originalUrl);
+  url.searchParams.set("page", pageNum);
+  return url.pathname + url.search;
 };
 
 
 
+
+
 module.exports = {
+  googleAuth,
   loadhomepage,
   pageNotFound,
   loadSignup,

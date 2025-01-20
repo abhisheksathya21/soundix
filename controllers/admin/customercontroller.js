@@ -24,7 +24,7 @@ const customerInfo = async (req, res) => {
         const count = await User.countDocuments(searchQuery);
 
         const totalPages = Math.ceil(count / limit);
-        console.log("admin customer page loaded");
+       
         res.render('customers', {
             customers: UserData,
             currentPage: page,

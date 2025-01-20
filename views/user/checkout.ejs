@@ -4,7 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Checkout</title>
-    <link rel="stylesheet" href="/user-style/checkout.css">
+    <link rel="stylesheet" href="/assets/user-style/checkout.css">
+    
      <link
       rel="shortcut icon"
       type="image/x-icon"s
@@ -12,16 +13,10 @@
     />
 </head>
 <body>
-    <header>
-        <nav>
-            <ul>
-                <li><a href="/">Home</a></li>
-                <li><a href="/shop">Products</a></li>
-                <li><a href="/cart">Cart</a></li>
-            </ul>
-        </nav>
-    </header>
+   <%- include('../partials/user/header')%>
 
+  
+  <div class="content">
     <div class="container">
         <h1>Checkout</h1>
         <div class="progress-bar">
@@ -128,18 +123,12 @@
             </div>
         </div>
     </div>
-
-    <footer>
-        <p>&copy; 2023 Your Company. All rights reserved.</p>
-        <nav>
-            <ul>
-                <li><a href="#">Privacy Policy</a></li>
-                <li><a href="#">Terms of Service</a></li>
-                <li><a href="#">FAQ</a></li>
-            </ul>
-        </nav>
-    </footer>
-
+     </div>
+<br>
+<br>
+<br>
+   <%- include('../partials/user/footer')%>
+   
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script>
   async function submitOrder() {

@@ -4,121 +4,125 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Account Overview</title>
-    <link rel="stylesheet" href="/user-style/userprofile.css" />
+    <link rel="stylesheet" href="/assets/user-style/sidebar.css" />
     <link
       rel="stylesheet"
       href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css"
     />
+    <link rel="stylesheet" href="/assets/user-style/userprofile.css" />
     <link
       rel="shortcut icon"
-      type="image/x-icon"s
+      type="image/x-icon"
+      s
       href="assets/img/favicon.ico"
     />
+    <style>
+      body {
+        font-family: "Poppins", sans-serif;
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+        background-color: #f4f4f4;
+      }
+    </style>
   </head>
 
   <body>
-    
     <%- include('../partials/user/header')%>
 
-    <button id="openModal" class="open-modal-btn">Open Menu</button>
-    <div class="layout">
-    
-    
+    <input type="checkbox" id="sidebar-toggle" />
+    <label for="sidebar-toggle" class="sidebar-toggle-label">☰</label>
 
-      <!-- Modal -->
-      <div id="responsiveModal" class="modal">
-        <div class="modal-content">
-          <span class="close-btn">&times;</span>
-          <div class="modal-menu">
-            <a href="/userProfile"
-              ><i class="fa-solid fa-user"></i> Account Overview</a
-            >
-            <a href="/orders"><i class="fa-solid fa-shop"></i> My Orders</a>
-            <a href="/addressManagement"
-              ><i class="fa-solid fa-address-book"></i> Manage Addresses</a
-            >
-            <a href="wallet.html"><i class="fa-solid fa-wallet"></i> Wallet</a>
-            <a href="/password"><i class="fa-solid fa-key"></i> Password</a>
-            <a href="wishlist.html"
-              ><i class="fa-solid fa-heart"></i> Wishlist</a
-            >
-            <button class="logout-btn">Logout</button>
+    <aside class="sidebar">
+      <nav>
+        <ul class="sidebar-menu">
+          <li><a href="/userProfile" class="active">Account Overview</a></li>
+          <li><a href="/orders">Order Details</a></li>
+          <li><a href="/addressManagement">Manage Address</a></li>
+          <li><a href="/wallet">Wallet</a></li>
+          <li><a href="/password">Password</a></li>
+          <li><a href="/wishlist">Wishlist</a></li>
+        </ul>
+      </nav>
+      <button class="logout-btn">Logout</button>
+    </aside>
+
+    <main class="content">
+      <!-- Your page content goes here -->
+      <div class="view-port">
+        <div id="account-overview" class="content active">
+          <h1>Account Overview</h1>
+          <div class="overview-grid">
+            <div class="overview-card" id="profile-details">
+              <h2>Profile Details</h2>
+              <div id="profile-info">
+                <p>Name: <span id="profile-name"><%=user.fullname%></span></p>
+                <p>Email: <span id="profile-email"><%=user.email%></span></p>
+                <p>Phone: <span id="profile-phone"><%=user.phone%></span></p>
+                <button id="edit-profile-btn" class="edit-btn">
+                  Edit Profile
+                </button>
+              </div>
+              <form
+                id="edit-profile-form"
+                class="hidden"
+                method="post"
+                action="/userProfile"
+              >
+                <div class="form-group">
+                  <label for="edit-name">Name:</label>
+                  <input
+                    type="text"
+                    id="edit-name"
+                    name="name"
+                    required
+                    pattern="[A-Za-z\s]{3,}"
+                    title="Name must contain only letters and spaces, and be at least 3 characters long."
+                  />
+                </div>
+                <div class="form-group">
+                  <label for="edit-email">Email:</label>
+                  <input
+                    type="email"
+                    id="edit-email"
+                    name="email"
+                    required
+                    readonly
+                  />
+                </div>
+                <div class="form-group">
+                  <label for="edit-phone">Phone:</label>
+                  <input
+                    type="tel"
+                    id="edit-phone"
+                    name="phone"
+                    required
+                    pattern="\d{10}"
+                    title="Phone number must be 10 digits."
+                  />
+                </div>
+                <div class="form-actions">
+                  <button type="submit" class="submit-btn">Submit</button>
+                  <button type="button" id="cancel-edit-btn" class="cancel-btn">
+                    Cancel
+                  </button>
+                </div>
+              </form>
+            </div>
+            <div class="overview-card">
+              <h2>Recent Orders</h2>
+
+              <a href="/orders" class="view-all">View All Orders →</a>
+            </div>
           </div>
         </div>
       </div>
-
-      <main class="main-content">
-        <h1>Account Overview</h1>
-        <div class="overview-grid">
-          <div class="overview-card" id="profile-details">
-            <h2>Profile Details</h2>
-            <div id="profile-info">
-              <p>Name: <span id="profile-name"><%=user.fullname%></span></p>
-              <p>Email: <span id="profile-email"><%=user.email%></span></p>
-              <p>Phone: <span id="profile-phone"><%=user.phone%></span></p>
-              <button id="edit-profile-btn" class="edit-btn">
-                Edit Profile
-              </button>
-            </div>
-            <form
-              id="edit-profile-form"
-              class="hidden"
-              method="post"
-              action="/userProfile"
-            >
-              <div class="form-group">
-                <label for="edit-name">Name:</label>
-                <input
-                  type="text"
-                  id="edit-name"
-                  name="name"
-                  required
-                  pattern="[A-Za-z\s]{3,}"
-                  title="Name must contain only letters and spaces, and be at least 3 characters long."
-                />
-              </div>
-              <div class="form-group">
-                <label for="edit-email">Email:</label>
-                <input
-                  type="email"
-                  id="edit-email"
-                  name="email"
-                  required
-                  readonly
-                />
-              </div>
-              <div class="form-group">
-                <label for="edit-phone">Phone:</label>
-                <input
-                  type="tel"
-                  id="edit-phone"
-                  name="phone"
-                  required
-                  pattern="\d{10}"
-                  title="Phone number must be 10 digits."
-                />
-              </div>
-              <div class="form-actions">
-                <button type="submit" class="submit-btn">Submit</button>
-                <button type="button" id="cancel-edit-btn" class="cancel-btn">
-                  Cancel
-                </button>
-              </div>
-            </form>
-          </div>
-          <div class="overview-card">
-            <h2>Recent Orders</h2>
-            
-            <a href="/orders" class="view-all">View All Orders →</a>
-          </div>
-        </div>
-      </main>
-    </div>
+    </main>
 
     <%- include('../partials/user/footer')%>
 
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-    <script src="/user.js"></script>
+    
     <script>
       // Profile edit functionality
       const editBtn = document.getElementById("edit-profile-btn");
@@ -190,5 +194,7 @@
         });
       });
     </script>
+
+   
   </body>
 </html>

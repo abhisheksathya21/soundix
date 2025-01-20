@@ -6,8 +6,8 @@ const db=require("./config/dbs");
 const userRouter=require('./routes/userRouter');
 const adminRouter=require('./routes/adminRouter');
 const session=require('express-session');
-const passport=require('./config/passport');
 const nocache = require('nocache');
+const passport=require('./config/passport');
 db();
 app.use(nocache());
 app.use(express.json());
@@ -27,14 +27,13 @@ app.use(session({
     }
 }))
 
-app.use(passport.initialize());
-app.use(passport.session());
 
 app.use('/',userRouter);
 
 app.use('/admin',adminRouter);
 
-
+app.use(passport.initialize());
+app.use(passport.session());
 app.listen(process.env.PORT,()=>{
     console.log("server running");
 });  

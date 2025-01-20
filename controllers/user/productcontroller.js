@@ -13,8 +13,7 @@ const productDetails=async (req,res)=>{
          return res.status(404).send("Product not found");
         }
         const findcategory=productData.category;
-        console.log("productData",productData);
-        console.log("productData.quantity",productData.quantity);
+       
         const RelatedProducts= await Product.find({
              category: productData.category._id,
       _id: { $ne: productData._id },

@@ -9,14 +9,13 @@ const pageError = async (req, res) => {
 const loadLogin = async (req, res) => {
   try {
      const message = req.query.message || "";
-    console.log("Loading admin login");
-    console.log("req.session.admin", req.session.admin);
+  
 
     if (req.session.admin) {
       return res.render("dashboard");
     }
 
-    console.log("Admin login loaded successfully");
+   
     return res.render("admin-login", { message });
   } catch (error) {
     console.error("Error occurred while loading admin login", error);
@@ -47,8 +46,7 @@ const login = async (req, res) => {
 };
 
 const loadDashboard = async (req, res) => {
-  console.log("req.session.admin:", req.session.admin);
-
+ 
   if (req.session.admin) {
     try {
       console.log("The dashboard page loaded successfully");

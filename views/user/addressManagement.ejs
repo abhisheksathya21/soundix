@@ -4,7 +4,8 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Address management</title>
-    <link rel="stylesheet" href="/user-style/userprofile.css" />
+   <link rel="stylesheet" href="/assets/user-style/address.css">
+    <link rel="stylesheet" href="/assets/user-style/sidebar.css">
     <link
       rel="stylesheet"
       href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css"
@@ -14,181 +15,144 @@
       type="image/x-icon"s
       href="assets/img/favicon.ico"
     />
+    
   </head>
   <body>
+      
+  
+  
+
     <%- include('../partials/user/header')%>
-    <button id="openModal" class="open-modal-btn">Open Menu</button>
-    <div class="layout">
-      <!-- Sidebar -->
-      <!-- Trigger Button -->
+      <input type="checkbox" id="sidebar-toggle" />
+    <label for="sidebar-toggle" class="sidebar-toggle-label">☰</label>
 
-      <!-- Modal -->
-      <div id="responsiveModal" class="modal">
-        <div class="modal-content">
-          <span class="close-btn">&times;</span>
-          <div class="modal-menu">
-            <a href="/userProfile"
-              ><i class="fa-solid fa-user"></i> Account Overview</a
-            >
-            <a href="/orders"><i class="fa-solid fa-shop"></i> My Orders</a>
-            <a href="/addressManagement"
-              ><i class="fa-solid fa-address-book"></i> Manage Addresses</a
-            >
-            <a href="wallet.html"><i class="fa-solid fa-wallet"></i> Wallet</a>
-            <a href="/password"><i class="fa-solid fa-key"></i> Password</a>
-            <a href="wishlist.html"
-              ><i class="fa-solid fa-heart"></i> Wishlist</a
-            >
-            <button class="logout-btn">Logout</button>
-          </div>
-        </div>
+    <aside class="sidebar">
+      <nav>
+        <ul class="sidebar-menu">
+          <li><a href="/userProfile" >Account Overview</a></li>
+          <li><a href="/orders" >Order Details</a></li>
+          <li><a href="/addressManagement" class="active">Manage Address</a></li>
+          <li><a href="/wallet">Wallet</a></li>
+          <li><a href="/password">Password</a></li>
+          <li><a href="/wishlist">Wishlist</a></li>
+        </ul>
+      </nav>
+      <button class="logout-btn">Logout</button>
+    </aside>
+   
+
+
+      
+    
+    
+    <main class="content">
+  <!-- Page Content -->
+  <div class="view-port">
+   
+    <div class="overview-grid">
+      
+      <!-- Address Details Section -->
+      <div class="overview-card" id="address-details">
+        <h2>Address Details</h2>
+        <% if (userAddress && userAddress.address && userAddress.address.length > 0) { %>
+        <ul class="address-list">
+          <% userAddress.address.forEach((address, index) => { %>
+          <li class="address-item">
+            <div class="address-info">
+              <p><strong>Type:</strong> <%= address.addressType %></p>
+              <p><strong>Name:</strong> <%= address.name %></p>
+              <p><strong>City:</strong> <%= address.city %></p>
+              <p><strong>Landmark:</strong> <%= address.landmark || 'N/A' %></p>
+              <p><strong>District:</strong> <%= address.district %></p>
+              <p><strong>State:</strong> <%= address.state %></p>
+              <p><strong>Pincode:</strong> <%= address.pincode %></p>
+              <p><strong>Phone:</strong> <%= address.phone %></p>
+              <p><strong>Alternate Phone:</strong> <%= address.alternativePhone || 'N/A' %></p>
+            </div>
+            <div class="address-actions">
+              <a href="/editAddress?id=<%= address._id %>" class="edit-btn">Edit</a>
+              <a href="/deleteAddress?id=<%= address._id %>" class="delete-btn">Delete</a>
+            </div>
+          </li>
+          <% }); %>
+        </ul>
+        <% } else { %>
+        <p class="no-address-message">No addresses available.</p>
+        <% } %>
+        <button id="add-address-btn" class="add-btn">Add Address</button>
       </div>
-      <main class="main-content">
-        <h1>Manage Address</h1>
-        <div class="overview-grid">
-          <!-- Address Details Section -->
-          <div class="overview-card" id="address-details">
-            <h2>Address Details</h2>
-            <% if (userAddress && userAddress.address &&
-            userAddress.address.length > 0) { %>
-
-            <ul id="address-list">
-              <% userAddress.address.forEach((address, index) => { %>
-              <li class="address-item">
-                <span><%= address.addressType %></span>,
-                <span><%= address.name %></span>,
-                <span><%= address.city %></span>,
-                <span><%= address.landmark %></span>,
-                <span><%= address.district %></span>,
-                <span><%= address.state %></span>,
-                <span><%= address.pincode %></span>,
-                <span><%= address.phone %></span>,
-
-                <span><%= address.alternativePhone || 'N/A' %></span>
-
-                <div class="address-actions">
-                  <button class="edit-address-btn" data-index="<%= index %>">
-                    <a href="/editAddress?id=<%=address._id%>">Edit</a>
-                  </button>
-
-                  <button type="submit" class="delete-address-btn">
-                    <a href="/deleteAddress?id=<%=address._id%>">Delete</a>
-                  </button>
-                </div>
-              </li>
-              <% }); %>
-            </ul>
-            <% } else { %>
-            <p>No addresses available.</p>
-            <% } %>
-            <button id="add-address-btn" class="add-btn">Add Address</button>
+      
+      <!-- Add/Edit Address Form Section -->
+      <div class="overview-card hidden" id="add-address-form-container">
+        <h3>Add New Address</h3>
+      
+        <form id="add-address-form" method="post">
+          
+          <div class="form-group">
+            <label for="address-type">Address Type:</label>
+            <input type="text" id="address-type" name="addressType" required />
           </div>
-
-          <!-- Address Form -->
-          <div class="overview-card hidden" id="add-address-form-container">
-            <h3>Add New Address</h3>
-            <form id="add-address-form" method="post">
-              <div class="form-row">
-                <div class="form-group">
-                  <label for="address-type">Address Type:</label>
-                  <input
-                    type="text"
-                    id="address-type"
-                    name="addressType"
-                    required
-                  />
-                </div>
-                <div class="form-group">
-                  <label for="address-name">Name:</label>
-                  <input type="text" id="address-name" name="name" required />
-                </div>
-              </div>
-
-              <div class="form-row">
-                <div class="form-group">
-                  <label for="address-city">City:</label>
-                  <input type="text" id="address-city" name="city" required />
-                </div>
-                <div class="form-group">
-                  <label for="address-landmark">Landmark:</label>
-                  <input type="text" id="address-landmark" name="landmark" />
-                </div>
-              </div>
-
-              <div class="form-row">
-                <div class="form-group">
-                  <label for="address-district">District:</label>
-                  <input
-                    type="text"
-                    id="address-district"
-                    name="district"
-                    required
-                  />
-                </div>
-                <div class="form-group">
-                  <label for="address-state">State:</label>
-                  <input type="text" id="address-state" name="state" required />
-                </div>
-              </div>
-
-              <div class="form-row">
-                <div class="form-group">
-                  <label for="address-pincode">Pincode:</label>
-                  <input
-                    type="text"
-                    id="address-pincode"
-                    name="pincode"
-                    required
-                    pattern="\d{6}"
-                    title="Pincode must be 6 digits."
-                  />
-                </div>
-                <div class="form-group">
-                  <label for="address-phone">Phone:</label>
-                  <input
-                    type="tel"
-                    id="address-phone"
-                    name="phone"
-                    required
-                    pattern="\d{10}"
-                    title="Phone number must be 10 digits."
-                  />
-                </div>
-              </div>
-
-              <div class="form-row">
-                <div class="form-group">
-                  <label for="address-alt-phone">Alternate Phone:</label>
-                  <input
-                    type="tel"
-                    id="address-alt-phone"
-                    name="alternativePhone"
-                    pattern="\d{10}"
-                    title="Phone number must be 10 digits."
-                  />
-                </div>
-              </div>
-
-              <div class="form-actions">
-                <button type="submit" class="submit-btn">Save Address</button>
-                <button
-                  type="button"
-                  id="cancel-address-btn"
-                  class="cancel-btn"
-                >
-                  Cancel
-                </button>
-              </div>
-            </form>
+          <div class="form-group">
+            <label for="address-name">Name:</label>
+            <input type="text" id="address-name" name="name" required />
           </div>
-        </div>
-      </main>
-    </div>
-    <hr />
+          <div class="form-group">
+            <label for="address-city">City:</label>
+            <input type="text" id="address-city" name="city" required />
+          </div>
+          <div class="form-group">
+            <label for="address-landmark">Landmark:</label>
+            <input type="text" id="address-landmark" name="landmark" />
+          </div>
+          <div class="form-group">
+            <label for="address-district">District:</label>
+            <input type="text" id="address-district" name="district" required />
+          </div>
+          <div class="form-group">
+            <label for="address-state">State:</label>
+            <input type="text" id="address-state" name="state" required />
+          </div>
+          <div class="form-group">
+            <label for="address-pincode">Pincode:</label>
+            <input type="text" id="address-pincode" name="pincode" required pattern="\d{6}" title="Pincode must be 6 digits." />
+          </div>
+          <div class="form-group">
+            <label for="address-phone">Phone:</label>
+            <input type="tel" id="address-phone" name="phone" required pattern="\d{10}" title="Phone number must be 10 digits." />
+          </div>
+          <div class="form-group">
+            <label for="address-alt-phone">Alternate Phone:</label>
+            <input type="tel" id="address-alt-phone" name="alternativePhone" pattern="\d{10}" title="Phone number must be 10 digits." />
+          </div>
+          <div class="form-actions">
+            <button type="submit" class="submit-btn">Save Address</button>
+            <button type="button" id="cancel-address-btn" class="cancel-btn">Cancel</button>
+          </div>
+        
+        </form>
+      </div>
+      
+      
+    </div> <!-- Closing overview-grid -->
+  </div> <!-- Closing view-port -->
+</main>
+
+    
+           
+
+
+
+
+
+
+    
+     
+     
+     
     <%- include('../partials/user/footer')%>
-
+  
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-    <script src="/user.js"></script>
+   
     |
     <script>
       document.addEventListener("DOMContentLoaded", () => {
@@ -265,3 +229,14 @@
     </script>
   </body>
 </html>
+
+
+
+
+
+
+
+
+
+
+

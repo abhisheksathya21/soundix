@@ -2,14 +2,13 @@ const User=require('../models/userSchema');
 
 const UserAuth = async (req, res, next) => {
   try {
-    console.log("User Auth session checking", req.session.user);
-
+   
     if (req.session.user) {
       const user = await User.findById(req.session.user);
 
       // Check if user exists and is not blocked
       if (user && !user.isBlocked) {
-        console.log("User is authenticated and not blocked");
+       
         return next();
       } else {
         console.log("User is blocked, logging out");
@@ -22,7 +21,7 @@ const UserAuth = async (req, res, next) => {
         return; 
       }
     } else {
-      console.log("User not authenticated, redirecting to login");
+      
       res.redirect("/login"); 
     }
   } catch (error) {

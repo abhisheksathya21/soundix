@@ -1,0 +1,295 @@
+@import url("https://fonts.googleapis.com/css?family=Josefin+Sans:200,300,400,500,600,700|Roboto:100,300,400,500,700&display=swap");
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: "Josefin Sans", sans-serif;
+}
+
+body {
+  font-family: "Poppins", sans-serif;
+  padding-top: 80px;
+}
+
+/* Header styles */
+.header-area {
+  position: fixed;
+  top: 0;
+  width: 100%;
+  z-index: 1000;
+  background-color: #ffffff;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.main-header {
+  padding: 15px 0;
+}
+
+.container-fluid {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 15px;
+}
+
+.menu-wrapper {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+/* Logo styles */
+.logo img {
+  height: 50px;
+  width: auto;
+}
+
+/* Navigation styles */
+.main-menu {
+  flex-grow: 1;
+  margin: 0 20px;
+}
+
+.main-menu ul#navigation {
+  display: flex;
+  justify-content: center;
+  gap: 2rem;
+  margin: 0;
+  padding: 0;
+}
+
+.main-menu ul#navigation li {
+  list-style: none;
+}
+
+.main-menu ul#navigation li a {
+  text-decoration: none;
+  font-weight: 600;
+  color: #333;
+  font-size: 1.1rem;
+  transition: color 0.3s ease;
+  display: flex;
+  align-items: center;
+}
+
+.main-menu ul#navigation li a:hover {
+  color: #4a90e2;
+}
+
+/* Right side styles */
+.right-side {
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+}
+
+.search-box {
+  display: flex;
+  align-items: center;
+  background-color: #f5f5f5;
+  border-radius: 20px;
+  padding: 5px 10px;
+}
+
+.search-box input {
+  border: none;
+  background: transparent;
+  padding: 5px;
+  font-size: 0.9rem;
+  width: 150px;
+}
+
+.search-box button {
+  background: transparent;
+  border: none;
+  cursor: pointer;
+}
+
+.icon-link {
+  text-decoration: none;
+  color: #333;
+  font-size: 1.5rem;
+  transition: color 0.3s ease;
+  display: flex;
+  align-items: center;
+}
+
+.icon-link:hover {
+  color: #4a90e2;
+}
+
+/* Icon styles */
+[class^="flaticon-"]:before,
+[class*=" flaticon-"]:before {
+  font-family: Flaticon;
+  font-size: 20px;
+  color: #333;
+  transition: color 0.3s ease;
+}
+
+.icon-link:hover [class^="flaticon-"]:before,
+.icon-link:hover [class*=" flaticon-"]:before {
+  color: #4a90e2;
+}
+
+.icon {
+  width: 24px;
+  height: 24px;
+}
+
+/* Submenu styles */
+.submenu {
+  display: none;
+  position: absolute;
+  background-color: #ffffff;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+  padding: 10px 0;
+  min-width: 150px;
+}
+
+.main-menu ul#navigation li:hover .submenu {
+  display: block;
+}
+
+.submenu li {
+  padding: 5px 15px;
+}
+
+.submenu li a {
+  color: #333;
+  font-size: 0.9rem;
+}
+
+/* Mobile menu toggle */
+.mobile-menu-toggle {
+  display: none;
+  flex-direction: column;
+  cursor: pointer;
+}
+
+.mobile-menu-toggle span {
+  width: 25px;
+  height: 3px;
+  background-color: #333;
+  margin: 2px 0;
+  transition: 0.4s;
+}
+
+/* Mobile menu styles */
+.mobile-menu {
+  display: none;
+  position: fixed;
+  top: 80px; /* Adjust this value to match your header height */
+  left: 0;
+  width: 100%;
+  height: calc(100% - 80px); /* Subtract header height from full height */
+  background-color: #ffffff;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  overflow-y: auto;
+  z-index: 999;
+}
+
+.mobile-menu.active {
+  display: block;
+}
+
+.mobile-menu ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.mobile-menu ul li {
+  border-bottom: 1px solid #f0f0f0;
+}
+
+.mobile-menu ul li a {
+  display: block;
+  padding: 15px 20px;
+  color: #333;
+  text-decoration: none;
+  font-size: 1rem;
+  transition: background-color 0.3s ease;
+}
+
+.mobile-menu ul li a:hover {
+  background-color: #f5f5f5;
+}
+
+.mobile-menu .submenu {
+  display: none;
+  background-color: #f9f9f9;
+}
+
+.mobile-menu .submenu.active {
+  display: block;
+}
+
+.mobile-menu .submenu li {
+  border-bottom: none;
+}
+
+.mobile-menu .submenu li a {
+  padding-left: 30px;
+}
+
+.cart-mobile {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.cart-mobile .icon {
+  width: 20px;
+  height: 20px;
+}
+
+/* Responsive styles */
+@media (max-width: 991px) {
+  .main-menu {
+    display: none;
+  }
+
+  .mobile-menu-toggle {
+    display: flex;
+  }
+
+  .menu-wrapper {
+    justify-content: space-between;
+  }
+
+  .right-side {
+    order: 2;
+  }
+
+  .logo {
+    order: 1;
+  }
+
+  .mobile-menu-toggle {
+    order: 3;
+  }
+
+  .search-box {
+    display: none;
+  }
+
+  .right-side {
+    gap: 1rem;
+  }
+
+  .cart-desktop {
+    display: none;
+  }
+}
+
+@media (min-width: 992px) {
+  .mobile-menu {
+    display: none !important;
+  }
+}
+
+body.mobile-menu-open {
+  overflow: hidden;
+}
+

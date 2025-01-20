@@ -1,74 +1,79 @@
 <!DOCTYPE html>
 <html class="no-js" lang="zxx">
   <head>
-    <meta charset="utf-8" />
-    <meta http-equiv="x-ua-compatible" content="ie=edge" />
-    <title>Beats Zone </title>
-    <meta name="description" content="" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <link rel="manifest" href="site.webmanifest" />
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
-    <link
-      rel="shortcut icon"
-      type="image/x-icon"s
-      href="assets/img/favicon.ico"
-    />
+    <!-- ... (keep your existing head content) ... -->
+   <link rel="stylesheet" href="/assets/user-style/header.css">
 
-    <!-- CSS here -->
-    <link rel="stylesheet" href="assets/css/bootstrap.min.css" />
-    <link rel="stylesheet" href="assets/css/owl.carousel.min.css" />
-    <link rel="stylesheet" href="assets/css/flaticon.css" />
-    <link rel="stylesheet" href="assets/css/slicknav.css" />
-    <link rel="stylesheet" href="assets/css/animate.min.css" />
-    <link rel="stylesheet" href="assets/css/magnific-popup.css" />
-    <link rel="stylesheet" href="assets/css/fontawesome-all.min.css" />
-    <link rel="stylesheet" href="assets/css/themify-icons.css" />
-    <link rel="stylesheet" href="assets/css/slick.css" />
-    <link rel="stylesheet" href="assets/css/nice-select.css" />
-    <link rel="stylesheet" href="assets/css/style.css" />
-    <style>
-   .logo img {
-    height: 40px; /* Adjust the height as needed */
-    width: auto;  /* Maintain the aspect ratio */
-  }
-.header-area {
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* Subtle shadow */
-    position: relative; /* Ensures shadow renders correctly */
-    z-index: 10; /* Keeps the navbar above other elements */
-}
-/* Center align Home and Shop */
-.main-menu ul#navigation {
-    display: flex;
-    justify-content: center; /* Center the links horizontally */
-    gap: 2rem; /* Add spacing between links */
-}
 
-.main-menu ul#navigation li {
-    list-style: none; /* Remove bullet points */
-}
-
-.main-menu ul#navigation li a {
-    text-decoration: none;
-    font-weight: 600;
-    color: #333;
-    font-size: 1rem;
-    transition: color 0.3s ease;
-}
-
-/* Optional: Adjust hover styles */
-.main-menu ul#navigation li a:hover {
-    color: #d61500; /* Highlight color */
-}
-
-      
-      
-    </style>
-      <link rel="stylesheet" href="/user-style/preloader.css">
-    
   </head>
+<style>
+  .preloader {
+  background-color: #f7f7f7;
+  width: 100%;
+  height: 100%;
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 999999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: 0.6s;
+}
 
+.preloader .preloader-inner {
+  position: relative;
+  text-align: center;
+}
+
+.preloader .preloader-img img {
+  max-width: 50px;
+  /* No animation applied here */
+}
+
+/* Loading text styles */
+.pere-text strong {
+  font-weight: 800;
+  color: #dca73a;
+  text-transform: uppercase;
+  display: block;
+  margin-top: 10px;
+  font-size: 14px;
+  position: relative; /* To ensure proper positioning of the dots */
+}
+
+.pere-text strong::after {
+  content: '...'; /* The dots will animate */
+  display: inline-block;
+  position: absolute;
+  animation: dots 1s steps(3, end) infinite;
+}
+
+/* Dots animation */
+@keyframes dots {
+  0% {
+    content: '';
+  }
+  33% {
+    content: '.';
+  }
+  66% {
+    content: '..';
+  }
+  100% {
+    content: '...';
+  }
+}
+
+#preloader-active {
+  transition: opacity 0.6s ease-out;
+}
+</style>
   <body>
-  <div id="preloader-active">
+    <!-- ... (keep your existing preloader) ... -->
+<div id="preloader-active">
   <div class="preloader">
     <div class="preloader-inner">
       <div class="preloader-img pere-text">
@@ -78,39 +83,23 @@
     </div>
   </div>
 </div>
-
-    <header>
-      <!-- Header Start -->
+<header>
       <div class="header-area">
         <div class="main-header header-sticky">
           <div class="container-fluid">
             <div class="menu-wrapper">
-              <!-- Logo -->
               <div class="logo">
-                <div class="logo">
-              <img src="/assets/img/beats-logo-161616.png" alt="SoundZone Logo" />
-              
-             </div>
-             
-            
+                <a href="/">
+                  <img src="/assets/img/beat-logo-161616.png" alt="SoundZone Logo" />
+                </a>
               </div>
-              <!-- Main-menu -->
               <div class="main-menu d-none d-lg-block">
-                
                 <nav>
-                  
                   <ul id="navigation">
                     <li><a href="/">Home</a></li>
-                    <li><a href="/shop">shop</a></li>
-                    
+                    <li><a href="/shop">Shop</a></li>
                     <li>
-                      <a href="contact.html"
-                        ><span class="flaticon-search"></span
-                      ></a>
-                    </li>
-
-                    <li>
-                      <a href="#"><span class="flaticon-user"></span></a>
+                      <a href="#"><i class="flaticon-user"></i> Account</a>
                       <ul class="submenu">
                         <% if (locals.user) { %>
                         <li>
@@ -124,22 +113,88 @@
                         <% } %>
                       </ul>
                     </li>
-                    <li>
-                      <a href="/cart"
-                        ><span class="flaticon-shopping-cart"></span
-                      ></a>
-                    </li>
                   </ul>
                 </nav>
               </div>
-            </div>
-            <!-- Mobile Menu -->
-            <div class="col-12">
-              <div class="mobile_menu d-block d-lg-none"></div>
+              <div class="right-side">
+                <div class="search-box">
+                  <input type="text" placeholder="Search...">
+                  <button type="submit"><i class="flaticon-search"></i></button>
+                </div>
+                <a href="/cart" class="icon-link cart-desktop">
+                  <img src="/assets/icons/shopping-bag.png" alt="Cart Icon" class="icon">
+                </a>
+              </div>
+              <div class="mobile-menu-toggle d-lg-none">
+                <span></span>
+                <span></span>
+                <span></span>
+              </div>
             </div>
           </div>
         </div>
       </div>
-      <!-- Header End -->
+      <div class="mobile-menu">
+        <nav>
+          <ul>
+            <li><a href="/">Home</a></li>
+            <li><a href="/shop">Shop</a></li>
+            <li>
+              <a href="#"><i class="flaticon-user"></i> Account</a>
+              <ul class="submenu">
+                <% if (locals.user) { %>
+                <li>
+                  <a href="/signup"><%= locals.user.fullname %></a>
+                </li>
+                <li><a href="/userProfile">User Profile</a></li>
+                <li><a href="/logout">Logout</a></li>
+                <% } else { %>
+                <li><a href="/signup">Sign Up</a></li>
+                <li><a href="/login">Login</a></li>
+                <% } %>
+              </ul>
+            </li>
+            <li>
+              <a href="/cart" class="cart-mobile">
+                <img src="/assets/icons/shopping-bag.png" alt="Cart Icon" class="icon">
+                Cart
+              </a>
+            </li>
+          </ul>
+        </nav>
+      </div>
     </header>
- 
+
+    <script>
+      document.addEventListener('DOMContentLoaded', function() {
+        const mobileMenuToggle = document.querySelector('.mobile-menu-toggle');
+        const mobileMenu = document.querySelector('.mobile-menu');
+        const body = document.body;
+
+        mobileMenuToggle.addEventListener('click', function() {
+          mobileMenu.classList.toggle('active');
+          this.classList.toggle('active');
+          body.classList.toggle('mobile-menu-open');
+        });
+      });
+    </script>
+    <script>
+      window.onload = function () {
+    // Get the preloader element
+    var preloader = document.getElementById("preloader-active");
+
+    // Add a 2-second delay before starting the fade-out effect
+    setTimeout(function () {
+      // Add a fade-out effect
+      preloader.style.transition = "opacity 0.6s";
+      preloader.style.opacity = 0;
+
+      // Remove the preloader from the DOM after the fade-out effect is complete
+      preloader.addEventListener("transitionend", function () {
+        preloader.style.display = "none";
+      });
+    }, 2000); // 2 seconds = 2000 milliseconds
+  };
+    </script>
+  </body>
+</html>

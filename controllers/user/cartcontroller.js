@@ -37,7 +37,7 @@ const loadCart = async (req, res) => {
 const addtoCart = async (req, res) => {
   try {
     const { productId, quantity = 1, price } = req.body;
-    console.log(req.session.user);
+   
     const userId = req.session.user;
 
     // Validate product exists
@@ -152,7 +152,7 @@ const updateQuantity = async (req, res) => {
   try {
     const userId = req.session.user;
     const { productId, quantity } = req.body;
-    console.log(productId, quantity);
+    
     if (quantity <= 0) {
       return res
         .status(400)

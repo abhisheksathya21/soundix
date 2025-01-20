@@ -7,7 +7,7 @@ const categoryInfo = async (req, res) => {
         
         const search = req.query.search || "";
         const page = parseInt(req.query.page) || 1;
-        const limit = 3; 
+        const limit = 2; 
 
    
         const searchQuery = {
@@ -30,7 +30,7 @@ const categoryInfo = async (req, res) => {
 
     
         const totalPages = Math.ceil(CategoryCount / limit);
-        console.log("category info page loaded");
+        
         res.render('category', {
             categories: categories,
             currentPage: page,  
@@ -46,7 +46,7 @@ const categoryInfo = async (req, res) => {
 
 const addcategory = async (req, res) => {
     const {name, description} = req.body;
-    console.log("create category",name,description)
+   
     try {
        
         const existingCategory = await Category.findOne({name});
@@ -74,7 +74,7 @@ const addcategory = async (req, res) => {
 const geteditcategory=async(req,res)=>{
     try{
         const id=req.query.id;
-        console.log("category _id found",id);
+      
         const category=await Category.findOne({_id:id});
         res.render('edit-category',{category:category})
     }
@@ -90,16 +90,14 @@ const editcategory = async (req, res) => {
         const id = req.params.id;
         const { categoryName, description } = req.body;
 
-        console.log("Edit category ID:", id);
-        console.log("Request body:", req.body);
-
-        // Check if another category with the same name exists
+     
+       
         const existingCategory = await Category.findOne({ 
             name: categoryName, 
             _id: { $ne: id } // Exclude the current category from the check
         });
 
-        console.log("Existing category:", existingCategory);
+      
 
         if (existingCategory) {
             return res.status(400).json({ error: "Category exists, please choose another name" });
@@ -115,7 +113,7 @@ const editcategory = async (req, res) => {
             { new: true }
         );
 
-        console.log("Updated category:", updatedCategory);
+       
 
         if (updatedCategory) {
             return res.status(200).json({ success: true, message: "Category updated successfully." });
@@ -131,7 +129,7 @@ const editcategory = async (req, res) => {
 const listcategory=async(req,res)=>{
     try{
         const id=req.query.id;
-    console.log("liscategory id:",id);
+    
     await Category.updateOne({_id:id},{$set:{isListed:false}});
     
     res.redirect('/admin/category')
@@ -145,7 +143,7 @@ const listcategory=async(req,res)=>{
 const Unlistcategory=async(req,res)=>{
     try{
         const id=req.query.id;
-        console.log("Unlistcategory id:",id);
+        
         await Category.updateOne({_id:id},{$set:{isListed:true}});
       
         res.redirect('/admin/category');

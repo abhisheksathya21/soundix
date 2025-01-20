@@ -4,8 +4,8 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Register - Beats</title>
-    <link rel="stylesheet" href="/user-style/signup.css" />
-    <link rel="stylesheet" href="/user-style/preloader.css">
+    <link rel="stylesheet" href="/assets/user-style/signup.css" />
+   
     <link
       href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"
       rel="stylesheet"
@@ -18,16 +18,8 @@
   </head>
   <body>
        <!--? Preloader Start -->
-<div id="preloader-active">
-  <div class="preloader">
-    <div class="preloader-inner">
-      <div class="preloader-img pere-text">
-        <img src="assets/img/logo/logo.png" alt="" />
-        <strong>Loading</strong>
-      </div>
-    </div>
-  </div>
-</div>
+ 
+  <div class="content">
 <!-- Preloader End -->
 
     <div class="login-container">
@@ -121,7 +113,7 @@
             </div>
             <!-- Sign Up with Google Button -->
             <a
-              href="/auth/google"
+              href=""
               class="btn btn-google"
               style="text-decoration: none"
             >
@@ -145,28 +137,12 @@
         </div>
       </div>
     </div>
+      </div>
  
-
-<script>
-  // Wait for the entire page, including images, to load completely
-  window.onload = function () {
-    // Get the preloader element
-    var preloader = document.getElementById("preloader-active");
-
-    // Add a fade-out effect
-    preloader.style.transition = "opacity 0.6s";
-    preloader.style.opacity = 0;
-
-    // Remove the preloader from the DOM after the fade-out effect is complete
-    preloader.addEventListener("transitionend", function () {
-      preloader.style.display = "none";
-    });
-  };
-</script>
 
 
  
-
+<script src="/assets/js/preloader.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
   <% if (locals.message && message.length > 0) { %>
