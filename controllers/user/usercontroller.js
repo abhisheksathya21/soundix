@@ -542,109 +542,122 @@ const resetPassword = async (req, res) => {
   }
 };
 const loadShopPage = async (req, res) => {
-  try {
-    const userId = req.session.user;
+    try {
+        const userId = req.session.user;
 
-    // Pagination parameters
-    const page = parseInt(req.query.page) || 1; // Current page
-    const limit = 12; // Products per page
-    const skip = (page - 1) * limit;
+        
+        const page = parseInt(req.query.page) || 1;
+        const limit = 12;
+        const skip = (page - 1) * limit;
 
-    // Fetch categories from the database
-    const categories = await Category.find({ isListed: true });
+       
+        const sortParam = req.query.sort || "newest";
+        const categorySlug = req.query.category || null;
 
-    // Retrieve query parameters
-    const sortParam = req.query.sort || "newest";
-    const selectedCategory = req.query.category || null;
+        // Fetch categories and ensure they're listed
+        const categories = await Category.find({ isListed: true });
 
-    // Define sort criteria
-    let sortCriteria;
-    switch (sortParam) {
-      case "priceLowHigh":
-        sortCriteria = { salePrice: 1 };
-        break;
-      case "priceHighLow":
-        sortCriteria = { salePrice: -1 };
-        break;
-      case "newest":
-        sortCriteria = { createdOn: -1 };
-        break;
-      case "popular":
-        sortCriteria = { popularity: -1 };
-        break;
-      case "aToZ":
-        sortCriteria = { productName: 1 };
-        break;
-      case "zToA":
-        sortCriteria = { productName: -1 };
-        break;
-      default:
-        sortCriteria = { createdOn: -1 };
+        // Base filter
+        const productFilter = {
+            isBlocked: false,
+            quantity: { $gt: 0 }
+        };
+
+        // Add category filter if selected
+        if (categorySlug) {
+            const category = await Category.findOne({ slug: categorySlug });
+            if (category) {
+                productFilter.category = category._id;
+            }
+        }
+
+        // Define sort criteria
+        let sortCriteria;
+        switch (sortParam) {
+            case "priceLowHigh":
+                sortCriteria = { salePrice: 1 };
+                break;
+            case "priceHighLow":
+                sortCriteria = { salePrice: -1 };
+                break;
+            case "aToZ":
+                sortCriteria = { productName: 1 };
+                break;
+            case "zToA":
+                sortCriteria = { productName: -1 };
+                break;
+            default:
+                sortCriteria = { createdOn: -1 };
+        }
+
+        // Get total products count for pagination
+        const totalProducts = await Product.countDocuments(productFilter);
+        const totalPages = Math.ceil(totalProducts / limit);
+
+        // Fetch products
+        const products = await Product.find(productFilter)
+            .sort(sortCriteria)
+            .skip(skip)
+            .limit(limit)
+            .populate('category');
+
+        // Generate pagination URLs helper function
+        const generatePageUrl = (pageNum) => {
+            const baseUrl = '/shop?';
+            const params = new URLSearchParams();
+            
+            if (pageNum) params.append('page', pageNum);
+            if (sortParam) params.append('sort', sortParam);
+            if (categorySlug) params.append('category', categorySlug);
+            
+            return baseUrl + params.toString();
+        };
+
+        // Generate pagination links
+        const paginationLinks = [];
+        for (let i = 1; i <= totalPages; i++) {
+            paginationLinks.push({
+                page: i,
+                active: i === page,
+                url: generatePageUrl(i)
+            });
+        }
+
+        // Update breadcrumbs to include category if selected
+        const breadcrumbs = [
+            { name: 'Home', url: '/' },
+            { name: 'Shop', url: '/shop' }
+        ];
+
+        if (categorySlug) {
+            const category = categories.find(cat => cat.slug === categorySlug);
+            if (category) {
+                breadcrumbs.push({ name: category.name, url: '' });
+            }
+        }
+
+        res.render('shop', {
+            user: userId ? await User.findOne({ _id: userId }) : null,
+            products,
+            categories,
+            currentCategory: categorySlug,
+            currentSort: sortParam,
+            breadcrumbs,
+            pagination: {
+                currentPage: page,
+                totalPages,
+                hasNextPage: page < totalPages,
+                hasPrevPage: page > 1,
+                links: paginationLinks,
+                totalProducts
+            },
+            generatePageUrl
+        });
+
+    } catch (error) {
+        console.error('Error loading shop page:', error);
+        res.redirect('/pageNotFound');
     }
-
-    
-    const productFilter = {
-      isBlocked: false,
-      quantity: { $gt: 0 },
-    };
-
-    // Add category filter if selected
-    if (selectedCategory) {
-      const category = categories.find((cat) => cat.slug === selectedCategory);
-      if (category) {
-        productFilter.category = category._id;
-      }
-    }
-
-    // Get total number of products matching the filter
-    const totalProducts = await Product.countDocuments(productFilter);
-    const totalPages = Math.ceil(totalProducts / limit);
-
-    // Fetch paginated products
-    const productData = await Product.find(productFilter)
-      .sort(sortCriteria)
-      .skip(skip)
-      .limit(limit);
-
-    // Generate pagination links
-    const paginationLinks = [];
-    for (let i = 1; i <= totalPages; i++) {
-      paginationLinks.push({
-        page: i,
-        active: i === page,
-        url: generatePageUrl(req, i),
-      });
-    }
-
-    // Breadcrumbs
-    const breadcrumbs = [
-      { name: "Home", url: "/" },
-      { name: "Shop", url: "" },
-    ];
-
-    // Render data
-    const renderData = {
-      user: userId ? await User.findOne({ _id: userId }) : null,
-      products: productData,
-      breadcrumbs,
-      currentSort: sortParam,
-      categories,
-      currentCategory: selectedCategory,
-      pagination: {
-        currentPage: page,
-        totalPages: totalPages,
-        hasNextPage: page < totalPages,
-        hasPrevPage: page > 1,
-        links: paginationLinks,
-        totalProducts,
-      },
-    };
-
-    res.render("shop", renderData);
-  } catch (error) {
-    console.error("Error loading shop page:", error);
-    res.redirect("/pageNotFound");
-  }
 };
 
 // Helper function to generate pagination URLs

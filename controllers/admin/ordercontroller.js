@@ -73,7 +73,7 @@ const updateOrderStatus = async (req, res) => {
       });
     }
 
-    // Check if order is already cancelled or delivered
+  
     if (
       order.orderStatus === "Cancelled" ||
       order.orderStatus === "Delivered"
@@ -84,25 +84,38 @@ const updateOrderStatus = async (req, res) => {
       });
     }
 
-    // Handle stock updates if order is being cancelled
-    if (status === "Cancelled") {
-      try {
-        // Update stock for each product in the order
-        for (const item of order.items) {
-          await Product.findByIdAndUpdate(item.productId._id, {
-            $inc: { stock: item.quantity },
-          });
-        }
-      } catch (error) {
-        console.error("Error updating product stock:", error);
-        return res.status(500).json({
-          success: false,
-          error: "Failed to update product stock",
-        });
-      }
-    }
+    
+   if (status === "Cancelled") {
+     try {
+       for (const item of order.items) {
+         const product = await Product.findById(item.productId._id);
+         if (product) {
+           product.quantity += item.quantity; 
+           await product.save();
+           console.log(
+             `Updated quantity for product ${product.productName}: New quantity = ${product.quantity}`
+           );
+         }
+       }
 
-    // Update order status
+       
+       order.orderStatus = status;
+       await order.save();
+
+       return res.status(200).json({
+         success: true,
+         message: "Order cancelled and stock updated successfully",
+       });
+     } catch (error) {
+       console.error("Error updating product stock:", error);
+       return res.status(500).json({
+         success: false,
+         error: "Failed to update product stock",
+       });
+     }
+   }
+
+   
     order.orderStatus = status;
     order.statusHistory.push({ status, updatedAt: new Date() });
     await order.save();

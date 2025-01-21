@@ -32,6 +32,7 @@ body {
 
 /* Breadcrumb Styles */
 .breadcrumb {
+    margin-top: 20px;
   display: flex;
   flex-wrap: wrap;
   padding: 0.75rem 1rem;

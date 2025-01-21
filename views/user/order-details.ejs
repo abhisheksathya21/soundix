@@ -121,8 +121,9 @@ async function cancelOrder(orderId) {
 }
 
       async function cancelProduct(orderId, productId) {
+        console.log("orderid,productId",orderId, productId);
     try {
-       
+        console.log("orderid,productId",orderId, productId);
         const confirmation = await Swal.fire({
             title: 'Are you sure?',
             text: 'Do you really want to cancel this product from the order? This action cannot be undone.',
@@ -169,6 +170,7 @@ async function cancelOrder(orderId) {
 }
     
         function createOrderCard(order) {
+             
             const orderCard = document.createElement('div');
             orderCard.className = 'order-card';
 
@@ -192,18 +194,20 @@ async function cancelOrder(orderId) {
                 <div class="order-total">Total: ₹${order.total.toFixed(2)}</div>
                 ${canCancel ? `<button class="cancel-order-btn" onclick="cancelOrder('${order.id}')">Cancel Order</button>` : ''}
                 <button class="view-products">View Products</button>
-                <div class="product-list">
-                    ${order.products.map(product => `
-                        <div class="product-item">
-                            <img src="${product.image}" alt="${product.name}" class="product-image" style="width: 100px;">
-                            <div class="product-details">
-                                <p class="product-name">${product.name}</p>
-                                <p class="product-price">₹${product.price} <span class="product-quantity">Qty: ${product.quantity}</span></p>
-                                ${canCancel ? `<button class="cancel-product-btn" onclick="cancelProduct('${order.id}', '${product.id}')">Cancel Product</button>` : ''}
-                            </div>
-                        </div>
-                    `).join('')}
-                </div>
+               <div class="product-list">
+    ${order.products.map(product => 
+    `
+        <div class="product-item">
+            <img src="${product.image}" alt="${product.name}" class="product-image" style="width: 100px;">
+            <div class="product-details">
+                <p class="product-name">${product.name}</p>
+                <p class="product-price">₹${product.price} <span class="product-quantity">Qty: ${product.quantity}</span></p>
+               ${canCancel ? `<button class="cancel-product-btn" onclick="cancelProduct('${order.id}', '${product.productId}')">Cancel Product</button>` : ''}
+            </div>
+        </div>
+    `).join('')}
+</div>
+
             `;
 
             const viewProductsBtn = orderCard.querySelector('.view-products');

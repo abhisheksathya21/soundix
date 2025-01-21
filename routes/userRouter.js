@@ -71,8 +71,8 @@ router.post("/password", UserAuth, profilecontroller.UpdatePassword);
 
 router.get("/addressManagement", UserAuth, profilecontroller.addressManagement);
 router.post("/addAddress", UserAuth, profilecontroller.addAddress);
-
-router.get("/editAddress", UserAuth, profilecontroller.getEditAddress);
+router.get("/editAddress", UserAuth, profilecontroller.editAddress);
+router.post("/updateAddress", UserAuth, profilecontroller.updateAddress);
 router.get("/deleteAddress", UserAuth, profilecontroller.deleteAddress);
 
 router.get("/orders", UserAuth, profilecontroller.orders);

@@ -182,74 +182,94 @@ const addAddress = async (req, res) => {
     return res.status(500).json({ message: "Internal Server Error" });
   }
 };
-
-const getEditAddress = async (req, res) => {
-  try {
+const editAddress = async (req, res) => {
+  try{
     const addressId = req.query.id;
+  
+    const user=req.session.user;
+    const currentAddress = await Address.findOne({ "address._id": addressId });
+  
+    if(!currentAddress){
+      return res.status(404).json({message:"Address not found"});
+    }
+    const addressData=currentAddress.address.find((addr)=>addr._id.toString()===addressId);
    
+    if(!addressData){
+      return res.status(404).json({message:"Address not found"});
+    }
+    res.render("editAddress",{address:addressData ,user:user});
+
+  }
+  catch(error){
+    console.error("Error in loading addressManagement page", error);
+    res.redirect('/pageNotFound')
+  }
+}
+const updateAddress = async (req, res) => {
+  try {
+    const data = req.body;
+    const addressId = new mongoose.Types.ObjectId(req.query.id);
     const userId = req.session.user;
-    
+    console.log("userId", userId);
+    console.log("data", data);
+    console.log("addressId", addressId);
+    const result = await User.updateOne(
+      {
+        _id: userId,
+        "address._id": addressId,
+      },
+      {
+        $set: {
+          "address.$": {
+            addressType: data.addressType,
+            name: data.name,
+            city: data.city,
+            landmark: data.landmark,
+            district: data.district,
+            state: data.state,
+            pincode: data.pincode,
+            phone: data.phone,
+            alternativePhone: data.alternativePhone,
+          },
+        },
+      }
+    );
 
-    const user = await User.findById(userId);
-    if (!user) {
-      return res.status(404).json({
-        success: false,
-        message: "User not found",
-      });
+    if (result.matchedCount === 0) {
+      return res.redirect(302, "/pageNotFound");
     }
 
-    const addressData = await Address.findOne({
-      userId: userId,
-      "address._id": addressId,
-    });
-    if (!addressData) {
-      return res.status(404).json({
-        success: false,
-        message: "Address not found or unauthorized access",
-      });
-    }
-   
-
-    res.render("editAddress", { address: addressData, user });
+    res.redirect(302, "/addressManagement");
   } catch (error) {
-    console.error("Error fetching address:", error);
-    res.status(500).json({
-      success: false,
-      message: "Internal server error",
-    });
+    console.error("Error in updating address", error);
+    res.redirect(302, "/pageNotFound");
   }
 };
-
 const deleteAddress = async (req, res) => {
   try {
     const addressId = req.query.id;
     const userId = req.session.user;
 
-    const user = await User.findById(userId);
-    if (!user) {
-      return res
-        .status(404)
-        .json({ success: false, message: "User not found" });
+    const findAddress = await Address.findOne({ "address._id": addressId });
+    if (!findAddress) {
+      return res.status(404).json({ message: "Address not found" });
     }
 
-    const addressIndex = user.address.findIndex(
-      (addr) => addr._id.toString() === addressId
+    await Address.updateOne(
+      { "address._id": addressId },
+      { $pull: { address: { _id: addressId } } }
     );
-    if (addressIndex === -1) {
-      return res
-        .status(404)
-        .json({ success: false, message: "Address not found" });
-    }
 
-    user.address.splice(addressIndex, 1);
-    await user.save();
-
-    res.redirect("/addressManagement");
+    res.redirect(302, "/addressManagement");
   } catch (error) {
-    console.error("Error deleting address:", error);
-    res.status(500).json({ success: false, message: "Error deleting address" });
+    console.error("Error in deleting address", error);
+    res.redirect(302, "/pageNotFound");
   }
 };
+
+
+
+
 
 const orders = async (req, res) => {
   try {
@@ -321,7 +341,9 @@ module.exports = {
   UpdatePassword,
   addressManagement,
   addAddress,
-  getEditAddress,
+  editAddress,
+  updateAddress,
   deleteAddress,
   orders,
+  
 };
