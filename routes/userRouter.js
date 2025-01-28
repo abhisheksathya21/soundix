@@ -52,6 +52,7 @@ router.post("/updateQuantity", UserAuth, cartcontroller.updateQuantity);
 
 //checkout
 router.get("/checkout", UserAuth, checkoutcontroller.loadCheckout);
+router.get("/wishlist",UserAuth,);
 //place-Order
 router.post("/place-order", UserAuth, checkoutcontroller.placeOrder);
 //Order Success
@@ -60,8 +61,12 @@ router.get("/order-success", UserAuth, checkoutcontroller.orderSuccess);
 //order cancel
 // Cancel order route
 router.post("/api/orders/:orderId/cancel",UserAuth,checkoutcontroller.cancelOrder);
-router.post("/api/orders/:orderId/product/:productId/cancel",UserAuth,checkoutcontroller.cancelProductOrder);
 
+router.post(
+  "/admin/cancel-order-product",
+  UserAuth,
+  checkoutcontroller.cancelProductOrder
+);
 //userProfile
 router.get("/userProfile", UserAuth, profilecontroller.userProfile);
 router.post("/userProfile", UserAuth, profilecontroller.userUpdate);

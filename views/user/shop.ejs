@@ -9,7 +9,9 @@
     <link rel="stylesheet" href="/assets/user-style/shop.css">
 </head>
 <body>
-    <%- include('../partials/user/header')%>
+    <%- include('../partials/user/header',{ 
+    searchQuery: locals.searchQuery,
+    currentSort: locals.currentSort })%>
 
     <main class="container">
         <nav aria-label="breadcrumb">
@@ -25,39 +27,99 @@
                 <% }); %>
             </ol>
         </nav>
+        
 
         <section class="products">
-            <div class="sort-options">
-                <a href="/shop?sort=newest" class="sort-option <%= currentSort === 'newest' ? 'active' : '' %>">Newest Arrivals</a>
-                <a href="/shop?sort=priceHighLow" class="sort-option <%= currentSort === 'priceHighLow' ? 'active' : '' %>">Price High to Low</a>
-                <a href="/shop?sort=priceLowHigh" class="sort-option <%= currentSort === 'priceLowHigh' ? 'active' : '' %>">Price Low to High</a>
-                <a href="/shop?sort=aToZ" class="sort-option <%= currentSort === 'aToZ' ? 'active' : '' %>">A-Z</a>
-                <a href="/shop?sort=zToA" class="sort-option <%= currentSort === 'zToA' ? 'active' : '' %>">Z-A</a>
-            </div>
+          <div class="category-filter">
+    <h3>Categories</h3>
+    <ul>
+        <li>
+            <a href="/shop" class="category-link <%= !currentCategory ? 'active' : '' %>">
+                All Categories
+            </a>
+        </li>
+        <% categories.forEach(function(category) { %>
+            <li>
+                <a href="/shop?category=<%= category._id %><%= searchQuery ? '&search=' + searchQuery : '' %><%= currentSort ? '&sort=' + currentSort : '' %>" 
+                   class="category-link <%= currentCategory === category._id.toString() ? 'active' : '' %>">
+                    <%= category.name %>
+                </a>
+            </li>
+        <% }); %>
+    </ul>
+</div>
+          <div class="sort-options-container">
+    <select class="sort-dropdown" onchange="window.location.href=this.value">
+        <option value="/shop" <%= !currentSort ? 'selected' : '' %>>Sort By</option>
+        
+        <option 
+            value="/shop?sort=newest<%= searchQuery ? '&search=' + searchQuery : '' %>" 
+            <%= currentSort === 'newest' ? 'selected' : '' %>>
+            Newest Arrivals
+        </option>
+        
+        <option 
+            value="/shop?sort=priceHighLow<%= searchQuery ? '&search=' + searchQuery : '' %>" 
+            <%= currentSort === 'priceHighLow' ? 'selected' : '' %>>
+            Price High to Low
+        </option>
+        
+        <option 
+            value="/shop?sort=priceLowHigh<%= searchQuery ? '&search=' + searchQuery : '' %>" 
+            <%= currentSort === 'priceLowHigh' ? 'selected' : '' %>>
+            Price Low to High
+        </option>
+        
+        <option 
+            value="/shop?sort=aToZ<%= searchQuery ? '&search=' + searchQuery : '' %>" 
+            <%= currentSort === 'aToZ' ? 'selected' : '' %>>
+            A-Z
+        </option>
+        
+        <option 
+            value="/shop?sort=zToA<%= searchQuery ? '&search=' + searchQuery : '' %>" 
+            <%= currentSort === 'zToA' ? 'selected' : '' %>>
+            Z-A
+        </option>
+    </select>
+</div>
+<!-- Add this category filter section -->
 
-            <div class="product-grid">
-                <% for (i = 0; i < products.length; i++) { %>
-                    <div class="product-card">
-                        <div class="product-image">
-                            <img src="<%= products[i].productImage[0] %>" alt="<%= products[i].productName %>">
-                            <div class="product-actions">
-                                <button class="add-to-cart" data-product-id="<%= products[i]._id %>" data-price="<%= products[i].salePrice %>">
-                                    Add to cart
-                                </button>
-                                <button class="wishlist-btn">
-                                    <i class="fas fa-heart"></i>
-                                </button>
-                            </div>
-                        </div>
-                        <div class="product-info">
-                            <h3 class="product-name">
-                                <a href="/productDetails?id=<%= products[i]._id %>"><%= products[i].productName %></a>
-                            </h3>
-                            <span class="product-price">₹<%= products[i].salePrice %></span>
-                        </div>
-                    </div>
-                <% } %>
+
+<!-- Add this after your sort-options div -->
+<% if (searchQuery && products.length === 0) { %>
+    <div class="no-results">
+        <p>No products found for "<%= searchQuery %>"</p>
+        <a href="/shop" class="clear-search">Clear Search</a>
+    </div>
+<% } %>
+           <div class="product-grid">
+    <% for (i = 0; i < products.length; i++) { %>
+        <div class="product-card">
+            <div class="product-image">
+                <img src="<%= products[i].productImage[0] %>" alt="<%= products[i].productName %>">
+                <button class="wishlist-btn" aria-label="Add to wishlist">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="heart-icon"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path></svg>
+                </button>
+                <div class="product-actions">
+                    <button class="add-to-cart" data-product-id="<%= products[i]._id %>" data-price="<%= products[i].salePrice %>">
+                        Add to cart
+                    </button>
+                </div>
             </div>
+            <div class="product-info">
+                <h3 class="product-name">
+                    <a href="/productDetails?id=<%= products[i]._id %>"><%= products[i].productName %></a>
+                </h3>
+                <span class="product-price">₹<%= products[i].salePrice %></span>
+            </div>
+        </div>
+    <% } %>
+</div>
+
+
+
+
         </section>
         <div class="pagination">
   <% if (pagination.hasPrevPage) { %>

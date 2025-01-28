@@ -1,4 +1,4 @@
-const mongoose = require('mongoose');
+const mongoose = require("mongoose");
 
 const userSchema = new mongoose.Schema({
   fullname: {
@@ -19,11 +19,11 @@ const userSchema = new mongoose.Schema({
     required: false,
     unique: true,
     sparse: true,
-    default: null,
+    default: undefined, // Change null to undefined
   },
   googleId: {
     type: String,
-    sparse: true, // Only enforce uniqueness if field exists
+    sparse: true,
     unique: true,
   },
   isAdmin: {
@@ -36,7 +36,8 @@ const userSchema = new mongoose.Schema({
   },
 });
 
-module.exports = mongoose.model('User', userSchema);
+// Drop any existing indexes and create new ones
+userSchema.index({ phone: 1 }, { unique: true, sparse: true });
+userSchema.index({ googleId: 1 }, { unique: true, sparse: true });
 
-
-
+module.exports = mongoose.model("User", userSchema);

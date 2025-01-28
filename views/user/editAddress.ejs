@@ -22,19 +22,21 @@
     <input type="checkbox" id="sidebar-toggle" />
     <label for="sidebar-toggle" class="sidebar-toggle-label">☰</label>
 
-    <aside class="sidebar">
-      <nav>
-        <ul class="sidebar-menu">
-          <li><a href="/userProfile">Account Overview</a></li>
-          <li><a href="/orders">Order Details</a></li>
-          <li><a href="/addressManagement" class="active">Manage Address</a></li>
-          <li><a href="/wallet">Wallet</a></li>
-          <li><a href="/password">Password</a></li>
-          <li><a href="/wishlist">Wishlist</a></li>
-        </ul>
-      </nav>
-      <button class="logout-btn">Logout</button>
-    </aside>
+     <aside class="sidebar">
+  <nav>
+    <ul class="sidebar-menu">
+      <li><a href="/userProfile" >Account Overview</a></li>
+      <li><a href="/orders">Order Details</a></li>
+      <li><a href="/addressManagement" class="active">Manage Address</a></li>
+      <li><a href="/wallet">Wallet</a></li>
+      <% if (!isGoogleUser) { %>
+        <li><a href="/password">Password</a></li>
+      <% } %>
+      <li><a href="/wishlist">Wishlist</a></li>
+    </ul>
+  </nav>
+  <button class="logout-btn">Logout</button>
+</aside>
   
     <main class="content">
       <div class="view-port">

@@ -8,6 +8,10 @@ const adminRouter=require('./routes/adminRouter');
 const session=require('express-session');
 const nocache = require('nocache');
 const passport=require('./config/passport');
+const cartCountMiddleware=require('./middlewares/cartcount');
+
+
+
 db();
 app.use(nocache());
 app.use(express.json());
@@ -27,7 +31,7 @@ app.use(session({
     }
 }))
 
-
+app.use(cartCountMiddleware);
 app.use('/',userRouter);
 
 app.use('/admin',adminRouter);

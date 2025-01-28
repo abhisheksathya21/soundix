@@ -50,6 +50,7 @@ const addcategory = async (req, res) => {
     try {
        
         const existingCategory = await Category.findOne({name});
+        console.log(existingCategory);
         if (existingCategory) {
             console.log("already exists backend")
             return res.status(400).json({error:"Category already exists"})
@@ -60,12 +61,13 @@ const addcategory = async (req, res) => {
             name,
             description,
         })
+        console.log(category);
         
         await category.save();
         return res.status(201).json({message:"Category added successfully"})
     }
     catch(error) {
-        console.error('Error adding category:');
+        console.error('Error adding category:',error);
         return res.status(500).json({error:"Internal Server Error"})
     }
 }

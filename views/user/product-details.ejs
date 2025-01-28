@@ -111,34 +111,57 @@
 </div>
 
     <section class="related-products">
-      
-        <h1>Related Products</h1>
-        <div class="rp-row">
-            <% for (i = 0; i < RelatedProducts.length; i++) { %>
-                <div class="rp-col">
-                    <div class="rp-product-card">
-                        <div class="rp-product-img-wrapper">
-                            <img src="<%= RelatedProducts[i].productImage[0] %>" alt="<%= RelatedProducts[i].productName %>" class="rp-product-img">
-                            <div class="rp-product-actions">
-                                <button class="rp-add-to-cart" data-product-id="<%= RelatedProducts[i]._id %>" data-price="<%= RelatedProducts[i].salePrice %>">
-                                    Add to cart
-                                </button>
-                                <button class="rp-wishlist-btn">
-                                    <span class="fas fa-heart"></span>
-                                </button>
-                            </div>
-                        </div>
-                        <div class="rp-product-info">
-                            <h3 class="rp-product-name">
-                                <a href="/productDetails?id=<%= RelatedProducts[i]._id %>"><%= RelatedProducts[i].productName %></a>
-                            </h3>
-                            <span class="rp-product-price">₹<%= RelatedProducts[i].salePrice %></span>
+    <h1>Related Products</h1>
+    <div class="rp-row">
+        <% RelatedProducts.forEach(function(product) { %>
+            <div class="rp-col">
+                <div class="rp-product-card">
+                    <div class="rp-product-img-wrapper">
+                        <img src="<%= product.productImage[0] %>" alt="<%= product.productName %>" class="rp-product-img">
+                        <div class="rp-product-actions">
+                            <button class="rp-add-to-cart" data-product-id="<%= product._id %>" data-price="<%= product.salePrice %>">
+                                Add to cart
+                            </button>
+                            <button class="rp-wishlist-btn">
+                                <span class="fas fa-heart"></span>
+                            </button>
                         </div>
                     </div>
+                    <div class="rp-product-info">
+                        <h3 class="rp-product-name">
+                            <a href="/productDetails?id=<%= product._id %>"><%= product.productName %></a>
+                        </h3>
+                        <span class="rp-product-price">₹<%= product.salePrice %></span>
+                    </div>
                 </div>
-            <% } %>
-        </div>
-    </section>
+            </div>
+        <% }); %>
+    </div>
+
+    <!-- Pagination -->
+    <% if (totalPages > 1) { %>
+    <div class="pagination">
+        <% if (hasPrevPage) { %>
+            <a href="/productDetails?id=<%= product._id %>&page=<%= currentPage - 1 %>" class="page-link prev-link">
+                &laquo; Previous
+            </a>
+        <% } %>
+
+        <% for(let i = 1; i <= totalPages; i++) { %>
+            <a href="/productDetails?id=<%= product._id %>&page=<%= i %>" 
+               class="page-link <%= currentPage === i ? 'active' : '' %>">
+                <%= i %>
+            </a>
+        <% } %>
+
+        <% if (hasNextPage) { %>
+            <a href="/productDetails?id=<%= product._id %>&page=<%= currentPage + 1 %>" class="page-link next-link">
+                Next &raquo;
+            </a>
+        <% } %>
+    </div>
+    <% } %>
+</section>
     </main>
     </div>
 

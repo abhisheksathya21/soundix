@@ -17,6 +17,7 @@ const userProfile = async (req, res) => {
       return res.render("userProfile", {
         user: userData,
         userAddress: addressData,
+        isGoogleUser: !!userData.googleId, // Convert to boolean
       });
     }
   } catch (error) {
@@ -36,7 +37,10 @@ const userUpdate = async (req, res) => {
     const updateUser = await User.findById(userId);
 
     if (updateUser) {
-      return res.render("userProfile", { user: updateUser });
+      return res.render("userProfile", {
+        user: updateUser,
+        isGoogleUser: !!userData.googleId,
+      });
     }
   } catch (error) {
     console.error("Error in updating the user profile", error);
@@ -49,7 +53,10 @@ const password = async (req, res) => {
     const userId = req.session.user;
     const userData = await User.findOne({ _id: userId });
     if (userId) {
-      return res.render("password", { user: userData });
+      return res.render("password", {
+        user: userData,
+        isGoogleUser: !!userData.googleId,
+      });
     }
   } catch (error) {
     console.error("Error in loading password page", error);
@@ -99,6 +106,7 @@ const addressManagement = async (req, res) => {
       return res.render("addressManagement", {
         user: userData,
         userAddress: addressData,
+        isGoogleUser: !!userData.googleId, // Convert to boolean
       });
     }
   } catch (error) {
@@ -175,7 +183,7 @@ const addAddress = async (req, res) => {
       await userAddress.save();
       return res
         .status(200)
-        .json({ message: "Address added successfully", address: userAddress });
+        .json({ message: "Address added successfully", address: userAddress,  isGoogleUser: !!userData.googleId, });
     }
   } catch (error) {
     console.error("Error adding address", error);
@@ -187,6 +195,7 @@ const editAddress = async (req, res) => {
     const addressId = req.query.id;
   
     const user=req.session.user;
+    const userData = await User.findOne({ _id: user });
     const currentAddress = await Address.findOne({ "address._id": addressId });
   
     if(!currentAddress){
@@ -197,7 +206,7 @@ const editAddress = async (req, res) => {
     if(!addressData){
       return res.status(404).json({message:"Address not found"});
     }
-    res.render("editAddress",{address:addressData ,user:user});
+    res.render("editAddress",{address:addressData ,user:user,  isGoogleUser: !!userData.googleId, });
 
   }
   catch(error){
@@ -208,16 +217,18 @@ const editAddress = async (req, res) => {
 const updateAddress = async (req, res) => {
   try {
     const data = req.body;
-    const addressId = new mongoose.Types.ObjectId(req.query.id);
+    const addressId = req.query.id;
     const userId = req.session.user;
-    console.log("userId", userId);
-    console.log("data", data);
-    console.log("addressId", addressId);
-    const result = await User.updateOne(
-      {
-        _id: userId,
-        "address._id": addressId,
-      },
+
+  
+    const findAddress = await Address.findOne({ "address._id": addressId });
+    if (!findAddress) {
+      return res.status(404).json({ message: "Address not found" });
+    }
+
+   
+    const result = await Address.updateOne(
+      { "address._id": addressId },
       {
         $set: {
           "address.$": {
@@ -230,6 +241,7 @@ const updateAddress = async (req, res) => {
             pincode: data.pincode,
             phone: data.phone,
             alternativePhone: data.alternativePhone,
+            _id: addressId, // Preserve the original _id
           },
         },
       }
@@ -245,6 +257,8 @@ const updateAddress = async (req, res) => {
     res.redirect(302, "/pageNotFound");
   }
 };
+
+
 const deleteAddress = async (req, res) => {
   try {
     const addressId = req.query.id;
@@ -279,21 +293,21 @@ const orders = async (req, res) => {
       return res.redirect("/login");
     }
 
-    // Pagination parameters
+   
     const page = parseInt(req.query.page) || 1;
-    const limit = 3; // Orders per page
+    const limit = 2; // Orders per page
     const skip = (page - 1) * limit;
 
     const userData = await User.findOne({ _id: userId });
 
-    // Get total count of orders for pagination
+   
     const totalOrders = await Order.countDocuments({ userId: userId });
     const totalPages = Math.ceil(totalOrders / limit);
 
-    // Get paginated orders
+    
     const orderData = await Order.find({ userId: userId })
       .populate("items.productId")
-      .sort({ orderDate: -1 }) // Sort by newest first
+      .sort({ orderDate: -1 }) 
       .skip(skip)
       .limit(limit);
 
@@ -305,10 +319,12 @@ const orders = async (req, res) => {
       paymentMethod: order.paymentMethod,
       shippingMethod: "Standard Shipping",
       products: order.items.map((item) => ({
+        productId: item.productId?._id, // Add this line
         name: item.productId?.productName || "Unknown Product",
         price: item.price || 0,
         quantity: item.quantity || 0,
         image: item.productId?.productImage?.[0],
+        status: item.status || "Pending",
       })),
       shippingAddress: {
         name: order.shippingAddress.name,
@@ -327,6 +343,7 @@ const orders = async (req, res) => {
       nextPage: page + 1,
       prevPage: page - 1,
       lastPage: totalPages,
+      isGoogleUser: !!userData.googleId,
     });
   } catch (error) {
     console.error("Error in loading orders page:", error);
@@ -342,7 +359,7 @@ module.exports = {
   addressManagement,
   addAddress,
   editAddress,
-  updateAddress,
+updateAddress,
   deleteAddress,
   orders,
   

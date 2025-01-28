@@ -13,6 +13,8 @@
     --adidas-light-blue: #000000;
     --adidas-dark-blue: #00528c;
     --adidas-gray: #767677;
+      --gradient-start: #007bff;
+  --gradient-end: #0056b3;
 }
 
 body {
@@ -167,13 +169,16 @@ body {
 }
 
 .add-to-cart {
-    background-color: #3498db;
-    color: white;
+    background: linear-gradient(135deg, var(--gradient-start), var(--gradient-end));
+  color: #fff;
     flex: 2;
 }
 
 .add-to-cart:hover {
-    background-color: #2980b9;
+   transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(0, 123, 255, 0.4);
+  
+  color:#fff ;
     transform: translateY(-2px);
 }
 
@@ -480,4 +485,28 @@ body {
     .rp-row {
         grid-template-columns: 1fr;
     }
+}
+.pagination {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-top: 20px;
+}
+
+.pagination .page-link {
+    margin: 0 5px;
+    padding: 5px 10px;
+    border: 1px solid #ddd;
+    text-decoration: none;
+    color: #333;
+}
+
+.pagination .page-link.active {
+    background-color: #007bff;
+    color: white;
+}
+
+.pagination .prev-link,
+.pagination .next-link {
+    font-weight: bold;
 }

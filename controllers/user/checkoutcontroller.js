@@ -128,7 +128,7 @@ const orderSuccess = async (req, res) => {
       return res.redirect("/login");
     }
     const OrderData = await Order.find({ userId: userId });
-
+  
     res.render("order-success", { orderData: OrderData });
   } catch (error) {
     console.error("Error loading order success page:", error);
@@ -190,37 +190,27 @@ const cancelOrder = async (req, res) => {
 
 const cancelProductOrder = async (req, res) => {
   try {
-    const { orderId, productId } = req.params;
-    console.log("req.params:", req.params);
+   
+    const { orderId, productId } = req.body;
     const userId = req.session.user;
-   
-    const order = await Order.findOne({ orderId: orderId, userId: userId });
-   
 
+    const order = await Order.findOne({ orderId, userId });
     if (!order) {
-      return res.status(404).json({
-        success: false,
-        message: "Order not found",
-      });
+      return res
+        .status(404)
+        .json({ success: false, message: "Order not found" });
     }
 
-    if (
-      order.orderStatus === "Shipped" ||
-      order.orderStatus === "Delivered" ||
-      order.orderStatus === "Cancelled"
-    ) {
+    if (["Shipped", "Delivered", "Cancelled"].includes(order.orderStatus)) {
       return res.status(400).json({
         success: false,
         message: "Products cannot be cancelled from this order",
       });
     }
-console.log("Order Items:", order.items);
-console.log("Product ID to Find:", productId);
+
     const productItem = order.items.find(
       (item) => item.productId.toString() === productId
     );
-    console.log(productItem);
-
     if (!productItem) {
       return res.status(404).json({
         success: false,
@@ -235,24 +225,26 @@ console.log("Product ID to Find:", productId);
       });
     }
 
+    // Update product inventory
     const product = await Product.findById(productId);
     if (product) {
       product.quantity += productItem.quantity;
       await product.save();
     }
 
+    // Update order item status
     productItem.status = "Cancelled";
     productItem.cancelledAt = new Date();
 
-    const remainingItems = order.items.filter(
+    // Recalculate order total and update status if needed
+    const activeItems = order.items.filter(
       (item) => item.status !== "Cancelled"
     );
-
-    if (remainingItems.length === 0) {
+    if (activeItems.length === 0) {
       order.orderStatus = "Cancelled";
       order.cancelledAt = new Date();
     } else {
-      order.totalAmount = remainingItems.reduce(
+      order.totalAmount = activeItems.reduce(
         (total, item) => total + item.price * item.quantity,
         0
       );
@@ -262,16 +254,16 @@ console.log("Product ID to Find:", productId);
 
     res.status(200).json({
       success: true,
-      message: "Product cancelled successfully from order",
+      message: "Product cancelled successfully",
     });
   } catch (error) {
+    console.error("Cancel product error:", error);
     res.status(500).json({
       success: false,
-      message: "Error cancelling product from order",
+      message: "Error cancelling product",
     });
   }
 };
-
 
 module.exports = {
   loadCheckout,

@@ -140,7 +140,88 @@ const updateOrderStatus = async (req, res) => {
   }
 };
 
+
+const cancelOrderProduct = async (req, res) => {
+  try {
+    const { orderId, productId } = req.body;
+    console.log("Order ID:", orderId);
+  
+    if (!orderId || !productId) {
+      return res.status(400).json({
+        success: false,
+        error: "Order ID and Product ID are required",
+      });
+    }
+
+    
+    const order = await Order.findById(orderId)
+      .populate("items.productId")
+      .populate("userId");
+      console.log("Order:", order);
+      console.log("orderStatus:", order.orderStatus);
+
+    if (
+      !order ||
+      order.orderStatus === "Delivered" ||
+      order.orderStatus === "Cancelled"
+    ) {
+      return res.status(400).json({
+        success: false,
+        error: "Cannot modify delivered or cancelled orders",
+      });
+    }
+
+   
+    const productIndex = order.items.findIndex(
+      (item) => item.productId._id.toString() === productId
+    );
+    if (productIndex === -1) {
+      return res.status(404).json({
+        success: false,
+        error: "Product not found in this order",
+      });
+    }
+
+  
+    const cancelledProduct = order.items[productIndex];
+    console.log("Cancelled Product:", cancelledProduct.name);
+   
+    await Product.findByIdAndUpdate(productId, {
+      $inc: { quantity: cancelledProduct.quantity },
+    });
+
+    
+    order.items[productIndex].status = "Cancelled";
+
+   
+    if (order.items.every((item) => item.status === "Cancelled")) {
+      order.orderStatus = "Cancelled";
+    }
+
+   
+    await order.save();
+
+    res.status(200).json({
+      success: true,
+      message: "Product status updated to Cancelled",
+      updatedOrder: {
+        _id: order._id,
+        totalAmount: order.totalAmount,
+        items: order.items,
+        orderStatus: order.orderStatus,
+      },
+    });
+  } catch (error) {
+    console.error("Error cancelling order product:", error);
+    res.status(500).json({
+      success: false,
+      error: "Failed to cancel order product",
+      details: error.message,
+    });
+  }
+};
 module.exports = {
   getAllOrders,
   updateOrderStatus,
+  cancelOrderProduct,
 };

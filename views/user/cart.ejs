@@ -113,160 +113,164 @@
   </body>
  
   <script>
-    
-   document.addEventListener("DOMContentLoaded", () => {
-      const MAX_QUANTITY = 5; // Set maximum quantity limit
-      const removeButtons = document.querySelectorAll(".remove-btn");
-      const quantityButtons = document.querySelectorAll(".quantity-btn");
+    document.addEventListener("DOMContentLoaded", () => {
+  const MAX_QUANTITY = 5;
+  const removeButtons = document.querySelectorAll(".remove-btn");
+  const quantityButtons = document.querySelectorAll(".quantity-btn");
 
-       removeButtons.forEach((button) => {
-        button.addEventListener("click", async (event) => {
-          const productId = event.target.getAttribute("data-product-id");
-          const productName = event.target.closest('.cart-item').querySelector('h3').textContent;
-          
-          // Show confirmation dialog
-          const result = await Swal.fire({
-            title: 'Remove Item?',
-            text: `Are you sure you want to remove "${productName}" from your cart?`,
-            icon: 'warning',
-            showCancelButton: true,
-            confirmButtonColor: '#d33',
-            cancelButtonColor: '#3085d6',
-            confirmButtonText: 'Yes, remove it!',
-            cancelButtonText: 'No, keep it',
-            reverseButtons: true
-          });
-          
-          // If user confirms deletion
-          if (result.isConfirmed) {
-            try {
-              // Add loading state to the button
-              event.target.disabled = true;
-              event.target.textContent = 'Removing...';
-              
-              const response = await fetch("/removeCart", {
-                method: "POST",
-                headers: {
-                  "Content-Type": "application/json",
-                },
-                body: JSON.stringify({ productId }),
-              });
-              
-              const data = await response.json();
-              
-              if (data.success) {
-                Swal.fire({
-                  title: 'Removed!',
-                  text: 'The item has been removed from your cart.',
-                  icon: 'success',
-                  showConfirmButton: false,
-                  timer: 1500
-                }).then(() => {
-                  location.reload();
-                });
-              } else {
-                Swal.fire({
-                  title: "Error!",
-                  text: data.message || "Failed to remove item.",
-                  icon: "error",
-                  confirmButtonText: "Try Again",
-                });
-                // Reset button state
-                event.target.disabled = false;
-                event.target.textContent = 'Remove';
-              }
-            } catch (error) {
-              console.error("Error removing product:", error);
-              Swal.fire({
-                title: "Oops!",
-                text: "Failed to remove the product from the cart. Please try again later.",
-                icon: "error",
-                confirmButtonText: "OK",
-              });
-              // Reset button state
-              event.target.disabled = false;
-              event.target.textContent = 'Remove';
-            }
-          }
-        });
-      });
-
-    quantityButtons.forEach((button) => {
-  button.addEventListener("click", async (event) => {
-    const productId = event.target.getAttribute("data-product-id");
-    const action = event.target.textContent.trim();
-    const quantityDisplay = document.getElementById(`quantity-${productId}`);
-    let currentQuantity = parseInt(quantityDisplay.textContent);
-
-    // Update quantity based on action
-    if (action === "+") {
-      currentQuantity++;
-    } else if (action === "-" && currentQuantity > 1) {
-      currentQuantity--;
-    } else if (currentQuantity <= 1) {
-      Swal.fire({
-        title: "Minimum Quantity",
-        text: "Quantity must be at least 1. Use the remove button to delete the item.",
-        icon: "warning",
-        confirmButtonText: "OK",
-      });
-      return;
-    }
-
-    try {
-      // Add loading state to the button
-      event.target.disabled = true;
-      event.target.style.opacity = "0.5";
-
-      // Send the updated quantity to the backend
-      const response = await fetch("/updateQuantity", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ productId, quantity: currentQuantity }),
-      });
-
-      const result = await response.json();
-
-      if (response.ok && result.success) {
-        // Update the quantity display
-        quantityDisplay.textContent = currentQuantity;
-
-        // Show success message
-        Swal.fire({
-          title: "Success!",
-          text: result.message,
-          icon: "success",
-          confirmButtonText: "OK",
-        }).then(() => {
-          location.reload();
-        });
-      } else {
-        // Show error message from backend
-        Swal.fire({
-          title: "Error!",
-          text: result.message || "Failed to update quantity.",
-          icon: "error",
-          confirmButtonText: "Try Again",
-        });
-      }
-    } catch (error) {
-      console.error("Error updating quantity:", error);
-      Swal.fire({
-        title: "Oops!",
-        text: "Failed to update quantity. Please try again later.",
-        icon: "error",
-        confirmButtonText: "OK",
-      });
-    } finally {
-      // Remove loading state
-      event.target.disabled = false;
-      event.target.style.opacity = "1";
+  const Toast = Swal.mixin({
+    toast: true,
+    position: 'top-end',
+    showConfirmButton: false,
+    timer: 3000,
+    timerProgressBar: true,
+    didOpen: (toast) => {
+      toast.addEventListener('mouseenter', Swal.stopTimer)
+      toast.addEventListener('mouseleave', Swal.resumeTimer)
     }
   });
-});
 
+  removeButtons.forEach((button) => {
+    button.addEventListener("click", async (event) => {
+      const productId = event.target.getAttribute("data-product-id");
+      const productName = event.target.closest('.cart-item').querySelector('h3').textContent;
+      
+      
+      const result = await Swal.fire({
+        title: 'Remove Item?',
+        text: `Are you sure you want to remove "${productName}" from your cart?`,
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#d33',
+        cancelButtonColor: '#3085d6',
+        confirmButtonText: 'Yes, remove it!',
+        cancelButtonText: 'No, keep it',
+        reverseButtons: true
+      });
+      
+      if (result.isConfirmed) {
+        try {
+          event.target.disabled = true;
+          event.target.textContent = 'Removing...';
+          
+          const response = await fetch("/removeCart", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({ productId }),
+          });
+          
+          const data = await response.json();
+          
+          if (data.success) {
+            Toast.fire({
+              icon: 'success',
+              title: 'Item removed from cart',
+              background: '#ffffff',
+              color: '#333333',
+              iconColor: '#d33'
+            }).then(() => {
+              location.reload();
+            });
+          } else {
+            Toast.fire({
+              icon: 'error',
+              title: data.message || 'Failed to remove item',
+              background: '#ffffff',
+              color: '#333333',
+              iconColor: '#d33'
+            });
+            event.target.disabled = false;
+            event.target.textContent = 'Remove';
+          }
+        } catch (error) {
+          console.error("Error removing product:", error);
+          Toast.fire({
+            icon: 'error',
+            title: 'Failed to remove item. Please try again',
+            background: '#ffffff',
+            color: '#333333',
+            iconColor: '#d33'
+          });
+          event.target.disabled = false;
+          event.target.textContent = 'Remove';
+        }
+      }
     });
+  });
+
+  quantityButtons.forEach((button) => {
+    button.addEventListener("click", async (event) => {
+      const productId = event.target.getAttribute("data-product-id");
+      const action = event.target.textContent.trim();
+      const quantityDisplay = document.getElementById(`quantity-${productId}`);
+      let currentQuantity = parseInt(quantityDisplay.textContent);
+
+      if (action === "+") {
+        currentQuantity++;
+      } else if (action === "-" && currentQuantity > 1) {
+        currentQuantity--;
+      } else if (currentQuantity <= 1) {
+        Toast.fire({
+          icon: 'warning',
+          title: 'Minimum quantity must be 1',
+          background: '#ffffff',
+          color: '#333333',
+          iconColor: '#3085d6'
+        });
+        return;
+      }
+
+      try {
+        event.target.disabled = true;
+        event.target.style.opacity = "0.5";
+
+        const response = await fetch("/updateQuantity", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ productId, quantity: currentQuantity }),
+        });
+
+        const result = await response.json();
+
+        if (response.ok && result.success) {
+          quantityDisplay.textContent = currentQuantity;
+          Toast.fire({
+            icon: 'success',
+            title: 'Quantity updated successfully',
+            background: '#ffffff',
+            color: '#333333',
+            iconColor: '#3085d6'
+          }).then(() => {
+            location.reload();
+          });
+        } else {
+          Toast.fire({
+            icon: 'error',
+            title: result.message || 'Failed to update quantity',
+            background: '#ffffff',
+            color: '#333333',
+            iconColor: '#d33'
+          });
+        }
+      } catch (error) {
+        console.error("Error updating quantity:", error);
+        Toast.fire({
+          icon: 'error',
+          title: 'Failed to update quantity. Please try again',
+          background: '#ffffff',
+          color: '#333333',
+          iconColor: '#d33'
+        });
+      } finally {
+        event.target.disabled = false;
+        event.target.style.opacity = "1";
+      }
+    });
+  });
+});
   </script>
 </html>

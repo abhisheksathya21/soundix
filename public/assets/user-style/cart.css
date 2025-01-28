@@ -6,6 +6,10 @@
     box-sizing: border-box;
     font-family: "Josefin Sans", sans-serif;
 }
+:root{
+     --gradient-start: #007bff;
+            --gradient-end: #0056b3;
+}
 
 body {
     font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
@@ -207,7 +211,7 @@ body {
 .checkout-btn {
     width: 100%;
     padding: 1rem;
-    background-color: #3498db;
+    background: linear-gradient(135deg, var(--gradient-start), var(--gradient-end));
     color: #fff;
     border: none;
     border-radius: 8px;
@@ -219,8 +223,9 @@ body {
 }
 
 .checkout-btn:hover {
-    background-color: #2980b9;
     transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(0, 123, 255, 0.4);
+   
 }
 
 .checkout-btn:active {
