@@ -6,9 +6,10 @@
     box-sizing: border-box;
     font-family: "Josefin Sans", sans-serif;
 }
-:root{
-     --gradient-start: #007bff;
-            --gradient-end: #0056b3;
+
+:root {
+    --gradient-start: #007bff;
+    --gradient-end: #0056b3;
 }
 
 body {
@@ -23,7 +24,7 @@ body {
     max-width: 1200px;
     margin: 2rem auto;
     padding: 0 1.5rem;
-    min-height: calc(100vh - 200px); /* Account for header and footer */
+    min-height: calc(100vh - 200px);
 }
 
 .cart-title {
@@ -50,7 +51,7 @@ body {
 .cart-item {
     background-color: #fff;
     border-radius: 12px;
-    box-shadow: 5px  10px 8px rgba(0, 0, 0, 0.08);
+    box-shadow: 5px 10px 8px rgba(0, 0, 0, 0.08);
     display: flex;
     margin-bottom: 1.5rem;
     transition: transform 0.3s ease, box-shadow 0.3s ease;
@@ -90,14 +91,12 @@ body {
     margin: 0.5rem 0;
 }
 
-/* Quantity and Remove Button Styling */
+/* Quantity Control Styling */
 .quantity {
     display: flex;
-    align-items: center;
+    flex-direction: column;
     gap: 1rem;
     margin-top: 1rem;
-    position: relative;
-    z-index: 10;
 }
 
 .quantity label {
@@ -105,52 +104,39 @@ body {
     color: #666;
 }
 
-.quantity-select {
-    padding: 0.5rem 2rem 0.5rem 1rem;
-    border: 1px solid #ddd;
-    border-radius: 6px;
-    font-size: 1rem;
-    background-color: #fff;
-    cursor: pointer;
-    appearance: none;
-    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath d='M10.293 3.293L6 7.586 1.707 3.293A1 1 0 00.293 4.707l5 5a1 1 0 001.414 0l5-5a1 1 0 10-1.414-1.414z' fill='%23333'/%3E%3C/svg%3E");
-    background-repeat: no-repeat;
-    background-position: right 0.7rem top 50%;
-    background-size: 0.65rem auto;
-    min-width: 100px;
-    position: relative;
-   
-}
-
-.quantity-select option {
-    background-color: #fff;
-    color: #333;
-    padding: 0.5rem;
-}
-
-.quantity-select:focus {
-    outline: none;
-    border-color: #3498db;
-    box-shadow: 0 0 0 2px rgba(52, 152, 219, 0.2);
-}
 .quantity-control {
-        display: flex;
-        align-items: center;
-        gap: 10px;
-      }
-      .quantity-btn {
-        background-color: #f0f0f0;
-        border: 1px solid #ddd;
-        color: black;
-        padding: 5px 10px;
-        cursor: pointer;
-        font-size: 16px;
-      }
-      .quantity-display {
-        font-size: 16px;
-        min-width: 30px;
-        text-align: center;
-      }
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 10px;
+}
+
+.quantity-btn {
+    background-color: #f0f0f0;
+    border: 1px solid #ddd;
+    color: #333;
+    padding: 8px 15px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 16px;
+    transition: all 0.3s ease;
+}
+
+.quantity-btn:hover {
+    background-color: #e0e0e0;
+}
+
+.quantity-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.quantity-display {
+    font-size: 16px;
+    min-width: 30px;
+    text-align: center;
+    font-weight: 500;
+}
 
 .remove-btn {
     padding: 0.5rem 1rem;
@@ -161,6 +147,7 @@ body {
     cursor: pointer;
     transition: all 0.3s ease;
     font-weight: 500;
+    align-self: flex-start;
 }
 
 .remove-btn:hover {
@@ -173,7 +160,7 @@ body {
     flex: 1 1 35%;
     background-color: #fff;
     border-radius: 12px;
-   box-shadow: 5px  10px 8px rgba(0, 0, 0, 0.08);
+    box-shadow: 5px 10px 8px rgba(0, 0, 0, 0.08);
     padding: 1.5rem;
     position: sticky;
     top: 2rem;
@@ -224,8 +211,7 @@ body {
 
 .checkout-btn:hover {
     transform: translateY(-2px);
-  box-shadow: 0 6px 20px rgba(0, 123, 255, 0.4);
-   
+    box-shadow: 0 6px 20px rgba(0, 123, 255, 0.4);
 }
 
 .checkout-btn:active {
@@ -323,10 +309,6 @@ body {
     .quantity {
         flex-wrap: wrap;
     }
-
-    .quantity-select {
-        min-width: 120px;
-    }
 }
 
 @media (max-width: 480px) {
@@ -364,21 +346,3 @@ body {
         font-size: 1.5rem;
     }
 }
-
-    .quantity-control {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-        .quantity-btn {
-            background-color: #f0f0f0;
-            border: 1px solid #ddd;
-            padding: 5px 10px;
-            cursor: pointer;
-            font-size: 16px;
-        }
-        .quantity-display {
-            font-size: 16px;
-            min-width: 30px;
-            text-align: center;
-        }

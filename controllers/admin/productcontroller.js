@@ -170,7 +170,7 @@ const editProduct = async (req, res) => {
       return res.status(400).json("Invalid category name");
     }
 
-    // Update product details
+    
     product.productName = productData.productName;
     product.description = productData.description;
     product.category = category._id;
@@ -181,10 +181,10 @@ const editProduct = async (req, res) => {
     product.status = "Available";
 
     await product.save();
-    res.redirect("/admin/products"); // Redirect back to the products page
+    res.redirect("/admin/products"); 
   } catch (error) {
     console.error("Error while editing product:", error);
-    res.redirect("/admin/pageError"); // Redirect to error page
+    res.redirect("/admin/pageError"); 
   }
 };
 

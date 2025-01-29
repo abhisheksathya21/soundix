@@ -7,6 +7,8 @@ const productcontroller = require("../controllers/user/productcontroller");
 const profilecontroller = require("../controllers/user/profilecontroller");
 const cartcontroller = require("../controllers/user/cartcontroller");
 const checkoutcontroller = require("../controllers/user/checkoutcontroller");
+const ordercontroller = require("../controllers/user/ordercontroller");
+const wishlistcontroller = require("../controllers/user/wishlistcontroller");
 const { UserAuth, AdminAuth } = require("../middlewares/auth");
 const Product = require("../models/productSchema");
 
@@ -47,25 +49,39 @@ router.get("/productdetails", UserAuth, productcontroller.productDetails);
 //cart
 router.get("/cart", UserAuth, cartcontroller.loadCart);
 router.post("/cart-add", UserAuth, cartcontroller.addtoCart);
+router.post("/cart-add-from-wishlist", UserAuth, cartcontroller.addToCartFromWishlist);
 router.post("/removeCart", UserAuth, cartcontroller.removeCart);
 router.post("/updateQuantity", UserAuth, cartcontroller.updateQuantity);
 
+
+//wishlist
+router.get("/wishlist", UserAuth, wishlistcontroller.loadWishlist);
+router.post("/wishlist/toggle", UserAuth, wishlistcontroller.toggleWishlist);
+router.post("/wishlist/remove", UserAuth, wishlistcontroller.removeFromWishlist);
+router.get("/wishlist/state", UserAuth, wishlistcontroller.getWishlistState);
+
+
 //checkout
 router.get("/checkout", UserAuth, checkoutcontroller.loadCheckout);
-router.get("/wishlist",UserAuth,);
+
 //place-Order
-router.post("/place-order", UserAuth, checkoutcontroller.placeOrder);
+router.post("/place-order", UserAuth, ordercontroller.placeOrder);
+router.post("/verify-payment", UserAuth, ordercontroller.verifyPayment);
 //Order Success
-router.get("/order-success", UserAuth, checkoutcontroller.orderSuccess);
+router.get("/order-success", UserAuth, ordercontroller.orderSuccess);
 
 //order cancel
 // Cancel order route
-router.post("/api/orders/:orderId/cancel",UserAuth,checkoutcontroller.cancelOrder);
+router.post(
+  "/api/orders/:orderId/cancel",
+  UserAuth,
+  ordercontroller.cancelOrder
+);
 
 router.post(
   "/admin/cancel-order-product",
   UserAuth,
-  checkoutcontroller.cancelProductOrder
+  ordercontroller.cancelProductOrder
 );
 //userProfile
 router.get("/userProfile", UserAuth, profilecontroller.userProfile);

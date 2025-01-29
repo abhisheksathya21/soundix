@@ -100,8 +100,13 @@ const orderSchema = new mongoose.Schema({
   },
   paymentMethod: {
     type: String,
-    required: true,
-    enum: ["COD"], // Only COD allowed
+    enum: ['COD', 'Razorpay'],
+    required: true
+  },
+  paymentDetails: {
+    razorpayOrderId: String,
+    razorpayPaymentId: String,
+    razorpaySignature: String
   },
   paymentStatus: {
     type: String,

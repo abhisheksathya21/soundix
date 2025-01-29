@@ -17,15 +17,15 @@ const cartSchema = new mongoose.Schema(
         quantity: {
           type: Number,
           required: true,
-          min: 1, // Ensure quantity is at least 1
+          min: 1, 
         },
         price: {
           type: Number,
-          required: true, // Regular price of the product
+          required: true, 
         },
         discountedPrice: {
           type: Number,
-          required: true, // Discounted price of the product (can be the same as price if no discount)
+          required: true, 
         },
       },
     ],

@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Order Details - Adidas</title>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  
+     <link rel="stylesheet" href="/assets/user-style/sidebar.css">
+    <link rel="stylesheet" href="/assets/user-style/wishlist.css">
+    <link rel="shortcut icon" type="image/x-icon" href="assets/img/favicon.ico" />
+</head>
+<body>
+    <%-include('../partials/user/header')%>
+      <input type="checkbox" id="sidebar-toggle" />
+    <label for="sidebar-toggle" class="sidebar-toggle-label">☰</label>
+
+   <aside class="sidebar">
+  <nav>
+    <ul class="sidebar-menu">
+      <li><a href="/userProfile" >Account Overview</a></li>
+      <li><a href="/orders" >Order Details</a></li>
+      <li><a href="/addressManagement">Manage Address</a></li>
+      <li><a href="/wallet">Wallet</a></li>
+      <% if (!isGoogleUser) { %>
+        <li><a href="/password">Password</a></li>
+      <% } %>
+      <li><a href="/wishlist" class="active">Wishlist</a></li>
+    </ul>
+  </nav>
+  <button class="logout-btn">Logout</button>
+</aside>
+
+
+
+<main class="content">
+    <div class="view-port">
+        <h1>Wishlist</h1>
+        <div class="wishlist-grid" id="wishlistGrid">
+            <% if (!wishlist || !wishlist.items || wishlist.items.length === 0) { %>
+                <div class="empty-wishlist">
+                    <p>Your wishlist is empty</p>
+                    <a href="/shop" class="button button-primary">Continue Shopping</a>
+                </div>
+            <% } else { %>
+                
+                <% wishlist.items.forEach(item => { %>
+                    
+                    <div class="wishlist-item" data-id="<%= item.product._id %>">
+                        <div class="item-image">
+                            <img src="<%= item.product.productImage[0] %>" alt="<%= item.product.productName %>">
+                        </div>
+                        <div class="item-details">
+                            <h3 class="item-name"><%= item.product.productName %></h3>
+                            <p class="item-price">₹<%= item.product.salePrice %></p>
+                        </div>
+                        <div class="button-container">
+                            <button class="button button-primary" data-product-id="<%= item.product._id %>">
+                                Add to Cart
+                            </button>
+                            <button class="button button-outline remove-wishlist" data-product-id="<%= item.product._id %>">
+                                Remove
+                            </button>
+                        </div>
+                    </div>
+                <% }); %>
+            <% } %>
+        </div>
+    </div>
+</main>
+<!-- Add this before the closing body tag -->
+<div class="toast-container"></div>
+<script>
+
+document.addEventListener("DOMContentLoaded", function() {
+    // Toast functionality
+    const showToast = (message, type = 'success') => {
+        const toastContainer = document.querySelector('.toast-container');
+        
+        const toast = document.createElement('div');
+        toast.className = `toast ${type}`;
+        
+        const icon = type === 'success' ? 'check-circle' : 'exclamation-circle';
+        toast.innerHTML = `
+            <i class="fas fa-${icon} toast-icon"></i>
+            <span>${message}</span>
+        `;
+        
+        toastContainer.appendChild(toast);
+        
+        // Trigger reflow to enable transition
+        toast.offsetHeight;
+        
+        // Show the toast
+        setTimeout(() => toast.classList.add('show'), 10);
+        
+        // Remove the toast after 3 seconds
+        setTimeout(() => {
+            toast.classList.remove('show');
+            setTimeout(() => toast.remove(), 300);
+        }, 3000);
+    };
+
+    // Function to update cart count in the header
+    function updateCartCount(count) {
+        const cartCountElement = document.querySelector(".cart-count");
+        if (cartCountElement) {
+            cartCountElement.textContent = count;
+        }
+    }
+
+    // Add to cart functionality
+async function addToCart(productId) {
+    try {
+        const response = await fetch("/cart-add-from-wishlist", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+                productId,
+                quantity: 1,
+            }),
+        });
+
+        const result = await response.json();
+
+        if (!response.ok) {
+            throw new Error(result.error || "Failed to add to cart");
+        }
+
+        showToast("Product added to cart successfully!");
+        // Fix: Access the items through the cart object
+        updateCartCount(result.cart.items.length);
+    } catch (error) {
+        console.error("Error adding to cart:", error);
+        showToast(error.message, "error");
+    }
+}
+
+    // Function to check if wishlist is empty and show empty state
+    function checkWishlistEmpty() {
+        const wishlistGrid = document.getElementById('wishlistGrid');
+        if (!document.querySelector('.wishlist-item')) {
+            wishlistGrid.innerHTML = `
+                <div class="empty-wishlist">
+                    <p>Your wishlist is empty</p>
+                    <a href="/shop" class="button button-primary">Continue Shopping</a>
+                </div>
+            `;
+        }
+    }
+
+    // Handle add to cart
+    const addToCartButtons = document.querySelectorAll(".button-primary");
+    addToCartButtons.forEach(button => {
+        button.addEventListener("click", function() {
+            const productId = this.dataset.productId;
+            addToCart(productId);
+        });
+    });
+
+    // Handle remove from wishlist
+    const removeButtons = document.querySelectorAll(".remove-wishlist");
+    removeButtons.forEach(button => {
+        button.addEventListener("click", async function() {
+            const productId = this.dataset.productId;
+            const wishlistItem = this.closest(".wishlist-item");
+            
+            try {
+                const response = await fetch("/wishlist/remove", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json"
+                    },
+                    body: JSON.stringify({ productId })
+                });
+                
+                const data = await response.json();
+                if (data.success) {
+                    // Show success toast
+                    showToast("Product removed from wishlist successfully!");
+                    
+                    // Animate and remove item
+                    wishlistItem.style.opacity = '0';
+                    wishlistItem.style.transform = 'scale(0.9)';
+                    
+                    setTimeout(() => {
+                        wishlistItem.remove();
+                        checkWishlistEmpty();
+                    }, 300);
+                } else {
+                    showToast(data.message || "Failed to remove product", "error");
+                }
+            } catch (error) {
+                console.error("Error removing from wishlist:", error);
+                showToast("Failed to remove product from wishlist", "error");
+            }
+        });
+    });
+});
+</script>
+    <%-include('../partials/user/footer')%>
+</body>
+</html>

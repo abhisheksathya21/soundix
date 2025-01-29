@@ -11,7 +11,9 @@
       type="image/x-icon"s
       href="assets/img/favicon.ico"
     />
+    <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
 </head>
+
 <body>
    <%- include('../partials/user/header')%>
 
@@ -128,36 +130,80 @@
 <br>
 <br>
    <%- include('../partials/user/footer')%>
-   
+    <div class="toast-container"></div>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-<script>
-  async function submitOrder() {
-    const shippingForm = document.getElementById('shipping-form');
-    const selectedAddress = shippingForm.querySelector('input[name="address"]:checked');
+ <script>
+        const showToast = (message, type = 'success') => {
+            const toastContainer = document.querySelector('.toast-container');
+            
+            const toast = document.createElement('div');
+            toast.className = `toast ${type}`;
+            
+            let icon;
+            switch(type) {
+                case 'success':
+                    icon = 'check-circle';
+                    break;
+                case 'error':
+                    icon = 'exclamation-circle';
+                    break;
+                case 'warning':
+                    icon = 'exclamation-triangle';
+                    break;
+                default:
+                    icon = 'info-circle';
+            }
+            
+            toast.innerHTML = `
+                <i class="fas fa-${icon} toast-icon"></i>
+                <span>${message}</span>
+            `;
+            
+            toastContainer.appendChild(toast);
+            
+            // Trigger reflow
+            toast.offsetHeight;
+            
+            // Show toast
+            setTimeout(() => toast.classList.add('show'), 10);
+            
+            // Remove toast after 3 seconds
+            setTimeout(() => {
+                toast.classList.remove('show');
+                setTimeout(() => toast.remove(), 300);
+            }, 3000);
+        };
 
-    if (selectedAddress) {
-        const addressId = selectedAddress.value;
-        console.log("addressId front",addressId);
-        const cartItems = <%- JSON.stringify(cart.items || []) %>;
+        async function submitOrder() {
+            const shippingForm = document.getElementById('shipping-form');
+            const selectedAddress = shippingForm.querySelector('input[name="address"]:checked');
 
-        const addressLabel = selectedAddress.nextElementSibling.innerHTML.trim();
-        const paymentLabel = "Cash on Delivery"; // Only COD is supported
+            if (!selectedAddress) {
+                showToast('Please select a shipping address', 'warning');
+                return;
+            }
 
-        Swal.fire({
-            title: 'Confirm Your Order',
-            html: `
-                <h3>Shipping Address</h3>
-                <p>${addressLabel}</p>
-                <h3>Payment Method</h3>
-                <p>${paymentLabel}</p>
-            `,
-            icon: 'info',
-            showCancelButton: true,
-            confirmButtonText: 'Place Order',
-            cancelButtonText: 'Cancel',
-        }).then(async (result) => {
+            const addressId = selectedAddress.value;
+            const cartItems = <%- JSON.stringify(cart.items || []) %>;
+            const addressLabel = selectedAddress.nextElementSibling.innerHTML.trim();
+            const paymentLabel = "Cash on Delivery";
+
+            // Keep SweetAlert for order confirmation
+            const result = await Swal.fire({
+                title: 'Confirm Your Order',
+                html: `
+                    <h3>Shipping Address</h3>
+                    <p>${addressLabel}</p>
+                    <h3>Payment Method</h3>
+                    <p>${paymentLabel}</p>
+                `,
+                icon: 'info',
+                showCancelButton: true,
+                confirmButtonText: 'Place Order',
+                cancelButtonText: 'Cancel',
+            });
+
             if (result.isConfirmed) {
-                // Send data to backend for validation
                 try {
                     const response = await fetch('/place-order', {
                         method: 'POST',
@@ -165,9 +211,8 @@
                             'Content-Type': 'application/json',
                         },
                         body: JSON.stringify({
-                            
                             addressId: addressId,
-                            paymentMethod: 'COD', // Fixed payment method to COD
+                            paymentMethod: 'COD',
                             cartItems: cartItems,
                         }),
                     });
@@ -175,30 +220,20 @@
                     const data = await response.json();
 
                     if (response.ok) {
-                        Swal.fire(
-                            'Order Placed',
-                            'Your order has been placed successfully.',
-                            'success'
-                        ).then(() => {
-                            window.location.href = '/order-success'; // Redirect to order success page
-                        });
+                        showToast('Order placed successfully!', 'success');
+                        setTimeout(() => {
+                            window.location.href = '/order-success';
+                        }, 1500);
                     } else {
-                        Swal.fire('Error', data.message || 'Failed to place the order.', 'error');
+                        showToast(data.message || 'Failed to place the order', 'error');
                     }
                 } catch (error) {
-                    Swal.fire('Error', 'An unexpected error occurred. Please try again.', 'error');
+                    showToast('An unexpected error occurred', 'error');
                 }
             } else {
-                Swal.fire('Order Cancelled', 'Your order was not placed.', 'error');
+                showToast('Order cancelled', 'warning');
             }
-        });
-    } else {
-        Swal.fire({
-            title: 'Missing Information',
-            text: 'Please select a shipping address before placing your order.',
-            icon: 'warning',
-        });
-    }
-}</script>
+        }
+    </script>
 </body>
 </html>

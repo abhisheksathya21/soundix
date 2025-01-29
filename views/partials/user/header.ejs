@@ -3,73 +3,12 @@
   <head>
     <!-- ... (keep your existing head content) ... -->
    <link rel="stylesheet" href="/assets/user-style/header.css">
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
 
 
   </head>
 <style>
-  .preloader {
-  background-color: #f7f7f7;
-  width: 100%;
-  height: 100%;
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  z-index: 999999;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: 0.6s;
-}
-
-.preloader .preloader-inner {
-  position: relative;
-  text-align: center;
-}
-
-.preloader .preloader-img img {
-  max-width: 50px;
-  /* No animation applied here */
-}
-
-/* Loading text styles */
-.pere-text strong {
-  font-weight: 800;
-  color: #dca73a;
-  text-transform: uppercase;
-  display: block;
-  margin-top: 10px;
-  font-size: 14px;
-  position: relative; /* To ensure proper positioning of the dots */
-}
-
-.pere-text strong::after {
-  content: '...'; /* The dots will animate */
-  display: inline-block;
-  position: absolute;
-  animation: dots 1s steps(3, end) infinite;
-}
-
-/* Dots animation */
-@keyframes dots {
-  0% {
-    content: '';
-  }
-  33% {
-    content: '.';
-  }
-  66% {
-    content: '..';
-  }
-  100% {
-    content: '...';
-  }
-}
-
-#preloader-active {
-  transition: opacity 0.6s ease-out;
-}
+ 
 </style>
   <body>
     <!-- ... (keep your existing preloader) ... -->
@@ -117,20 +56,57 @@
                 </nav>
               </div>
               <div class="right-side">
-                <div class="search-box">
-                  <input type="text" placeholder="Search...">
-                  <button type="submit"><i class="flaticon-search"></i></button>
-                </div>
-                <a href="/cart" class="icon-link cart-desktop">
-                  <img src="/assets/icons/shopping-bag.png" alt="Cart Icon" class="icon">
-                </a>
-              </div>
+                      <div class="search-box search-desktop">
+            <form action="/shop" method="GET">
+              <input 
+                type="text" 
+                name="search" 
+                placeholder="Search..." 
+                value="<%= locals.searchQuery || '' %>"
+              >
+              <% if (locals.currentSort) { %>
+                <input type="hidden" name="sort" value="<%= currentSort %>">
+              <% } %>
+              <button type="submit">
+               <i class="fa-solid fa-magnifying-glass" style="color: #000000;"></i>
+              </button>
+            </form>
+          </div>
+        <!-- Add this to your existing cart link -->
+         <a href="/wishlist" class="icon-link cart-desktop">
+   <i class="fa-solid fa-heart" style="color: #000000;"></i>
+         </a>
+      
+<a href="/cart" class="icon-link cart-desktop">
+<i class="fa-solid fa-cart-shopping" style="color: #000000;"></i>
+  <% if (locals.cartItemCount && cartItemCount > 0) { %>
+    <span class="cart-counter"><%= cartItemCount %></span>
+  <% } %>
+</a>
+        </div>
               <div class="mobile-menu-toggle d-lg-none">
                 <span></span>
                 <span></span>
                 <span></span>
               </div>
             </div>
+             <!-- Add mobile search bar below header -->
+      <div class="search-box search-mobile d-lg-none">
+        <form action="/shop" method="GET">
+          <input 
+            type="text" 
+            name="search" 
+            placeholder="Search..." 
+            value="<%= locals.searchQuery || '' %>"
+          >
+          <% if (locals.currentSort) { %>
+            <input type="hidden" name="sort" value="<%= currentSort %>">
+          <% } %>
+          <button type="submit">
+        <i class="fa-solid fa-magnifying-glass" style="color: #000000;"></i>
+          </button>
+        </form>
+      </div>
           </div>
         </div>
       </div>
@@ -156,9 +132,13 @@
             </li>
             <li>
               <a href="/cart" class="cart-mobile">
-                <img src="/assets/icons/shopping-bag.png" alt="Cart Icon" class="icon">
-                Cart
-              </a>
+               <!-- Add this to your existing cart link -->
+
+  <i class="fa-solid fa-cart-shopping" style="color: #000000;"></i>
+  <% if (locals.cartItemCount && cartItemCount > 0) { %>
+    <span class="cart-counter"><%= cartItemCount %></span>
+  <% } %>
+</a>
             </li>
           </ul>
         </nav>

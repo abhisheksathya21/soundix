@@ -9,6 +9,7 @@
       rel="stylesheet"
       href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css"
     />
+    
     <link rel="stylesheet" href="/assets/user-style/userprofile.css" />
     <link
       rel="shortcut icon"
@@ -16,15 +17,8 @@
       s
       href="assets/img/favicon.ico"
     />
-    <style>
-      body {
-        font-family: "Poppins", sans-serif;
-        margin: 0;
-        padding: 0;
-        box-sizing: border-box;
-        background-color: #f4f4f4;
-      }
-    </style>
+   
+     
   </head>
 
   <body>
@@ -49,11 +43,13 @@
   <button class="logout-btn">Logout</button>
 </aside>
 
-    <main class="content">
+
+   <main class="content">
       <!-- Your page content goes here -->
       <div class="view-port">
-        <div id="account-overview" class="content active">
-          <h1>Account Overview</h1>
+        
+       <div class="container" id="orders-container">
+           <h1>Account Overview</h1>
           <div class="overview-grid">
             <div class="overview-card" id="profile-details">
               <h2>Profile Details</h2>
@@ -118,8 +114,8 @@
             </div>
           </div>
         </div>
-      </div>
-    </main>
+
+      </main>
 
     <%- include('../partials/user/footer')%>
 

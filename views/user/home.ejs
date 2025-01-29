@@ -5,7 +5,9 @@
 
   <!-- Hero Slider -->
  
+  <style>
   
+</style>
   <div class="content">
 <section class="hero">
    <img src="/assets/img/hp-register--fitpro-solo3.png.large.2x.png" alt="Floating PNG" />
@@ -43,10 +45,15 @@
     <% for (i = 0; i < products.length; i++) { %>
         <div class="product-card">
             <div class="product-image">
-                <img src="<%= products[i].productImage[0] %>" alt="<%= products[i].productName %>">
-                <button class="wishlist-btn" aria-label="Add to wishlist">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="heart-icon"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path></svg>
-                </button>
+              <a href="/productDetails?id=<%= products[i]._id %>">  <img src="<%= products[i].productImage[0] %>" alt="<%= products[i].productName %>"></a>
+              <button class="wishlist-btn" data-product-id="<%= products[i]._id %>">
+    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" 
+         viewBox="0 0 24 24" fill="none" stroke="currentColor" 
+         stroke-width="2" stroke-linecap="round" stroke-linejoin="round" 
+         class="heart-icon">
+        <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path>
+    </svg>
+</button>
                 <div class="product-actions">
                     <button class="add-to-cart" data-product-id="<%= products[i]._id %>" data-price="<%= products[i].salePrice %>">
                         Add to cart
@@ -55,7 +62,7 @@
             </div>
             <div class="product-info">
                 <h3 class="product-name">
-                    <a href="/productDetails?id=<%= products[i]._id %>"><%= products[i].productName %></a>
+                    <%= products[i].productName %>
                 </h3>
                 <span class="product-price">₹<%= products[i].salePrice %></span>
             </div>
@@ -74,71 +81,162 @@
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<!-- Add this HTML structure right after your main content, before the footer -->
+<div class="toast-container"></div>
+
 <script>
-document.addEventListener("DOMContentLoaded", function () {
-  // Get all add to cart buttons in the popular items section
-  const addToCartButtons = document.querySelectorAll(".popular-items .add-to-cart");
-
-  addToCartButtons.forEach((button) => {
-    button.addEventListener("click", async function (e) {
-      try {
-        const productId = this.getAttribute("data-product-id");
-        const price = parseFloat(this.getAttribute("data-price"));
-
-        const response = await fetch("/cart-add", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            productId,
-            price,
-            quantity: 1,
-          }),
-        });
-
-        const result = await response.json(); // Parse the response as JSON
-
-        if (!response.ok) {
-          // Backend returned an error
-          throw new Error(result.error || "Failed to add to cart");
+class ToastNotification {
+    constructor() {
+        this.container = document.querySelector('.toast-container');
+        if (!this.container) {
+            this.container = document.createElement('div');
+            this.container.className = 'toast-container';
+            document.body.appendChild(this.container);
         }
-
-        // Show success toast message
-        Swal.fire({
-          position: "center",
-          icon: "success",
-          title: "Success!",
-          text: "Product added to cart successfully!",
-          showConfirmButton: true,
-          confirmButtonText: "OK",
-        });
-
-        // Optional: Update cart count in header if you have one
-        updateCartCount(result.items.length);
-      } catch (error) {
-        console.error("Error adding to cart:", error);
-
-        // Show error toast message
-        Swal.fire({
-          icon: "error", // Error icon
-          title: "Failed!", // Main title
-          text: error.message, // Use the error message from backend
-          position: "center",
-          showConfirmButton: true,
-          confirmButtonText: "OK",
-        });
-      }
-    });
-  });
-
-  // Optional: Function to update cart count in header
-  function updateCartCount(count) {
-    const cartCountElement = document.querySelector(".cart-count");
-    if (cartCountElement) {
-      cartCountElement.textContent = count;
     }
-  }
+
+    show(message, type = 'success') {
+        const toast = document.createElement('div');
+        toast.className = `toast ${type}`;
+        
+        const icon = document.createElement('i');
+        icon.className = `toast-icon fas ${type === 'success' ? 'fa-check-circle' : 'fa-exclamation-circle'}`;
+        
+        const textDiv = document.createElement('div');
+        textDiv.textContent = message;
+        
+        toast.appendChild(icon);
+        toast.appendChild(textDiv);
+        this.container.appendChild(toast);
+        
+        // Trigger reflow to ensure transition works
+        toast.offsetHeight;
+        
+        // Show the toast
+        setTimeout(() => {
+            toast.classList.add('show');
+        }, 10);
+        
+        // Remove the toast after 3 seconds
+        setTimeout(() => {
+            toast.classList.remove('show');
+            setTimeout(() => {
+                this.container.removeChild(toast);
+            }, 300);
+        }, 3000);
+    }
+}
+
+// Initialize toast notification system
+const toast = new ToastNotification();
+
+document.addEventListener("DOMContentLoaded", function () {
+    const addToCartButtons = document.querySelectorAll(".popular-items .add-to-cart");
+
+    addToCartButtons.forEach((button) => {
+        button.addEventListener("click", async function (e) {
+            try {
+                const productId = this.getAttribute("data-product-id");
+                const price = parseFloat(this.getAttribute("data-price"));
+
+                const response = await fetch("/cart-add", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                    },
+                    body: JSON.stringify({
+                        productId,
+                        price,
+                        quantity: 1,
+                    }),
+                });
+
+                const result = await response.json();
+
+                if (!response.ok) {
+                    throw new Error(result.error || "Failed to add to cart");
+                }
+
+                // Show success toast
+                toast.show("Product added to cart successfully!", "success");
+
+                // Update cart count if needed
+                updateCartCount(result.items.length);
+            } catch (error) {
+                console.error("Error adding to cart:", error);
+                
+                // Show error toast
+                toast.show(error.message, "error");
+            }
+        });
+    });
+
+    // Optional: Function to update cart count in header
+    function updateCartCount(count) {
+        const cartCountElement = document.querySelector(".cart-count");
+        if (cartCountElement) {
+            cartCountElement.textContent = count;
+        }
+    }
+});
+</script>
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+    // Function to fetch initial wishlist state
+    async function fetchWishlistState() {
+        try {
+            const response = await fetch("/wishlist/state");
+            const data = await response.json();
+            if (data.success) {
+                // Update heart icons for items in wishlist
+                data.wishlistItems.forEach(itemId => {
+                    const heartIcon = document.querySelector(
+                        `.wishlist-btn[data-product-id="${itemId}"] .heart-icon`
+                    );
+                    if (heartIcon) {
+                        heartIcon.setAttribute('fill', 'red');
+                    }
+                });
+            }
+        } catch (error) {
+            console.error("Error fetching wishlist state:", error);
+        }
+    }
+
+    // Call this when page loads
+    fetchWishlistState();
+
+    // Add click handlers for wishlist buttons
+    const wishlistButtons = document.querySelectorAll(".wishlist-btn");
+    
+    wishlistButtons.forEach(button => {
+        button.addEventListener("click", async function(e) {
+            e.preventDefault();
+            
+            const productId = this.getAttribute('data-product-id');
+            const heartIcon = this.querySelector('.heart-icon');
+            
+            try {
+                const response = await fetch("/wishlist/toggle", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json"
+                    },
+                    body: JSON.stringify({ productId })
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    heartIcon.setAttribute('fill', data.isAdded ? 'red' : 'none');
+                    toast.show(data.message);
+                }
+            } catch (error) {
+                console.error("Error toggling wishlist:", error);
+                toast.show("Failed to update wishlist", "error");
+            }
+        });
+    });
 });
 </script>
 

@@ -64,7 +64,7 @@ body {
 
 .main-menu ul#navigation li a {
   text-decoration: none;
-  font-weight: 600;
+  font-weight: bold;
   color: #333;
   font-size: 1.1rem;
   transition: color 0.3s ease;
@@ -291,4 +291,166 @@ body {
 
 body.mobile-menu-open {
   overflow: hidden;
+}
+
+/* Mobile search bar styles */
+.search-mobile {
+  display: none;
+  width: 100%;
+  padding: 10px 15px;
+  background-color: #ffffff;
+  /* border-top: 1px solid #f0f0f0; */
+}
+
+.search-mobile form {
+  width: 100%;
+  display: flex;
+  align-items: center;
+}
+
+.search-mobile input {
+  flex-grow: 1;
+  border: 1px solid #e0e0e0;
+  border-radius: 20px;
+  padding: 8px 15px;
+  font-size: 0.9rem;
+  margin-right: 10px;
+}
+
+.search-mobile button {
+  background: transparent;
+  border: none;
+  padding: 5px;
+  cursor: pointer;
+}
+
+/* Update responsive styles */
+@media (max-width: 991px) {
+  .search-desktop {
+    display: none;
+  }
+
+  .search-mobile {
+    display: block;
+  }
+  
+  /* Adjust header padding to accommodate search bar */
+  .main-header {
+    padding-bottom: 0;
+  }
+  
+  .menu-wrapper {
+    padding-bottom: 10px;
+  }
+  
+  /* Adjust mobile menu top position */
+  .mobile-menu {
+    top: 125px; /* Adjust this value based on your header + search bar height */
+  }
+}
+
+/* Ensure desktop search remains visible on larger screens */
+@media (min-width: 992px) {
+  .search-desktop {
+    display: flex;
+  }
+  
+  .search-mobile {
+    display: none;
+  }
+}
+.cart-desktop {
+ position: relative;
+}
+
+.cart-counter {
+ position: absolute;
+ top: -8px;
+ right: -8px;
+ background-color: #3498db;
+ color: white;
+ border-radius: 50%;
+ padding: 2px 6px;
+ font-size: 10px;
+ min-width: 16px;
+ height: 16px;
+ display: flex;
+ align-items: center;
+ justify-content: center;
+ line-height: 1;
+}
+
+/* Mobile version */
+.cart-mobile {
+ position: relative;
+}
+
+.cart-mobile .cart-counter {
+ top: -5px;
+ right: -5px;
+ font-size: 8px;
+}
+  .preloader {
+  background-color: #ffffff;
+  width: 100%;
+  height: 100%;
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 999999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: 0.6s;
+}
+
+.preloader .preloader-inner {
+  position: relative;
+  text-align: center;
+}
+
+.preloader .preloader-img img {
+  max-width: 50px;
+  /* No animation applied here */
+}
+
+/* Loading text styles */
+.pere-text strong {
+  font-weight: 800;
+  /* color: #dca73a; */
+  color: black;
+  text-transform: uppercase;
+  display: block;
+  margin-top: 10px;
+  font-size: 14px;
+  position: relative; /* To ensure proper positioning of the dots */
+}
+
+.pere-text strong::after {
+  content: '...'; /* The dots will animate */
+  display: inline-block;
+  position: absolute;
+  animation: dots 1s steps(3, end) infinite;
+}
+
+/* Dots animation */
+@keyframes dots {
+  0% {
+    content: '';
+  }
+  33% {
+    content: '.';
+  }
+  66% {
+    content: '..';
+  }
+  100% {
+    content: '...';
+  }
+}
+
+#preloader-active {
+  transition: opacity 0.6s ease-out;
 }

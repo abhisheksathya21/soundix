@@ -5,272 +5,325 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Shopping Cart</title>
     <link rel="stylesheet" href="/assets/user-style/cart.css" />
-     
-     <link
-      rel="shortcut icon"
-      type="image/x-icon"s
-      href="assets/img/favicon.ico"
-    />
-      <!-- SweetAlert2 CSS -->
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css" />
-
-  <!-- SweetAlert2 JS -->
-  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-
-    <style>
+    <link rel="shortcut icon" type="image/x-icon" href="assets/img/favicon.ico" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css" />
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    
+      <style>
+      .toast-container {
+          position: fixed;
+          top: 110px;
+          right: 20px;
+          z-index: 1000;
+      }
       
+      .toast {
+          background: white;
+          color: #333;
+          padding: 12px 24px;
+          border-radius: 4px;
+          margin-bottom: 10px;
+          box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+          display: flex;
+          align-items: center;
+          gap: 8px;
+          opacity: 0;
+          transform: translateX(100%);
+          transition: all 0.3s ease;
+      }
+      
+      .toast.show {
+          opacity: 1;
+          transform: translateX(0);
+      }
+      
+      .toast.success {
+          border-left: 4px solid #4CAF50;
+      }
+      
+      .toast.error {
+          border-left: 4px solid #f44336;
+      }
+      
+      .toast.warning {
+          border-left: 4px solid #ff9800;
+      }
+      
+      .toast-icon {
+          font-size: 18px;
+      }
+      
+      .toast.success .toast-icon {
+          color: #4CAF50;
+      }
+      
+      .toast.error .toast-icon {
+          color: #f44336;
+      }
+      
+      .toast.warning .toast-icon {
+          color: #ff9800;
+      }
     </style>
   </head>
   <body>
-    
-  
-  <div class="content">
-    <header><%- include('../partials/user/header')%></header>
+    <div class="content">
+      <header><%- include('../partials/user/header')%></header>
 
-    <main class="cart-container">
-      <h1 class="cart-title">Beats Shopping Cart</h1>
-      <div class="cart-content">
-        <div class="cart-items">
-          <% if(cart.items && cart.items.length > 0) { %> <%
-          cart.items.forEach(item => { %>
-          <div class="cart-item">
-            <img
-              src="<%= item.product.productImage[0] %>"
-              alt="<%= item.product.productName %>"
-            />
-            <div class="item-details">
-              <h3><%= item.product.productName %></h3>
-              <p class="price">₹<%= item.price %></p>
-              <div class="quantity">
-                <label for="quantity-<%= item.product._id %>">Quantity:</label>
-                <div class="quantity-control">
-                  <button
-                    class="quantity-btn decrease-btn"
-                    data-product-id="<%= item.product._id %>"
-                  >
-                    -
-                  </button>
-                  <span
-                    class="quantity-display"
-                    id="quantity-<%= item.product._id %>"
-                    ><%= item.quantity %></span
-                  >
-                  <button
-                    class="quantity-btn increase-btn"
-                    data-product-id="<%= item.product._id %>"
-                  >
-                    +
-                  </button>
+      <main class="cart-container">
+        <h1 class="cart-title">Beats Shopping Cart</h1>
+        <div class="cart-content">
+          <div class="cart-items">
+            <% if(cart.items && cart.items.length > 0) { %>
+              <% cart.items.forEach(item => { %>
+                <div class="cart-item">
+                  <img src="<%= item.product.productImage[0] %>" alt="<%= item.product.productName %>" />
+                  <div class="item-details">
+                    <h3><%= item.product.productName %></h3>
+                    <p class="price">₹<%= item.price %></p>
+                    <div class="quantity">
+                      <label for="quantity-<%= item.product._id %>">Quantity:</label>
+                      <div class="quantity-control">
+                        <button class="quantity-btn decrease-btn" data-product-id="<%= item.product._id %>">-</button>
+                        <span class="quantity-display" id="quantity-<%= item.product._id %>"><%= item.quantity %></span>
+                        <button class="quantity-btn increase-btn" data-product-id="<%= item.product._id %>">+</button>
+                      </div>
+                      <button class="remove-btn" data-product-id="<%= item.product._id %>">Remove</button>
+                    </div>
+                  </div>
                 </div>
-
-                <button
-                  class="remove-btn"
-                  data-product-id="<%= item.product._id %>"
-                >
-                  Remove
-                </button>
+              <% }); %>
+            <% } else { %>
+              <div class="empty-cart">
+                <h2>Your cart is empty</h2>
+                <p>Add items to your cart to see them here</p>
+                <a href="/shop" class="continue-shopping">Continue Shopping</a>
               </div>
-            </div>
+            <% } %>
           </div>
           
-          <% }); %> <% } else { %>
-          <div class="empty-cart">
-            <h2>Your cart is empty</h2>
-            <p>Add items to your cart to see them here</p>
-            <a href="/shop" class="continue-shopping">Continue Shopping</a>
-          </div>
+          <% if(cart.items && cart.items.length > 0) { %>
+            <div class="cart-summary">
+              <h2>Order Summary</h2>
+              <div class="summary-item">
+                <span>Subtotal:</span>
+                <span class="subtotal">₹<%= cart.totalAmount %></span>
+              </div>
+              <div class="summary-item">
+                <span>Delivery Charges:</span>
+                <span class="free-delivery">FREE Delivery</span>
+              </div>
+              <div class="summary-item total">
+                <span>Total:</span>
+                <span class="total-amount">₹<%= cart.totalAmount %></span>
+              </div>
+              <button class="checkout-btn" onclick="window.location.href='/checkout'">
+                Proceed to Checkout
+              </button>
+            </div>
           <% } %>
         </div>
-        
-        <% if(cart.items && cart.items.length > 0) { %>
-        <div class="cart-summary">
-          <h2>Order Summary</h2>
-          <div class="summary-item">
-            <span>Subtotal:</span>
-            <span>₹<%= cart.totalAmount %></span>
-          </div>
-          <div class="summary-item">
-            <span>Delivery Charges:</span>
-            <span class="free-delivery">FREE Delivery</span>
-          </div>
-          <div class="summary-item total">
-            <span>Total:</span>
-            <span>₹<%= cart.totalAmount %></span>
-          </div>
-          <button
-            class="checkout-btn"
-            onclick="window.location.href='/checkout'"
-          >
-            Proceed to Checkout
-          </button>
-        </div>
-        <% } %>
-        
-      </div>
-    </main>
- </div>
+      </main>
+    </div>
+    <div class="toast-container"></div>
     <footer><%- include('../partials/user/footer')%></footer>
-  </body>
- 
-  <script>
-    document.addEventListener("DOMContentLoaded", () => {
-  const MAX_QUANTITY = 5;
-  const removeButtons = document.querySelectorAll(".remove-btn");
-  const quantityButtons = document.querySelectorAll(".quantity-btn");
 
-  const Toast = Swal.mixin({
-    toast: true,
-    position: 'top-end',
-    showConfirmButton: false,
-    timer: 3000,
-    timerProgressBar: true,
-    didOpen: (toast) => {
-      toast.addEventListener('mouseenter', Swal.stopTimer)
-      toast.addEventListener('mouseleave', Swal.resumeTimer)
-    }
-  });
-
-  removeButtons.forEach((button) => {
-    button.addEventListener("click", async (event) => {
-      const productId = event.target.getAttribute("data-product-id");
-      const productName = event.target.closest('.cart-item').querySelector('h3').textContent;
-      
-      
-      const result = await Swal.fire({
-        title: 'Remove Item?',
-        text: `Are you sure you want to remove "${productName}" from your cart?`,
-        icon: 'warning',
-        showCancelButton: true,
-        confirmButtonColor: '#d33',
-        cancelButtonColor: '#3085d6',
-        confirmButtonText: 'Yes, remove it!',
-        cancelButtonText: 'No, keep it',
-        reverseButtons: true
-      });
-      
-      if (result.isConfirmed) {
-        try {
-          event.target.disabled = true;
-          event.target.textContent = 'Removing...';
+        <script>
+      const showToast = (message, type = 'success') => {
+          const toastContainer = document.querySelector('.toast-container');
           
-          const response = await fetch("/removeCart", {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-            },
-            body: JSON.stringify({ productId }),
-          });
+          const toast = document.createElement('div');
+          toast.className = `toast ${type}`;
           
-          const data = await response.json();
-          
-          if (data.success) {
-            Toast.fire({
-              icon: 'success',
-              title: 'Item removed from cart',
-              background: '#ffffff',
-              color: '#333333',
-              iconColor: '#d33'
-            }).then(() => {
-              location.reload();
-            });
-          } else {
-            Toast.fire({
-              icon: 'error',
-              title: data.message || 'Failed to remove item',
-              background: '#ffffff',
-              color: '#333333',
-              iconColor: '#d33'
-            });
-            event.target.disabled = false;
-            event.target.textContent = 'Remove';
+          let icon;
+          switch(type) {
+              case 'success':
+                  icon = 'check-circle';
+                  break;
+              case 'error':
+                  icon = 'exclamation-circle';
+                  break;
+              case 'warning':
+                  icon = 'exclamation-triangle';
+                  break;
+              default:
+                  icon = 'info-circle';
           }
-        } catch (error) {
-          console.error("Error removing product:", error);
-          Toast.fire({
-            icon: 'error',
-            title: 'Failed to remove item. Please try again',
-            background: '#ffffff',
-            color: '#333333',
-            iconColor: '#d33'
+          
+          toast.innerHTML = `
+              <i class="fas fa-${icon} toast-icon"></i>
+              <span>${message}</span>
+          `;
+          
+          toastContainer.appendChild(toast);
+          
+          // Trigger reflow
+          toast.offsetHeight;
+          
+          // Show toast
+          setTimeout(() => toast.classList.add('show'), 10);
+          
+          // Remove toast after 3 seconds
+          setTimeout(() => {
+              toast.classList.remove('show');
+              setTimeout(() => toast.remove(), 300);
+          }, 3000);
+      };
+
+      document.addEventListener("DOMContentLoaded", () => {
+        const MAX_QUANTITY = 5;
+        const removeButtons = document.querySelectorAll(".remove-btn");
+        const quantityButtons = document.querySelectorAll(".quantity-btn");
+
+        // Previous helper functions remain the same
+        const formatPrice = (price) => {
+          return price.toLocaleString('en-IN', {
+            maximumFractionDigits: 2,
+            minimumFractionDigits: 2
           });
-          event.target.disabled = false;
-          event.target.textContent = 'Remove';
-        }
-      }
-    });
-  });
+        };
 
-  quantityButtons.forEach((button) => {
-    button.addEventListener("click", async (event) => {
-      const productId = event.target.getAttribute("data-product-id");
-      const action = event.target.textContent.trim();
-      const quantityDisplay = document.getElementById(`quantity-${productId}`);
-      let currentQuantity = parseInt(quantityDisplay.textContent);
+        const updateSummaryAmounts = (newTotal) => {
+          const subtotalElement = document.querySelector('.subtotal');
+          const totalElement = document.querySelector('.total-amount');
+          
+          const formattedTotal = formatPrice(newTotal);
+          if (subtotalElement && totalElement) {
+            subtotalElement.textContent = `₹${formattedTotal}`;
+            totalElement.textContent = `₹${formattedTotal}`;
+          }
+        };
 
-      if (action === "+") {
-        currentQuantity++;
-      } else if (action === "-" && currentQuantity > 1) {
-        currentQuantity--;
-      } else if (currentQuantity <= 1) {
-        Toast.fire({
-          icon: 'warning',
-          title: 'Minimum quantity must be 1',
-          background: '#ffffff',
-          color: '#333333',
-          iconColor: '#3085d6'
-        });
-        return;
-      }
+        const calculateItemTotal = (priceElement, quantity) => {
+          const price = parseFloat(priceElement.textContent.replace('₹', '').replace(/,/g, ''));
+          return price * quantity;
+        };
 
-      try {
-        event.target.disabled = true;
-        event.target.style.opacity = "0.5";
+        const updateCartTotal = () => {
+          const cartItems = document.querySelectorAll('.cart-item');
+          let total = 0;
 
-        const response = await fetch("/updateQuantity", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({ productId, quantity: currentQuantity }),
-        });
-
-        const result = await response.json();
-
-        if (response.ok && result.success) {
-          quantityDisplay.textContent = currentQuantity;
-          Toast.fire({
-            icon: 'success',
-            title: 'Quantity updated successfully',
-            background: '#ffffff',
-            color: '#333333',
-            iconColor: '#3085d6'
-          }).then(() => {
-            location.reload();
+          cartItems.forEach(item => {
+            const priceElement = item.querySelector('.price');
+            const quantityElement = item.querySelector('.quantity-display');
+            const quantity = parseInt(quantityElement.textContent);
+            total += calculateItemTotal(priceElement, quantity);
           });
-        } else {
-          Toast.fire({
-            icon: 'error',
-            title: result.message || 'Failed to update quantity',
-            background: '#ffffff',
-            color: '#333333',
-            iconColor: '#d33'
+
+          updateSummaryAmounts(total);
+        };
+
+        // Keep SweetAlert for remove confirmation
+        removeButtons.forEach((button) => {
+          button.addEventListener("click", async (event) => {
+            const productId = event.target.getAttribute("data-product-id");
+            const cartItem = event.target.closest('.cart-item');
+            const productName = cartItem.querySelector('h3').textContent;
+            
+            const result = await Swal.fire({
+              title: 'Remove Item?',
+              text: `Are you sure you want to remove "${productName}" from your cart?`,
+              icon: 'warning',
+              showCancelButton: true,
+              confirmButtonColor: '#d33',
+              cancelButtonColor: '#3085d6',
+              confirmButtonText: 'Yes, remove it!',
+              cancelButtonText: 'No, keep it',
+              reverseButtons: true
+            });
+            
+            if (result.isConfirmed) {
+              try {
+                event.target.disabled = true;
+                event.target.textContent = 'Removing...';
+                
+                const response = await fetch("/removeCart", {
+                  method: "POST",
+                  headers: {
+                    "Content-Type": "application/json",
+                  },
+                  body: JSON.stringify({ productId }),
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                  cartItem.remove();
+                  updateCartTotal();
+                  showToast('Item removed from cart', 'success');
+
+                  // Check if cart is empty after removal
+                  const remainingItems = document.querySelectorAll('.cart-item');
+                  if (remainingItems.length === 0) {
+                    location.reload();
+                  }
+                } else {
+                  showToast(data.message || 'Failed to remove item', 'error');
+                  event.target.disabled = false;
+                  event.target.textContent = 'Remove';
+                }
+              } catch (error) {
+                console.error("Error removing product:", error);
+                showToast('Failed to remove item. Please try again', 'error');
+                event.target.disabled = false;
+                event.target.textContent = 'Remove';
+              }
+            }
           });
-        }
-      } catch (error) {
-        console.error("Error updating quantity:", error);
-        Toast.fire({
-          icon: 'error',
-          title: 'Failed to update quantity. Please try again',
-          background: '#ffffff',
-          color: '#333333',
-          iconColor: '#d33'
         });
-      } finally {
-        event.target.disabled = false;
-        event.target.style.opacity = "1";
-      }
-    });
-  });
-});
-  </script>
+
+        // Use toast messages for quantity updates
+        quantityButtons.forEach((button) => {
+          button.addEventListener("click", async (event) => {
+            const productId = event.target.getAttribute("data-product-id");
+            const action = event.target.textContent.trim();
+            const quantityDisplay = document.getElementById(`quantity-${productId}`);
+            let currentQuantity = parseInt(quantityDisplay.textContent);
+
+            if (action === "+") {
+              if (currentQuantity >= MAX_QUANTITY) {
+                showToast(`Maximum quantity allowed is ${MAX_QUANTITY}`, 'warning');
+                return;
+              }
+              currentQuantity++;
+            } else if (action === "-" && currentQuantity > 1) {
+              currentQuantity--;
+            } else if (currentQuantity <= 1) {
+              showToast('Minimum quantity must be 1', 'warning');
+              return;
+            }
+
+            try {
+              event.target.disabled = true;
+              event.target.style.opacity = "0.5";
+
+              const response = await fetch("/updateQuantity", {
+                method: "POST",
+                headers: {
+                  "Content-Type": "application/json",
+                },
+                body: JSON.stringify({ productId, quantity: currentQuantity }),
+              });
+
+              const result = await response.json();
+
+              if (response.ok && result.success) {
+                quantityDisplay.textContent = currentQuantity;
+                updateCartTotal();
+                showToast('Quantity updated successfully', 'success');
+              } else {
+                showToast(result.message || 'Failed to update quantity', 'error');
+              }
+            } catch (error) {
+              console.error("Error updating quantity:", error);
+              showToast('Failed to update quantity. Please try again', 'error');
+            } finally {
+              event.target.disabled = false;
+              event.target.style.opacity = "1";
+            }
+          });
+        });
+      });
+    </script>
+  </body>
 </html>
