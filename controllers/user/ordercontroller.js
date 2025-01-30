@@ -4,7 +4,7 @@ const User = require("../../models/userSchema");
 const Cart = require("../../models/cartSchema");
 const Address = require("../../models/addressSchema");
 const Order = require("../../models/orderSchema");
-
+const crypto = require('crypto'); //
 
 // Then add Razorpay initialization
 const Razorpay = require('razorpay');
@@ -19,6 +19,9 @@ const placeOrder = async (req, res) => {
   try {
     const userId = req.session.user;
     const { addressId, paymentMethod } = req.body;
+
+    console.log("Received payment method:", paymentMethod); 
+
     if (!userId) {
       return res.status(400).json({ error: "User is not logged in" });
     }
@@ -26,6 +29,7 @@ const placeOrder = async (req, res) => {
     const cartData = await Cart.findOne({ user: userId }).populate(
       "items.product"
     );
+
     if (!cartData || cartData.items.length === 0) {
       return res.status(400).json({ error: "Cart is empty" });
     }
@@ -42,6 +46,7 @@ const placeOrder = async (req, res) => {
     const addressData = addressDocument.address.find(
       (addr) => addr._id.toString() === addressId
     );
+
     if (!addressData) {
       return res.status(400).json({ error: "Shipping address not found" });
     }
@@ -62,7 +67,7 @@ const placeOrder = async (req, res) => {
       0
     );
     const taxAmount = 0;
-    const shippingCost = 10; // Added shipping cost
+    const shippingCost = 0;
     const totalAmount = subTotal + shippingCost;
 
     const orderItems = cartData.items.map((item) => ({
@@ -71,7 +76,7 @@ const placeOrder = async (req, res) => {
       price: item.price,
     }));
 
-    // Check stock before proceeding
+   
     for (const cartItem of cartData.items) {
       const product = cartItem.product;
       const newStock = product.quantity - cartItem.quantity;
@@ -84,7 +89,7 @@ const placeOrder = async (req, res) => {
     }
 
     // Handle Razorpay payment
-    if (paymentMethod === "razorpay") {
+    if (paymentMethod === "RAZORPAY") {
       try {
         const razorpayOrder = await razorpay.orders.create({
           amount: totalAmount * 100, // Convert to paise
@@ -93,8 +98,6 @@ const placeOrder = async (req, res) => {
           payment_capture: 1,
         });
 
-        // Don't update stock or create order yet
-        // This will be done after payment verification
         return res.status(200).json({
           orderId: razorpayOrder.id,
           amount: totalAmount * 100,
@@ -154,13 +157,17 @@ const placeOrder = async (req, res) => {
       });
     }
 
-    // If payment method is neither COD nor Razorpay
+    
     return res.status(400).json({ error: "Invalid payment method" });
   } catch (error) {
     console.error("Error placing order:", error);
     res.status(500).json({ error: error.message || "Internal server error" });
   }
 };
+
+
+
+
 const orderSuccess = async (req, res) => {
   try {
     const userId = req.session.user;
@@ -186,6 +193,7 @@ const verifyPayment = async (req, res) => {
       addressId,
     } = req.body;
 
+    // Verify signature
     const sign = razorpay_order_id + "|" + razorpay_payment_id;
     const expectedSign = crypto
       .createHmac("sha256", process.env.RAZORPAY_KEY_SECRET)
@@ -196,23 +204,68 @@ const verifyPayment = async (req, res) => {
       return res.status(400).json({ error: "Invalid payment signature" });
     }
 
-    // Create order in your database
-    // [Similar to COD order creation logic, but with Razorpay details]
     const userId = req.session.user;
     const cartData = await Cart.findOne({ user: userId }).populate(
       "items.product"
     );
 
-    // ... [Create order with payment details]
+    if (!cartData || cartData.items.length === 0) {
+      return res.status(400).json({ error: "Cart is empty" });
+    }
+
+    // Get address
+    const addressDocument = await Address.findOne({ userId });
+    const addressData = addressDocument.address.find(
+      (addr) => addr._id.toString() === addressId
+    );
+
+    const shippingAddress = {
+      name: addressData.name,
+      addressType: addressData.addressType,
+      street: addressData.landmark || "",
+      city: addressData.city,
+      state: addressData.state,
+      country: "India",
+      pinCode: addressData.pincode,
+      phoneNumber: addressData.phone,
+    };
+
+    // Calculate totals
+    const orderItems = cartData.items.map((item) => ({
+      productId: item.product._id,
+      quantity: item.quantity,
+      price: item.price,
+    }));
+
+    const subTotal = cartData.items.reduce(
+      (sum, item) => sum + item.price * item.quantity,
+      0
+    );
+    const shippingCost = 10;
+    const totalAmount = subTotal + shippingCost;
+
+    // Update stock
+    for (const cartItem of cartData.items) {
+      const product = cartItem.product;
+      const newStock = product.quantity - cartItem.quantity;
+      await Product.updateOne(
+        { _id: product._id },
+        { $set: { quantity: newStock } }
+      );
+    }
+
+    
     const newOrder = new Order({
       orderId: `ORD-${Date.now()}-${Math.floor(Math.random() * 1000)}`,
       userId,
       items: orderItems,
       shippingAddress,
       subTotal,
-      taxAmount,
+      taxAmount: 0,
       totalAmount,
       paymentMethod: "Razorpay",
+      orderStatus: "Pending", // Changed from "Confirmed" to "Pending"
+      paymentStatus: "Paid",
       paymentDetails: {
         razorpayOrderId: razorpay_order_id,
         razorpayPaymentId: razorpay_payment_id,
@@ -254,14 +307,14 @@ const cancelOrder = async (req, res) => {
         .json({ success: false, message: "Order cannot be cancelled" });
     }
 
-    // Restore stock and update product status
+    
     for (const item of order.items) {
       const product = await Product.findById(item.productId);
       if (product) {
         product.quantity += item.quantity;
         await product.save();
 
-        // Update the status of each item in the order
+      
         item.status = "Cancelled";
         item.cancelledAt = new Date();
       } else {
@@ -271,7 +324,7 @@ const cancelOrder = async (req, res) => {
       }
     }
 
-    // Update order status
+    
     order.orderStatus = "Cancelled";
     order.cancelledAt = new Date();
     await order.save();
@@ -324,18 +377,18 @@ const cancelProductOrder = async (req, res) => {
       });
     }
 
-    // Update product inventory
+    
     const product = await Product.findById(productId);
     if (product) {
       product.quantity += productItem.quantity;
       await product.save();
     }
 
-    // Update order item status
+   
     productItem.status = "Cancelled";
     productItem.cancelledAt = new Date();
 
-    // Recalculate order total and update status if needed
+   
     const activeItems = order.items.filter(
       (item) => item.status !== "Cancelled"
     );

@@ -6,7 +6,10 @@
     font-family: "Josefin Sans", sans-serif;
 }
 
-
+:root{
+     --gradient-start: #007bff;
+            --gradient-end: #0056b3;
+}
     body {
         font-family: 'Roboto', sans-serif;
         background-color: #f5f5f5;
@@ -29,13 +32,21 @@
         fill: #000;
     }
 
-    main {
-        background-color: #fff;
-        border-radius: 8px;
-        padding: 40px;
-        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-        text-align: center;
-    }
+   main {
+    background-color: #fff;
+    border-radius: 8px;
+    padding: 40px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    text-align: center;
+    transition: transform 0.3s ease; /* Smooth transition for the hovering effect */
+}
+
+/* Hover effect for main section */
+main:hover {
+    transform: translateY(-10px); /* Moves the main section upwards */
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2); /* Adding a stronger shadow on hover for a floating effect */
+}
+
 
     .success-icon {
         margin-bottom: 20px;
@@ -89,12 +100,13 @@
     }
 
     .btn.primary {
-        background-color: #000;
+         background: linear-gradient(135deg, var(--gradient-start), var(--gradient-end));
         color: #fff;
     }
 
     .btn.primary:hover {
-        background-color: #333;
+         transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(0, 123, 255, 0.4);
     }
 
     .btn.secondary {
@@ -104,8 +116,9 @@
     }
 
     .btn.secondary:hover {
-        background-color: #000;
+      background: linear-gradient(135deg, var(--gradient-start), var(--gradient-end));
         color: #fff;
+           border:none
     }
 
     footer {

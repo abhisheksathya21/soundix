@@ -69,38 +69,40 @@
   <body>
     <div class="content">
       <header><%- include('../partials/user/header')%></header>
-
-      <main class="cart-container">
-        <h1 class="cart-title">Beats Shopping Cart</h1>
-        <div class="cart-content">
-          <div class="cart-items">
-            <% if(cart.items && cart.items.length > 0) { %>
-              <% cart.items.forEach(item => { %>
-                <div class="cart-item">
-                  <img src="<%= item.product.productImage[0] %>" alt="<%= item.product.productName %>" />
-                  <div class="item-details">
-                    <h3><%= item.product.productName %></h3>
-                    <p class="price">₹<%= item.price %></p>
-                    <div class="quantity">
-                      <label for="quantity-<%= item.product._id %>">Quantity:</label>
-                      <div class="quantity-control">
-                        <button class="quantity-btn decrease-btn" data-product-id="<%= item.product._id %>">-</button>
-                        <span class="quantity-display" id="quantity-<%= item.product._id %>"><%= item.quantity %></span>
-                        <button class="quantity-btn increase-btn" data-product-id="<%= item.product._id %>">+</button>
-                      </div>
-                      <button class="remove-btn" data-product-id="<%= item.product._id %>">Remove</button>
-                    </div>
+<main class="cart-container">
+  <h1 class="cart-title">Beats Shopping Cart</h1>
+  <div class="cart-content">
+    <div class="cart-items">
+      <% if(cart.items && cart.items.length > 0) { %>
+        <div class="cart-items-wrapper">
+          <% cart.items.forEach(item => { %>
+            <div class="cart-item">
+              <img src="<%= item.product.productImage[0] %>" alt="<%= item.product.productName %>" />
+              <div class="item-details">
+                <h3><%= item.product.productName %></h3>
+                <p class="price">₹<%= item.price %></p>
+                <div class="quantity">
+                  <label for="quantity-<%= item.product._id %>">Quantity:</label>
+                  <div class="quantity-control">
+                    <button class="quantity-btn decrease-btn" data-product-id="<%= item.product._id %>">-</button>
+                    <span class="quantity-display" id="quantity-<%= item.product._id %>"><%= item.quantity %></span>
+                    <button class="quantity-btn increase-btn" data-product-id="<%= item.product._id %>">+</button>
                   </div>
+                  <button class="remove-btn" data-product-id="<%= item.product._id %>">Remove</button>
                 </div>
-              <% }); %>
-            <% } else { %>
-              <div class="empty-cart">
-                <h2>Your cart is empty</h2>
-                <p>Add items to your cart to see them here</p>
-                <a href="/shop" class="continue-shopping">Continue Shopping</a>
               </div>
-            <% } %>
-          </div>
+            </div>
+          <% }); %>
+        </div>
+      <% } else { %>
+        <div class="empty-cart">
+          <h2>Your cart is empty</h2>
+          <p>Add items to your cart to see them here</p>
+          <a href="/shop" class="continue-shopping">Continue Shopping</a>
+        </div>
+      <% } %>
+    </div>
+
           
           <% if(cart.items && cart.items.length > 0) { %>
             <div class="cart-summary">

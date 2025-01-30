@@ -40,51 +40,64 @@
             <!-- Checkout Details Section -->
             <div class="checkout-details">
                 <!-- Cart Section -->
-                <div class="section">
-                    <h2>Your Cart</h2>
-                    <% if (cart && cart.items.length > 0) { %>
-                        <% cart.items.forEach(item => { %>
-                            <div class="product-summary">
-                                <img   src="<%= item.product.productImage[0] %>" alt="<%= item.product.productName %>" class="product-image">
-                                <div>
-                                    <h3><%= item.product.productName %></h3>
-                                   
-                                    <p>Quantity: <%= item.quantity %></p>
-                                    <p>Price: ₹<%= item.price %></p>
-                                </div>
-                            </div>
-                        <% }); %>
-                    <% } else { %>
-                        <p>Your cart is empty.</p>
-                    <% } %>
+                <!-- Cart Section -->
+<div class="section cart-section">
+    <h2>Your Cart</h2>
+    <% if (cart && cart.items.length > 0) { %>
+        <div class="cart-items-container">
+            <% cart.items.forEach(item => { %>
+                <div class="product-summary">
+                    <img src="<%= item.product.productImage[0] %>" alt="<%= item.product.productName %>" class="product-image">
+                    <div class="product-details">
+                        <h3><%= item.product.productName %></h3>
+                        <p>Quantity: <%= item.quantity %></p>
+                        <p>Price: ₹<%= item.price %></p>
+                    </div>
                 </div>
+            <% }); %>  
+        </div>
+        <div class="cart-summary-footer">
+            <p>Total Items: <%= cart.items.length %></p>
+        </div>
+    <% } else { %>
+        <p>Your cart is empty.</p>
+    <% } %>
+</div>
 
                 <!-- Shipping Address Section -->
-                <div class="section">
-                    <h2>Shipping Address</h2>
-                    <form id="shipping-form">
-                        <% if (Address && Address.address && Address.address.length > 0) { %>
-                            <% Address.address.forEach((address, index) => { %>
-                                <div class="address-option">
-                                    <input 
-                                        type="radio" 
-                                        id="address<%= index %>" 
-                                        name="address" 
-                                        value="<%= address._id %>" 
-                                        <%= index === 0 ? 'checked' : '' %>>
-                                    <label for="address<%= index %>">
-                                       <b><%= address.addressType %></b><br>
-                                       <%= address.city %>,<%= address.landmark %>, <%= address.district %><br>
-                                        <%= address.pincode %>, <%= address.phone %>
-                                    </label>
-                                </div>
-                            <% }); %>
-                        <% } else { %>
-                            <p>No address found. Please add an address.</p>
-                              <a href="/addressManagement" class="continue-shopping">Add address</a>
-                        <% } %>
-                    </form>
-                </div>
+               <!-- Shipping Address Section -->
+<div class="section">
+    <h2>Shipping Address</h2>
+    <form id="shipping-form">
+        <% if (Address && Address.address && Address.address.length > 0) { %>
+            <div class="address-options-container">
+                <% Address.address.forEach((address, index) => { %>
+                    <div class="address-option">
+                        <input 
+                            type="radio" 
+                            id="address<%= index %>" 
+                            name="address" 
+                            value="<%= address._id %>" 
+                            <%= index === 0 ? 'checked' : '' %>>
+                        <label for="address<%= index %>">
+                           <b><%= address.addressType %></b><br>
+                           <%= address.city %>,<%= address.landmark %>, <%= address.district %><br>
+                            <%= address.pincode %>, <%= address.phone %>
+                        </label>
+                    </div>
+                <% }); %>
+            </div>
+            <div class="add-address-container">
+                <a href="/addressManagement" class="continue-shopping">Add address</a>
+            </div>
+        <% } else { %>
+            <p>No address found. Please add an address.</p>
+            <div class="add-address-container">
+                <a href="/addressManagement" class="continue-shopping">Add address</a>
+            </div>
+        <% } %>
+    </form>
+</div>
             </div>
 
             <!-- Payment Summary Section -->
@@ -174,66 +187,134 @@
             }, 3000);
         };
 
-        async function submitOrder() {
-            const shippingForm = document.getElementById('shipping-form');
-            const selectedAddress = shippingForm.querySelector('input[name="address"]:checked');
+      
+async function submitOrder() {
+    const shippingForm = document.getElementById('shipping-form');
+    const selectedAddress = shippingForm.querySelector('input[name="address"]:checked');
+    const selectedPayment = document.querySelector('input[name="payment"]:checked');
 
-            if (!selectedAddress) {
-                showToast('Please select a shipping address', 'warning');
-                return;
-            }
+    if (!selectedAddress) {
+        showToast('Please select a shipping address', 'warning');
+        return;
+    }
 
-            const addressId = selectedAddress.value;
-            const cartItems = <%- JSON.stringify(cart.items || []) %>;
-            const addressLabel = selectedAddress.nextElementSibling.innerHTML.trim();
-            const paymentLabel = "Cash on Delivery";
+    const addressId = selectedAddress.value;
+    const paymentMethod = selectedPayment.value === 'cod' ? 'COD' : 'RAZORPAY';
+    const cartItems = <%- JSON.stringify(cart.items || []) %>;
+    const addressLabel = selectedAddress.nextElementSibling.innerHTML.trim();
 
-            // Keep SweetAlert for order confirmation
-            const result = await Swal.fire({
-                title: 'Confirm Your Order',
-                html: `
-                    <h3>Shipping Address</h3>
-                    <p>${addressLabel}</p>
-                    <h3>Payment Method</h3>
-                    <p>${paymentLabel}</p>
-                `,
-                icon: 'info',
-                showCancelButton: true,
-                confirmButtonText: 'Place Order',
-                cancelButtonText: 'Cancel',
-            });
+    // Confirm order first
+    const result = await Swal.fire({
+        title: 'Confirm Your Order',
+        html: `
+            <h3>Shipping Address</h3>
+            <p>${addressLabel}</p>
+            <h3>Payment Method</h3>
+            <p>${paymentMethod === 'COD' ? 'Cash on Delivery' : 'Razorpay'}</p>
+        `,
+        icon: 'info',
+        showCancelButton: true,
+        confirmButtonText: 'Place Order',
+        cancelButtonText: 'Cancel',
+    });
 
-            if (result.isConfirmed) {
-                try {
-                    const response = await fetch('/place-order', {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json',
-                        },
-                        body: JSON.stringify({
-                            addressId: addressId,
-                            paymentMethod: 'COD',
-                            cartItems: cartItems,
-                        }),
-                    });
+    if (!result.isConfirmed) {
+        showToast('Order cancelled', 'warning');
+        return;
+    }
 
-                    const data = await response.json();
+    try {
+      
+        console.log('Request Body:', {
+            addressId,
+            paymentMethod,
+            cartItems
+        });
 
-                    if (response.ok) {
-                        showToast('Order placed successfully!', 'success');
-                        setTimeout(() => {
-                            window.location.href = '/order-success';
-                        }, 1500);
-                    } else {
-                        showToast(data.message || 'Failed to place the order', 'error');
-                    }
-                } catch (error) {
-                    showToast('An unexpected error occurred', 'error');
-                }
-            } else {
-                showToast('Order cancelled', 'warning');
-            }
+        const response = await fetch('/place-order', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                addressId: addressId,
+                paymentMethod: paymentMethod,
+                cartItems: cartItems,
+            }),
+        });
+
+        const data = await response.json();
+        
+      
+        console.log('Server Response:', data);
+
+        if (!response.ok) {
+            throw new Error(data.error || 'Failed to place order');
         }
+
+        if (paymentMethod === 'COD') {
+            showToast('Order placed successfully!', 'success');
+            setTimeout(() => {
+                window.location.href = '/order-success';
+            }, 1500);
+        } else if (paymentMethod === 'RAZORPAY') {
+            // Handle Razorpay payment
+            const options = {
+                key: data.key_id,
+                amount: data.amount,
+                currency: data.currency,
+                name: "Your Store Name",
+                description: "Order Payment",
+                order_id: data.orderId,
+                handler: async function (response) {
+                    try {
+                        // Verify payment
+                        const verifyResponse = await fetch('/verify-payment', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                            },
+                            body: JSON.stringify({
+                                razorpay_order_id: response.razorpay_order_id,
+                                razorpay_payment_id: response.razorpay_payment_id,
+                                razorpay_signature: response.razorpay_signature,
+                                addressId: addressId
+                            }),
+                        });
+
+                        const verifyData = await verifyResponse.json();
+                        
+                        if (verifyData.success) {
+                            showToast('Payment successful!', 'success');
+                            setTimeout(() => {
+                                window.location.href = '/order-success';
+                            }, 1500);
+                        } else {
+                            throw new Error('Payment verification failed');
+                        }
+                    } catch (error) {
+                        showToast('Payment verification failed', 'error');
+                        console.error('Verification Error:', error);
+                    }
+                },
+                prefill: {
+                    name: "Customer Name",
+                    email: "customer@example.com",
+                    contact: "9999999999"
+                },
+                theme: {
+                    color: "#3399cc"
+                }
+            };
+
+            const rzp = new Razorpay(options);
+            rzp.open();
+        }
+    } catch (error) {
+        showToast(error.message || 'An unexpected error occurred', 'error');
+        console.error('Order Error:', error);
+    }
+}
     </script>
 </body>
 </html>

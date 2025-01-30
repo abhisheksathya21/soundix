@@ -7,6 +7,7 @@
             --gradient-start: #007bff;
             --gradient-end: #0056b3;
         }
+        
 
        @import url("https://fonts.googleapis.com/css?family=Josefin+Sans:200,300,400,500,600,700|Roboto:100,300,400,500,700&display=swap");
 * {
@@ -28,7 +29,202 @@
             padding: 20px;
             padding-top: 100px;
         }
+/* Cart section container */
+.section.cart-section {
+    max-height: 400px;
+    display: flex;
+    flex-direction: column;
+}
 
+/* Cart items container */
+.cart-items-container {
+    flex: 1;
+    overflow-y: auto;
+    max-height: 350px;
+    padding-right: 10px;
+    margin-right: -10px; /* Compensate for padding */
+}
+
+/* Styling the scrollbar */
+.cart-items-container::-webkit-scrollbar {
+    width: 6px;
+}
+
+.cart-items-container::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    border-radius: 10px;
+}
+
+.cart-items-container::-webkit-scrollbar-thumb {
+    background: var(--gradient-start);
+    border-radius: 10px;
+}
+
+.cart-items-container::-webkit-scrollbar-thumb:hover {
+    background: var(--gradient-end);
+}
+.continue-shopping {
+    display: inline-block;
+    padding: 10px 20px;
+    background: linear-gradient(135deg, var(--gradient-start), var(--gradient-end));
+    color: var(--secondary-color);
+    text-decoration: none;
+    border-radius: 4px;
+    font-weight: 500;
+    text-transform: uppercase;
+    font-size: 14px;
+    letter-spacing: 0.5px;
+    transition: all 0.3s ease;
+    box-shadow: 0 2px 4px rgba(0, 123, 255, 0.2);
+}
+
+.continue-shopping:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 123, 255, 0.4);
+    color: var(--secondary-color);
+}
+
+.continue-shopping:active {
+    transform: translateY(0);
+    box-shadow: 0 2px 4px rgba(0, 123, 255, 0.2);
+}
+
+/* Responsive adjustment */
+@media (max-width: 768px) {
+    .continue-shopping {
+        padding: 8px 16px;
+        font-size: 13px;
+    }
+}
+
+/* Address section container */
+.section #shipping-form {
+    max-height: 300px;
+    display: flex;
+    flex-direction: column;
+}
+
+/* Address options container */
+.address-options-container {
+    flex: 1;
+    overflow-y: auto;
+    max-height: 250px;
+    padding-right: 10px;
+    margin-right: -10px;
+}
+
+/* Scrollbar styling - matching cart section */
+.address-options-container::-webkit-scrollbar {
+    width: 6px;
+}
+
+.address-options-container::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    border-radius: 10px;
+}
+
+.address-options-container::-webkit-scrollbar-thumb {
+    background: var(--gradient-start);
+    border-radius: 10px;
+}
+
+.address-options-container::-webkit-scrollbar-thumb:hover {
+    background: var(--gradient-end);
+}
+
+/* Address option styling enhancements */
+.address-option {
+    padding: 15px;
+    border-bottom: 1px solid #eee;
+    transition: background-color 0.2s ease;
+}
+
+.address-option:last-child {
+    border-bottom: none;
+}
+
+.address-option:hover {
+    background-color: #f8f9fa;
+}
+
+/* Add address button container */
+.add-address-container {
+    margin-top: 15px;
+    padding-top: 15px;
+    border-top: 2px solid #eee;
+}
+
+
+/* Product summary enhancements */
+.product-summary {
+    display: flex;
+    align-items: center;
+    padding: 15px;
+    border-bottom: 1px solid #eee;
+    transition: background-color 0.2s ease;
+}
+
+.product-summary:last-child {
+    border-bottom: none;
+}
+
+.product-summary:hover {
+    background-color: #f8f9fa;
+}
+
+/* Product details layout */
+.product-details {
+    flex: 1;
+    margin-left: 15px;
+}
+
+.product-details h3 {
+    margin: 0 0 8px 0;
+    font-size: 1.1rem;
+    color: #333;
+}
+
+.product-details p {
+    margin: 4px 0;
+    color: #666;
+}
+
+/* Product image improvements */
+.product-image {
+    width: 80px;
+    height: 80px;
+    object-fit: cover;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+/* Cart summary footer */
+.cart-summary-footer {
+    margin-top: 15px;
+    padding-top: 15px;
+    border-top: 2px solid #eee;
+    font-weight: 500;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .cart-items-container {
+        max-height: 300px;
+    }
+    
+    .product-summary {
+        padding: 10px;
+    }
+    
+    .product-image {
+        width: 60px;
+        height: 60px;
+    }
+    
+    .product-details h3 {
+        font-size: 1rem;
+    }
+}
       
 
        
@@ -58,49 +254,67 @@
             text-transform: uppercase;
         }
 
-        .progress-bar {
-            display: flex;
-            justify-content: space-between;
-            margin-bottom: 30px;
-        }
+       .progress-bar {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 30px;
+}
 
-        .progress-step {
-            flex: 1;
-            text-align: center;
-            position: relative;
-        }
+.progress-step {
+    flex: 1;
+    text-align: center;
+    position: relative;
+    transition: transform 0.3s ease;
+}
 
-        .progress-step::before {
-            content: '';
-            position: absolute;
-            top: 15px;
-            left: 0;
-            right: 0;
-            height: 2px;
-            background-color: var(--accent-color);
-            z-index: 1;
-        }
+.progress-step::before {
+    content: '';
+    position: absolute;
+    top: 15px;
+    left: 0;
+    right: 0;
+    height: 2px;
+    background: linear-gradient(135deg, var(--gradient-start), var(--gradient-end)); /* Gradient line */
+    z-index: 1;
+}
 
-        .progress-step:first-child::before {
-            left: 50%;
-        }
+/* First and last steps with customized line */
+.progress-step:first-child::before {
+    left: 50%;
+}
 
-        .progress-step:last-child::before {
-            right: 50%;
-        }
+.progress-step:last-child::before {
+    right: 50%;
+}
 
-        .step-number {
-            width: 30px;
-            height: 30px;
-            background-color: var(--accent-color);
-            color: var(--secondary-color);
-            border-radius: 50%;
-            display: inline-flex;
-            justify-content: center;
-            align-items: center;
-            position: relative;
-            z-index: 2;
-        }
+.step-number {
+    width: 30px;
+    height: 30px;
+    background: linear-gradient(135deg, var(--gradient-start), var(--gradient-end)); /* Gradient background */
+    color: var(--secondary-color);
+    border-radius: 50%;
+    display: inline-flex;
+    justify-content: center;
+    align-items: center;
+    position: relative;
+    z-index: 2;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+/* Hover effect for step number */
+.progress-step:hover .step-number {
+    transform: scale(1.2); /* Slightly enlarges the step number */
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2); /* Adds shadow for hover effect */
+}
+
+.progress-step.active .step-number {
+    background: linear-gradient(135deg, var(--gradient-start), var(--gradient-end)); /* Active step color */
+}
+
+/* Hover effect for the line when hovering over a specific step */
+.progress-step:hover::before {
+    background: linear-gradient(135deg, var(--gradient-start), var(--gradient-end)); /* Gradient on the line */
+}
 
         .product-summary {
             display: flex;
@@ -125,6 +339,7 @@
         }
 
         input[type="radio"] {
+            background-color:  linear-gradient(135deg, var(--gradient-start), var(--gradient-end));
             margin-right: 10px;
         }
 

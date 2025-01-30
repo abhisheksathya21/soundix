@@ -35,13 +35,17 @@ const loadCart = async (req, res) => {
     res.status(500).render("error", { error: "Failed to load cart" });
   }
 };
+
+
+
+
 const addtoCart = async (req, res) => {
   try {
     const { productId, quantity = 1, price } = req.body;
    
     const userId = req.session.user;
 
-    // Validate product exists
+   
     const product = await Product.findById(productId);
     if (!product) {
       return res.status(404).json({ error: "Product not found" });
@@ -49,14 +53,16 @@ const addtoCart = async (req, res) => {
     if(product.isBlocked){
       return res.status(400).json({ error: "Product is blocked" });
     }
-    // Check if requested quantity exceeds stock
+   
     if (quantity > product.quantity) {
       return res.status(400).json({
         error: `Requested quantity exceeds available stock. Only ${product.quantity} left.`,
       });
     }
 
-    // Find or create cart
+  
+
+
     let cart = await Cart.findOne({ user: userId });
     if (!cart) {
       cart = new Cart({
@@ -65,16 +71,16 @@ const addtoCart = async (req, res) => {
       });
     }
 
-    // Check if product already in cart
+    
     const existingItem = cart.items.find(
       (item) => item.product.toString() === productId
     );
 
     if (existingItem) {
-      // Update quantity if product exists
+     
       const newQuantity = existingItem.quantity + quantity;
 
-      // Check if new quantity exceeds stock or limit
+    
       const MAX_LIMIT = 5;
       if (newQuantity > MAX_LIMIT) {
         return res.status(400).json({
@@ -89,7 +95,7 @@ const addtoCart = async (req, res) => {
 
       existingItem.quantity = newQuantity;
     } else {
-      // Add new item
+     
       if (quantity > 5) {
         return res.status(400).json({
           error: `Cannot add more than 5 units of this product to the cart.`,
@@ -117,9 +123,9 @@ const addToCartFromWishlist = async (req, res) => {
   try {
     const { productId } = req.body;
     const userId = req.session.user;
-    const quantity = 1; // Default quantity when adding from wishlist
+    const quantity = 1; 
 
-    // Check if product exists in wishlist
+   
     const wishlist = await Wishlist.findOne({ user: userId });
     if (
       !wishlist ||
@@ -128,7 +134,7 @@ const addToCartFromWishlist = async (req, res) => {
       return res.status(404).json({ error: "Product not found in wishlist" });
     }
 
-    // Validate product exists and is not blocked
+    
     const product = await Product.findById(productId);
     if (!product) {
       return res.status(404).json({ error: "Product not found" });
@@ -137,14 +143,14 @@ const addToCartFromWishlist = async (req, res) => {
       return res.status(400).json({ error: "Product is blocked" });
     }
 
-    // Check if requested quantity exceeds stock
+    
     if (quantity > product.quantity) {
       return res.status(400).json({
         error: `Requested quantity exceeds available stock. Only ${product.quantity} left.`,
       });
     }
 
-    // Find or create cart
+  
     let cart = await Cart.findOne({ user: userId });
     if (!cart) {
       cart = new Cart({
@@ -153,16 +159,16 @@ const addToCartFromWishlist = async (req, res) => {
       });
     }
 
-    // Check if product already in cart
+   
     const existingItem = cart.items.find(
       (item) => item.product.toString() === productId
     );
 
     if (existingItem) {
-      // Update quantity if product exists
+     
       const newQuantity = existingItem.quantity + quantity;
 
-      // Check if new quantity exceeds stock or limit
+     
       const MAX_LIMIT = 5;
       if (newQuantity > MAX_LIMIT) {
         return res.status(400).json({
@@ -179,7 +185,7 @@ const addToCartFromWishlist = async (req, res) => {
       existingItem.price = product.salePrice;
       existingItem.discountedPrice = product.salePrice;
     } else {
-      // Add new item
+     
       cart.items.push({
         product: productId,
         quantity,
@@ -188,7 +194,7 @@ const addToCartFromWishlist = async (req, res) => {
       });
     }
 
-    // Save cart and remove from wishlist
+   
     await cart.save();
     await Wishlist.updateOne(
       { user: userId },
