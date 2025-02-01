@@ -9,6 +9,7 @@ const cartcontroller = require("../controllers/user/cartcontroller");
 const checkoutcontroller = require("../controllers/user/checkoutcontroller");
 const ordercontroller = require("../controllers/user/ordercontroller");
 const wishlistcontroller = require("../controllers/user/wishlistcontroller");
+const walletcontroller = require("../controllers/user/walletcontroller");
 const { UserAuth, AdminAuth } = require("../middlewares/auth");
 const Product = require("../models/productSchema");
 
@@ -83,6 +84,7 @@ router.post(
   UserAuth,
   ordercontroller.cancelProductOrder
 );
+
 //userProfile
 router.get("/userProfile", UserAuth, profilecontroller.userProfile);
 router.post("/userProfile", UserAuth, profilecontroller.userUpdate);
@@ -97,15 +99,20 @@ router.post("/updateAddress", UserAuth, profilecontroller.updateAddress);
 router.get("/deleteAddress", UserAuth, profilecontroller.deleteAddress);
 
 router.get("/orders", UserAuth, profilecontroller.orders);
+//wallet
 
+router.get("/wallet", UserAuth, walletcontroller.wallet);
+router.post("/add-money", UserAuth, walletcontroller.addMoney);
+router.post("/verify-recharge", UserAuth, walletcontroller.verifyRecharge);
 // Google authentication route
 router.get("/auth/google", passport.authenticate("google", { scope: ["profile", "email"] }));
 
-// Google authentication callback route
+
 router.get(
   "/auth/google/callback",
   passport.authenticate("google", { failureRedirect: "/login" }),
   usercontroller.googleAuth // Use the googleAuth method from usercontroller
 );
+
 
 module.exports = router;

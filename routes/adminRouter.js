@@ -58,9 +58,20 @@ router.get('/UnblockProduct',AdminAuth,productcontroller.UnblockProduct);
 router.get('/editProduct',AdminAuth,productcontroller.geteditProduct);
 router.post('/editProduct/:id',AdminAuth,uploads.array("images", 6), productcontroller.editProduct);
 //order lists
-router.get("/orders",AdminAuth, ordercontroller.getAllOrders);
+router.get("/orders",AdminAuth, ordercontroller.getAllOrders)
+function print(req,res,next){
+  console.log("print");
+  next()
+}
+
+
 //order status
 router.post("/update-order-status",AdminAuth,ordercontroller.updateOrderStatus);
-router.post("/cancel-order-product",AdminAuth,ordercontroller.cancelOrderProduct);
+router.post(
+  "/cancel-order",AdminAuth,
+  ordercontroller.cancelProductOrder
+);
+
+
 
 module.exports=router;

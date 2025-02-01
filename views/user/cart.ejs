@@ -93,15 +93,19 @@
               </div>
             </div>
           <% }); %>
+          
         </div>
+        
       <% } else { %>
         <div class="empty-cart">
           <h2>Your cart is empty</h2>
           <p>Add items to your cart to see them here</p>
+          
           <a href="/shop" class="continue-shopping">Continue Shopping</a>
         </div>
       <% } %>
     </div>
+    
 
           
           <% if(cart.items && cart.items.length > 0) { %>
@@ -122,6 +126,7 @@
               <button class="checkout-btn" onclick="window.location.href='/checkout'">
                 Proceed to Checkout
               </button>
+              
             </div>
           <% } %>
         </div>

@@ -351,6 +351,11 @@ const orders = async (req, res) => {
   }
 };
 
+
+
+
+
+
 module.exports = {
   userProfile,
   userUpdate,
@@ -359,7 +364,7 @@ module.exports = {
   addressManagement,
   addAddress,
   editAddress,
-updateAddress,
+  updateAddress,
   deleteAddress,
   orders,
   

@@ -19,14 +19,14 @@ const getAllOrders = async (req, res) => {
       .sort({ orderDate: -1 })
       .skip(skip)
       .limit(limit);
-
+    
     const transformedOrders = orders.map((order) => ({
       ...order.toObject(),
       status: order.orderStatus,
       isCancellable:
         order.orderStatus !== "Cancelled" && order.orderStatus !== "Delivered",
     }));
-
+   
     res.render("orders", {
       orders: transformedOrders,
       currentPage: page,
@@ -141,87 +141,83 @@ const updateOrderStatus = async (req, res) => {
 };
 
 
-const cancelOrderProduct = async (req, res) => {
+const cancelProductOrder = async (req, res) => {
+
   try {
+    console.log("cancelproductOrder");
     const { orderId, productId } = req.body;
-    console.log("Order ID:", orderId);
-  
-    if (!orderId || !productId) {
+    console.log("orderid,productid", orderId, productId);
+    const order = await Order.findOne({ _id:orderId });
+    console.log("order",order);
+    if (!order) {
+      return res
+        .status(404)
+        .json({ success: false, message: "Order not found" });
+    }
+
+    if (["Shipped", "Delivered", "Cancelled"].includes(order.orderStatus)) {
       return res.status(400).json({
         success: false,
-        error: "Order ID and Product ID are required",
+        message: "Products cannot be cancelled from this order",
       });
     }
 
-    
-    const order = await Order.findById(orderId)
-      .populate("items.productId")
-      .populate("userId");
-      console.log("Order:", order);
-      console.log("orderStatus:", order.orderStatus);
-
-    if (
-      !order ||
-      order.orderStatus === "Delivered" ||
-      order.orderStatus === "Cancelled"
-    ) {
-      return res.status(400).json({
-        success: false,
-        error: "Cannot modify delivered or cancelled orders",
-      });
-    }
-
-   
-    const productIndex = order.items.findIndex(
-      (item) => item.productId._id.toString() === productId
+    const productItem = order.items.find(
+      (item) => item.productId.toString() === productId
     );
-    if (productIndex === -1) {
+    if (!productItem) {
       return res.status(404).json({
         success: false,
-        error: "Product not found in this order",
+        message: "Product not found in order",
       });
     }
 
-  
-    const cancelledProduct = order.items[productIndex];
-    console.log("Cancelled Product:", cancelledProduct.name);
-   
-    await Product.findByIdAndUpdate(productId, {
-      $inc: { quantity: cancelledProduct.quantity },
-    });
-
-    
-    order.items[productIndex].status = "Cancelled";
-
-   
-    if (order.items.every((item) => item.status === "Cancelled")) {
-      order.orderStatus = "Cancelled";
+    if (productItem.status === "Cancelled") {
+      return res.status(400).json({
+        success: false,
+        message: "Product is already cancelled",
+      });
     }
 
-   
+    const product = await Product.findById(productId);
+    if (product) {
+      product.quantity += productItem.quantity;
+      await product.save();
+    }
+
+    productItem.status = "Cancelled";
+    productItem.cancelledAt = new Date();
+
+    const activeItems = order.items.filter(
+      (item) => item.status !== "Cancelled"
+    );
+    if (activeItems.length === 0) {
+      order.orderStatus = "Cancelled";
+      order.cancelledAt = new Date();
+    } else {
+      order.totalAmount = activeItems.reduce(
+        (total, item) => total + item.price * item.quantity,
+        0
+      );
+    }
+
     await order.save();
 
     res.status(200).json({
       success: true,
-      message: "Product status updated to Cancelled",
-      updatedOrder: {
-        _id: order._id,
-        totalAmount: order.totalAmount,
-        items: order.items,
-        orderStatus: order.orderStatus,
-      },
+      message: "Product cancelled successfully",
     });
+    console.log("product cancelled successfully");
   } catch (error) {
-    console.error("Error cancelling order product:", error);
+    console.error("Cancel product error:", error);
     res.status(500).json({
       success: false,
-      error: "Failed to cancel order product",
-      details: error.message,
+      message: "Error cancelling product",
     });
   }
 };
 module.exports = {
   getAllOrders,
   updateOrderStatus,
-  cancelOrderProduct,
+  cancelProductOrder,
 };

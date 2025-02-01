@@ -4,9 +4,10 @@ const User = require("../../models/userSchema");
 const Cart = require("../../models/cartSchema");
 const Address = require("../../models/addressSchema");
 const Order = require("../../models/orderSchema");
+const Wallet = require("../../models/walletSchema");
 const crypto = require('crypto'); //
 
-// Then add Razorpay initialization
+
 const Razorpay = require('razorpay');
 const razorpay = new Razorpay({
   key_id: process.env.RAZORPAY_KEY_ID,
@@ -87,6 +88,52 @@ const placeOrder = async (req, res) => {
         });
       }
     }
+    if (paymentMethod === "WALLET") {
+  try {
+    // Get user's wallet
+    const wallet = await Wallet.findOne({ userId });
+    
+    if (!wallet || wallet.balance < totalAmount) {
+      return res.status(400).json({ error: "Insufficient wallet balance" });
+    }
+
+    // Create wallet transaction
+    await wallet.addTransaction({
+      type: "Purchase",
+      amount: totalAmount,
+      orderId: orderId,
+      description: `Payment for order ${orderId}`,
+      status: "Completed"
+    });
+
+    // Create order with wallet payment
+    const orderId = `ORD-${Date.now()}-${Math.floor(Math.random() * 1000)}`;
+    const newOrder = new Order({
+      orderId,
+      userId,
+      items: orderItems,
+      shippingAddress,
+      subTotal,
+      taxAmount,
+      totalAmount,
+      paymentMethod: "WALLET",
+      orderStatus: "Pending",
+      paymentStatus: "Paid",
+    });
+
+    await newOrder.save();
+    await Cart.updateOne({ user: userId }, { $set: { items: [] } });
+
+    return res.status(200).json({
+      success: true,
+      message: "Order placed successfully using wallet",
+      orderId: newOrder.orderId,
+    });
+  } catch (error) {
+    console.error("Wallet payment error:", error);
+    return res.status(500).json({ error: "Wallet payment failed" });
+  }
+}
 
     // Handle Razorpay payment
     if (paymentMethod === "RAZORPAY") {
@@ -306,15 +353,27 @@ const cancelOrder = async (req, res) => {
         .status(400)
         .json({ success: false, message: "Order cannot be cancelled" });
     }
+    // In cancelOrder function, add wallet refund
+    if (
+      order.paymentMethod === "WALLET" ||
+      order.paymentMethod === "RAZORPAY"
+    ) {
+      const wallet = await Wallet.findOne({ userId });
+      await wallet.addTransaction({
+        type: "Refund",
+        amount: order.totalAmount,
+        orderId: order._id,
+        description: `Refund for order ${order.orderId}`,
+        status: "Completed",
+      });
+    }
 
-    
     for (const item of order.items) {
       const product = await Product.findById(item.productId);
       if (product) {
         product.quantity += item.quantity;
         await product.save();
 
-      
         item.status = "Cancelled";
         item.cancelledAt = new Date();
       } else {
@@ -324,7 +383,6 @@ const cancelOrder = async (req, res) => {
       }
     }
 
-    
     order.orderStatus = "Cancelled";
     order.cancelledAt = new Date();
     await order.save();
@@ -416,6 +474,7 @@ const cancelProductOrder = async (req, res) => {
     });
   }
 };
+
 
 module.exports = {
   orderSuccess,
