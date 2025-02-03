@@ -13,6 +13,39 @@
     />
     <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
 </head>
+<style>
+    .available-coupons .coupons-container {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
+.coupon-card {
+    border: 1px solid #ddd;
+    padding: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 250px;
+}
+
+.coupon-details {
+    flex-grow: 1;
+}
+
+.coupon-code {
+    font-weight: bold;
+    color: #007bff;
+}
+
+.coupon-discount {
+    background-color: #28a745;
+    color: white;
+    padding: 2px 5px;
+    border-radius: 3px;
+    margin-left: 10px;
+}
+</style>
 
 <body>
    <%- include('../partials/user/header')%>
@@ -120,15 +153,44 @@
                     </form>
                 </div>
 
+
+                <div class="section">
+    <h2>Apply Coupon</h2>
+    <div class="coupon-container">
+        <input type="text" id="coupon-code" placeholder="Enter Coupon Code">
+        <button onclick="applyCoupon()">Apply</button>
+    </div>
+    <div id="coupon-message"></div>
+</div>
+<div class="section available-coupons">
+    <h2>Available Coupons</h2>
+    <% if (availableCoupons && availableCoupons.length > 0) { %>
+        <div class="coupons-container">
+            <% availableCoupons.forEach(coupon => { %>
+                <div class="coupon-card">
+                    <div class="coupon-details">
+                        <span class="coupon-code"><%= coupon.code %></span>
+                        <span class="coupon-discount"><%= coupon.discountValue %>% OFF</span>
+                        <p>Min. Purchase: ₹<%= coupon.minPurchaseAmount %></p>
+                        <p>Expires: <%= coupon.expiryDate.toLocaleDateString() %></p>
+                    </div>
+                    <button onclick="copyCouponCode('<%= coupon.code %>')">Copy Code</button>
+                </div>
+            <% }); %>
+        </div>
+    <% } else { %>
+        <p>No coupons available</p>
+    <% } %>
+</div>
                 <!-- Order Summary -->
                 <div class="section">
                     <h2>Order Summary</h2>
                     <% if (cart && cart.items.length > 0) { %>
                         <p>Subtotal:₹<%= cart.totalAmount %></p>
-                        <p>Shipping: ₹10.00</p>
+                        <p>Shipping: ₹0.00</p>
                         <p>Tax:₹0.00 </p>
                         <div class="total">
-                            Total: ₹<%= cart.totalAmount + 10 %>
+                            Total: ₹<%= cart.totalAmount  %>
                         </div>
                     <% } else { %>
                         <p>No items to display.</p>
@@ -146,6 +208,30 @@
     <div class="toast-container"></div>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
  <script>
+function copyCouponCode(code) {
+    // Create a temporary input
+    const tempInput = document.createElement('input');
+    tempInput.value = code;
+    document.body.appendChild(tempInput);
+    
+    // Select the text
+    tempInput.select();
+    tempInput.setSelectionRange(0, 99999); // For mobile devices
+    
+    // Copy the text
+    document.execCommand('copy');
+    
+    // Remove the temporary input
+    document.body.removeChild(tempInput);
+    
+    // Show toast notification
+    showToast(`Coupon code ${code} copied!`, 'success');
+    
+    // Optional: Pre-fill the coupon code input
+    document.getElementById('coupon-code').value = code;
+}
+
+
         const showToast = (message, type = 'success') => {
             const toastContainer = document.querySelector('.toast-container');
             
@@ -188,6 +274,53 @@
         };
 
       
+        let appliedCoupon = null;
+
+async function applyCoupon() {
+    const couponCodeInput = document.getElementById('coupon-code');
+    const couponMessage = document.getElementById('coupon-message');
+    const couponCode = couponCodeInput.value.trim().toUpperCase();
+
+    if (!couponCode) {
+        showToast('Please enter a coupon code', 'warning');
+        return;
+    }
+
+    try {
+        const response = await fetch('/validate-coupon', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ 
+                couponCode, 
+                totalAmount: <%= cart.totalAmount %> 
+            }),
+        });
+
+        const result = await response.json();
+
+        if (result.valid) {
+            appliedCoupon = result.coupon;
+            updateOrderSummary(result.discountAmount);
+            showToast('Coupon applied successfully!', 'success');
+            couponMessage.innerHTML = `Coupon applied: -₹${result.discountAmount}`;
+        } else {
+            showToast(result.message, 'error');
+            couponCodeInput.value = '';
+        }
+    } catch (error) {
+        showToast('Error applying coupon', 'error');
+    }
+}
+
+function updateOrderSummary(discountAmount) {
+    const subtotalEl = document.querySelector('.section .total');
+    const originalTotal = <%= cart.totalAmount + 10 %>;
+    const newTotal = originalTotal - discountAmount;
+    
+    subtotalEl.innerHTML = `Total: ₹${newTotal}`;
+}
 async function submitOrder() {
     const shippingForm = document.getElementById('shipping-form');
     const selectedAddress = shippingForm.querySelector('input[name="address"]:checked');
@@ -231,17 +364,18 @@ async function submitOrder() {
             cartItems
         });
 
-        const response = await fetch('/place-order', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({
-                addressId: addressId,
-                paymentMethod: paymentMethod,
-                cartItems: cartItems,
-            }),
-        });
+          const response = await fetch('/place-order', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+            addressId: addressId,
+            paymentMethod: paymentMethod,
+            cartItems: cartItems,
+            appliedCoupon: appliedCoupon // Add this line
+        }),
+    });
 
         const data = await response.json();
         

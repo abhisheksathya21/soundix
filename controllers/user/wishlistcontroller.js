@@ -13,9 +13,57 @@ const loadWishlist = async (req, res) => {
   try {
     const userId = req.session.user;
     const userData = await User.findOne({ _id: userId });
+
+    // Fetch wishlist and populate product details
     const wishlist = await Wishlist.findOne({ user: userId }).populate(
       "items.product"
     );
+
+    if (!wishlist || wishlist.items.length === 0) {
+      return res.render("wishlist", {
+        user: userData,
+        wishlist: null,
+        isGoogleUser: !!userData.googleId,
+        message: "Your wishlist is empty",
+      });
+    }
+
+    // Process each item to calculate the final price
+    wishlist.items = wishlist.items.map((item) => {
+      const product = item.product;
+      let finalPrice = product.salePrice || product.regularPrice; // Default price
+
+      // Get category and product offers
+      const categoryOffer = product.category?.offer || null;
+      const productOffer = product.offer || null;
+
+      // Determine the best discount (higher percentage)
+      let bestDiscount = 0;
+      if (
+        categoryOffer?.discountPercentage &&
+        productOffer?.discountPercentage
+      ) {
+        bestDiscount = Math.max(
+          categoryOffer.discountPercentage,
+          productOffer.discountPercentage
+        );
+      } else if (categoryOffer?.discountPercentage) {
+        bestDiscount = categoryOffer.discountPercentage;
+      } else if (productOffer?.discountPercentage) {
+        bestDiscount = productOffer.discountPercentage;
+      }
+
+      // Apply discount if any
+      if (bestDiscount > 0) {
+        finalPrice = finalPrice - (finalPrice * bestDiscount) / 100;
+      }
+
+      return {
+        ...item.toObject(),
+        finalPrice, // Attach calculated final price
+      };
+    });
+
     res.render("wishlist", {
       user: userData,
       wishlist: wishlist,

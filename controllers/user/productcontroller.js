@@ -1,6 +1,6 @@
-const Product=require('../../models/productSchema');
-const Category=require('../../models/categorySchema');
-const User=require('../../models/userSchema');
+const Product = require("../../models/productSchema");
+const Category = require("../../models/categorySchema");
+const User = require("../../models/userSchema");
 
 const productDetails = async (req, res) => {
   try {
@@ -15,6 +15,35 @@ const productDetails = async (req, res) => {
     if (!productData) {
       return res.status(404).send("Product not found");
     }
+
+   
+    const categoryOffer = productData.category?.offer || null;
+    console.log("categoryOffer", categoryOffer);
+
+  
+    const productOffer = productData.offer || null;
+    console.log("productOffer", productOffer);
+   let bestOffer = null;
+
+   if (categoryOffer?.discountPercentage && productOffer?.discountPercentage) {
+     bestOffer =
+       categoryOffer.discountPercentage > productOffer.discountPercentage
+         ? categoryOffer
+         : productOffer;
+   } else if (categoryOffer?.discountPercentage) {
+     bestOffer = categoryOffer;
+   } else if (productOffer?.discountPercentage) {
+     bestOffer = productOffer;
+   }
+   console.log("productData",productData.salePrice);
+
+   let finalPrice = productData.salePrice;
+   if (bestOffer) {
+     finalPrice =
+       productData.salePrice -
+       (productData.salePrice * bestOffer.discountPercentage) / 100;
+   }
+
 
     // Find related products with pagination
     const totalRelatedProducts = await Product.countDocuments({
@@ -33,7 +62,7 @@ const productDetails = async (req, res) => {
 
     const breadcrumbs = [
       { name: "Home", url: "/" },
-      { name: "shop", url: "/shop" },
+      { name: "Shop", url: "/shop" },
       { name: productData.productName, url: "" },
     ];
 
@@ -49,12 +78,15 @@ const productDetails = async (req, res) => {
       totalRelatedProducts,
       hasPrevPage: page > 1,
       hasNextPage: page < totalPages,
+      bestOffer,
+      finalPrice, // Display the final price after applying the best offer
     });
   } catch (error) {
     console.error("Error fetching product details:", error);
     res.redirect("/pageNotFound");
   }
 };
-module.exports={
-    productDetails
-}
+
+module.exports = {
+  productDetails,
+};

@@ -63,10 +63,10 @@ router.get("/wishlist/state", UserAuth, wishlistcontroller.getWishlistState);
 
 
 //checkout
-router.get("/checkout", UserAuth, checkoutcontroller.loadCheckout);
-
+router.get("/checkout", UserAuth,checkoutcontroller.loadCheckout);
+router.post("/validate-coupon", UserAuth, checkoutcontroller.validateCoupon);
 //place-Order
-router.post("/place-order", UserAuth, ordercontroller.placeOrder);
+router.post("/place-order", UserAuth, checkoutcontroller.placeOrder);
 router.post("/verify-payment", UserAuth, ordercontroller.verifyPayment);
 //Order Success
 router.get("/order-success", UserAuth, ordercontroller.orderSuccess);

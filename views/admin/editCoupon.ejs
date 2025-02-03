@@ -1,0 +1,183 @@
+<%- include("../partials/admin/header") %>
+
+<main class="main-content" id="mainContent">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@10/dist/sweetalert2.min.css" />
+  <link rel="stylesheet" href="/assets/admin-style/coupon.css">
+
+  <section class="content-main">
+    <div class="card edit-coupon-form">
+      <div class="card-header">
+        <h3>Edit Coupon: <%= coupon.code %></h3>
+      </div>
+      <div class="card-body">
+        <form id="editCouponForm" onsubmit="return handleCouponEditSubmit(event)">
+          <input type="hidden" id="couponId" value="<%= coupon._id %>">
+          
+          <div class="row">
+            <div class="col-md-6 mb-3">
+              <label for="editDiscountValue" class="form-label">Discount Percentage</label>
+              <input 
+                type="number" 
+                name="discountValue" 
+                class="form-control" 
+                id="editDiscountValue" 
+                value="<%= coupon.discountValue %>"
+                min="1" 
+                max="100"
+              />
+              <div id="discount-error" class="error-message"></div>
+            </div>
+
+            <div class="col-md-6 mb-3">
+              <label for="editMinPurchaseAmount" class="form-label">Minimum Purchase Amount</label>
+              <input 
+                type="number" 
+                name="minPurchaseAmount" 
+                class="form-control" 
+                id="editMinPurchaseAmount"
+                value="<%= coupon.minPurchaseAmount %>"
+                min="0"
+              />
+            </div>
+          </div>
+
+          <div class="row">
+            <div class="col-md-6 mb-3">
+              <label for="editMaxDiscountAmount" class="form-label">Maximum Discount Amount</label>
+              <input 
+                type="number" 
+                name="maxDiscountAmount" 
+                class="form-control" 
+                id="editMaxDiscountAmount"
+                value="<%= coupon.maxDiscountAmount || '' %>"
+                min="0"
+              />
+            </div>
+
+            <div class="col-md-6 mb-3">
+              <label for="editExpiryDate" class="form-label">Expiry Date</label>
+              <input 
+                type="datetime-local" 
+                name="expiryDate" 
+                class="form-control" 
+                id="editExpiryDate"
+                value="<%= coupon.expiryDate ? new Date(coupon.expiryDate).toISOString().slice(0,16) : '' %>"
+              />
+              <div id="date-error" class="error-message"></div>
+            </div>
+          </div>
+
+          <div class="row">
+            <div class="col-md-6 mb-3">
+              <label for="editUsageLimit" class="form-label">Total Usage Limit</label>
+              <input 
+                type="number" 
+                name="usageLimit" 
+                class="form-control" 
+                id="editUsageLimit"
+                value="<%= coupon.usageLimit || '' %>"
+                min="1"
+              />
+            </div>
+
+            <div class="col-md-6 mb-3">
+              <label for="editPerUserLimit" class="form-label">Per User Limit</label>
+              <input 
+                type="number" 
+                name="perUserLimit" 
+                class="form-control" 
+                id="editPerUserLimit"
+                value="<%= coupon.perUserLimit %>"
+                min="1"
+              />
+            </div>
+          </div>
+
+          <div class="mb-3">
+            <label class="form-check-label">
+              <input 
+                type="checkbox" 
+                name="isActive" 
+                id="editIsActive"
+                <%= coupon.isActive ? 'checked' : '' %>
+              >
+              Active Coupon
+            </label>
+          </div>
+
+          <button class="btn btn-primary" type="submit">Update Coupon</button>
+        </form>
+      </div>
+    </div>
+  </section>
+
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@10/dist/sweetalert2.min.js"></script>
+</main>
+
+<%- include("../partials/admin/footer") %>
+
+<script>
+function handleCouponEditSubmit(event) {
+  event.preventDefault();
+
+  const couponId = document.getElementById('couponId').value;
+  const discountValue = document.getElementById('editDiscountValue').value;
+  const expiryDate = document.getElementById('editExpiryDate').value;
+
+  let isValid = true;
+
+  // Validate discount value
+  if (discountValue === "" || discountValue < 1 || discountValue > 100) {
+    document.getElementById('discount-error').innerText = "Discount must be between 1 and 100.";
+    isValid = false;
+  }
+
+  // Validate expiry date
+  if (!expiryDate) {
+    document.getElementById('date-error').innerText = "Please select an expiry date.";
+    isValid = false;
+  }
+
+  if (!isValid) return;
+
+  const formData = {
+    discountValue: parseInt(discountValue),
+    minPurchaseAmount: document.getElementById('editMinPurchaseAmount').value || 0,
+    maxDiscountAmount: document.getElementById('editMaxDiscountAmount').value || null,
+    expiryDate,
+    usageLimit: document.getElementById('editUsageLimit').value || null,
+    perUserLimit: document.getElementById('editPerUserLimit').value || 1,
+    isActive: document.getElementById('editIsActive').checked
+  };
+
+  fetch(`/admin/editCoupon?id=${couponId}`, {
+    method: "POST",
+    headers: {
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify(formData)
+  })
+  .then(response => {
+    if (!response.ok) {
+      throw new Error(`HTTP error! Status: ${response.status}`);
+    }
+    return response.json();
+  })
+  .then(data => {
+    Swal.fire({
+      icon: "success",
+      title: "Success",
+      text: "Coupon updated successfully"
+    }).then(() => {
+      window.location.href = '/admin/coupon';
+    });
+  })
+  .catch(error => {
+    Swal.fire({
+      icon: "error",
+      title: "Oops",
+      text: error.message || "Failed to update coupon"
+    });
+  });
+}
+</script>

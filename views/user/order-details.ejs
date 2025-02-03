@@ -168,7 +168,7 @@ async function cancelOrder(orderId) {
 
 async function cancelOrderProduct(orderId, productId) {
     try {
-        // Confirmation dialog for admin
+       
         const result = await Swal.fire({
             title: 'Cancel Product from Order',
             text: "Are you sure you want to remove this product from the order? This will adjust the order total.",

@@ -34,22 +34,27 @@ const productSchema = new mongoose.Schema({
     required: true,
     min: 0,
   },
-  isBlocked:{
-        type: Boolean,
-        default: false // Indicates whether the category is active or disabled
-    },
- 
+  isBlocked: {
+    type: Boolean,
+    default: false, // Indicates whether the category is active or disabled
+  },
+
   color: String,
-  
+
   productImage: {
     type: [String],
     required: true,
-},
- 
+  },
+
   status: {
     type: String,
     enum: ["Available", "Out of Stock", "Discontinued"],
     default: "Available",
+  },
+  offer: {
+    discountPercentage: { type: Number, default: 0 },
+    startDate: { type: Date },
+    endDate: { type: Date },
   },
 });
 

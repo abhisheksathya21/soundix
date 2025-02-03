@@ -6,6 +6,7 @@ const customercontroller=require('../controllers/admin/customercontroller');
 const categorycontroller=require('../controllers/admin/categorycontroller');
 const productcontroller=require('../controllers/admin/productcontroller');
 const ordercontroller=require('../controllers/admin/ordercontroller');
+const couponcontroller=require('../controllers/admin/couponcontroller');
 const {UserAuth,AdminAuth}=require('../middlewares/auth');
 
 
@@ -47,6 +48,9 @@ router.get('/editcategory',AdminAuth,categorycontroller.geteditcategory);
 router.post('/editcategory/:id',AdminAuth,categorycontroller.editcategory);
 router.get('/listcategory',AdminAuth,categorycontroller.listcategory);
 router.get('/Unlistcategory',AdminAuth,categorycontroller.Unlistcategory);
+router.post("/addCategoryOffer",AdminAuth,categorycontroller.addCategoryOffer);
+router.post("/removeCategoryOffer",AdminAuth,categorycontroller.removeCategoryOffer);
+
 
 //product Management
 router.get('/addproducts',AdminAuth,productcontroller.loadProductaddpage);
@@ -57,6 +61,16 @@ router.get('/blockProduct',AdminAuth,productcontroller.blockProduct);
 router.get('/UnblockProduct',AdminAuth,productcontroller.UnblockProduct);
 router.get('/editProduct',AdminAuth,productcontroller.geteditProduct);
 router.post('/editProduct/:id',AdminAuth,uploads.array("images", 6), productcontroller.editProduct);
+router.post("/addProductOffer", AdminAuth, productcontroller.addProductOffer);
+router.post("/removeProductOffer",AdminAuth,productcontroller.removeProductOffer);
+
+//coupon management
+router.get("/coupon",AdminAuth,couponcontroller.loadCoupon);
+router.post("/addCoupon", couponcontroller.createCoupon);
+router.get("/editCoupon", couponcontroller.getEditCouponPage);
+router.post("/editCoupon", couponcontroller.updateCoupon);
+router.post("/toggleCouponStatus", couponcontroller.toggleCouponStatus);
+
 //order lists
 router.get("/orders",AdminAuth, ordercontroller.getAllOrders)
 function print(req,res,next){

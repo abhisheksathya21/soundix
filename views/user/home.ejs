@@ -41,34 +41,52 @@
     <div class="container">
       <h2 class="section-title">Popular Items</h2>
       <p class="section-description">Discover our most loved products, chosen by customers like you.</p>
-    <div class="product-grid">
+   <div class="product-grid">
     <% for (i = 0; i < products.length; i++) { %>
         <div class="product-card">
             <div class="product-image">
-              <a href="/productDetails?id=<%= products[i]._id %>">  <img src="<%= products[i].productImage[0] %>" alt="<%= products[i].productName %>"></a>
-              <button class="wishlist-btn" data-product-id="<%= products[i]._id %>">
-    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" 
-         viewBox="0 0 24 24" fill="none" stroke="currentColor" 
-         stroke-width="2" stroke-linecap="round" stroke-linejoin="round" 
-         class="heart-icon">
-        <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path>
-    </svg>
-</button>
-                <div class="product-actions">
-                    <button class="add-to-cart" data-product-id="<%= products[i]._id %>" data-price="<%= products[i].salePrice %>">
-                        Add to cart
-                    </button>
-                </div>
+                <a href="/productDetails?id=<%= products[i]._id %>">
+                    <img src="<%= products[i].productImage[0] %>" alt="<%= products[i].productName %>">
+                </a>
+                <button class="wishlist-btn" data-product-id="<%= products[i]._id %>">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" 
+                         viewBox="0 0 24 24" fill="none" stroke="currentColor" 
+                         stroke-width="2" stroke-linecap="round" stroke-linejoin="round" 
+                         class="heart-icon">
+                        <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path>
+                    </svg>
+                </button>
             </div>
             <div class="product-info">
                 <h3 class="product-name">
                     <%= products[i].productName %>
                 </h3>
-                <span class="product-price">₹<%= products[i].salePrice %></span>
+
+                <!-- Display Offer if Available -->
+                <% if (products[i].bestOffer) { %>
+                    <span class="offer-label">
+                        <%= products[i].bestOffer.discountPercentage %>% OFF
+                    </span>
+                <% } %>
+
+                <!-- Show Original Price Only if Discount Exists -->
+                <% if (products[i].bestOffer) { %>
+                    <span class="product-price original-price">₹<s><%= products[i].salePrice %></s></span>
+                <% } %>
+
+                <!-- Final Price After Discount -->
+                <span class="product-price final-price">₹<%= products[i].finalPrice.toFixed(2) %></span>
+            </div>
+
+            <div class="product-actions">
+                <button class="add-to-cart" data-product-id="<%= products[i]._id %>" data-price="<%= products[i].finalPrice %>">
+                    Add to cart
+                </button>
             </div>
         </div>
     <% } %>
 </div>
+
     </div>
   </section>
 

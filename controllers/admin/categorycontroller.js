@@ -71,6 +71,65 @@ const addcategory = async (req, res) => {
         return res.status(500).json({error:"Internal Server Error"})
     }
 }
+const addCategoryOffer = async (req, res) => {
+  try {
+    const { categoryId, discountPercentage, startDate, endDate } = req.body;
+
+    if (!categoryId || !discountPercentage || !startDate || !endDate) {
+      return res.status(400).json({ error: "All fields are required" });
+    }
+
+    const category = await Category.findById(categoryId);
+    if (!category) {
+      return res.status(404).json({ error: "Category not found" });
+    }
+
+    // Check if offer dates are valid
+    if (new Date(startDate) >= new Date(endDate)) {
+      return res
+        .status(400)
+        .json({ error: "End date must be after start date" });
+    }
+
+    category.offer = {
+      discountPercentage,
+      startDate,
+      endDate,
+    };
+
+    await category.save();
+
+    return res
+      .status(200)
+      .json({ message: "Offer added successfully", category });
+  } catch (error) {
+    console.error("Error adding offer:", error);
+    res.status(500).json({ error: "Internal server error" });
+  }
+};
+
+
+const removeCategoryOffer = async (req, res) => {
+  try {
+    const { categoryId } = req.body;
+
+    const category = await Category.findById(categoryId);
+    if (!category) {
+      return res.status(404).json({ error: "Category not found" });
+    }
+
+    category.offer = null; // Remove the offer
+    await category.save();
+
+    return res
+      .status(200)
+      .json({ success: true, message: "Offer removed successfully." });
+  } catch (error) {
+    console.error("Error removing offer:", error);
+    res.status(500).json({ error: "Internal server error" });
+  }
+};
+
 
 
 const geteditcategory=async(req,res)=>{
@@ -157,12 +216,13 @@ const Unlistcategory=async(req,res)=>{
 
 
 
-module.exports={
-    categoryInfo,
-    addcategory,
-    geteditcategory,
-    editcategory,
-    listcategory,
-    Unlistcategory
-
-}
+module.exports = {
+  categoryInfo,
+  addcategory,
+  geteditcategory,
+  editcategory,
+  listcategory,
+  Unlistcategory,
+  addCategoryOffer,
+  removeCategoryOffer,
+};

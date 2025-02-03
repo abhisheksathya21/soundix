@@ -246,6 +246,60 @@ const UnblockProduct = async (req, res) => {
   }
 };
 
+
+
+const addProductOffer = async (req, res) => {
+  try {
+    const { productId, discountPercentage, startDate, endDate } = req.body;
+
+    // Validate offer data
+    if (discountPercentage < 1 || discountPercentage > 99) {
+      return res
+        .status(400)
+        .json("Discount percentage must be between 1 and 99");
+    }
+    if (new Date(startDate) >= new Date(endDate)) {
+      return res.status(400).json("End date must be after start date");
+    }
+
+    // Find the product and update it
+    const product = await Product.findById(productId);
+    if (!product) {
+      return res.status(404).json("Product not found");
+    }
+
+    product.offer = { discountPercentage, startDate, endDate };
+    await product.save();
+
+    res.status(200).json("Offer added successfully");
+  } catch (error) {
+    console.error(error);
+    res.status(500).json("Failed to add offer");
+  }
+};
+
+
+const removeProductOffer = async (req, res) => {
+  try {
+    const { productId } = req.body;
+
+    // Find the product and reset the offer
+    const product = await Product.findById(productId);
+    if (!product) {
+      return res.status(404).json("Product not found");
+    }
+
+    product.offer = null; // Remove the offer
+    await product.save();
+
+    res.status(200).json("Offer removed successfully");
+  } catch (error) {
+    console.error(error);
+    res.status(500).json("Failed to remove offer");
+  }
+};
+
+
 module.exports = {
   loadProductaddpage,
   addProducts,
@@ -254,4 +308,6 @@ module.exports = {
   blockProduct,
   geteditProduct,
   editProduct,
+  removeProductOffer,
+  addProductOffer,
 };
