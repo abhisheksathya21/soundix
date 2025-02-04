@@ -14,14 +14,12 @@ const razorpay = new Razorpay({
   key_secret: process.env.RAZORPAY_KEY_SECRET,
 });
 
-
-
 const validateCoupon = async (req, res) => {
   try {
     const { couponCode, totalAmount } = req.body;
     const userId = req.session.user;
 
-    // Find the coupon
+  
     const coupon = await Coupon.findOne({
       code: couponCode.toUpperCase(),
       isActive: true,
@@ -33,7 +31,7 @@ const validateCoupon = async (req, res) => {
       return res.json({ valid: false, message: "Invalid or expired coupon" });
     }
 
-    // Check minimum purchase amount
+   
     if (totalAmount < coupon.minPurchaseAmount) {
       return res.json({
         valid: false,
@@ -41,7 +39,7 @@ const validateCoupon = async (req, res) => {
       });
     }
 
-    // Check usage limits
+    
     const userUsage = coupon.usersUsed.find(
       (u) => u.user.toString() === userId
     );
@@ -59,10 +57,10 @@ const validateCoupon = async (req, res) => {
       });
     }
 
-    // Calculate discount
+    
     let discountAmount = (totalAmount * coupon.discountValue) / 100;
 
-    // Apply max discount cap if exists
+    
     if (coupon.maxDiscountAmount && discountAmount > coupon.maxDiscountAmount) {
       discountAmount = coupon.maxDiscountAmount;
     }
@@ -87,7 +85,7 @@ const loadCheckout = async (req, res) => {
     const AddressData = await Address.findOne({ userId: userId });
     const userData = await User.findById(userId);
 
-    // Fetch available coupons
+  
     const availableCoupons = await Coupon.find({
       isActive: true,
       startDate: { $lte: new Date() },
@@ -193,14 +191,14 @@ const placeOrder = async (req, res) => {
     }
     if (paymentMethod === "WALLET") {
       try {
-        // Get user's wallet
+       
         const wallet = await Wallet.findOne({ userId });
 
         if (!wallet || wallet.balance < totalAmount) {
           return res.status(400).json({ error: "Insufficient wallet balance" });
         }
 
-        // Create wallet transaction
+       
         await wallet.addTransaction({
           type: "Purchase",
           amount: totalAmount,
@@ -209,7 +207,7 @@ const placeOrder = async (req, res) => {
           status: "Completed",
         });
 
-        // Create order with wallet payment
+       
         const orderId = `ORD-${Date.now()}-${Math.floor(Math.random() * 1000)}`;
         const newOrder = new Order({
           orderId,
@@ -238,30 +236,30 @@ const placeOrder = async (req, res) => {
       }
     }
 
-    // Handle Razorpay payment
+   
     if (paymentMethod === "RAZORPAY") {
       try {
-       const razorpayOrder = await razorpay.orders.create({
-         amount: Math.round(totalAmount * 100), // Explicit rounding
-         currency: "INR",
-         receipt: `receipt_${Date.now()}`,
-         payment_capture: 1,
-       });
+        const razorpayOrder = await razorpay.orders.create({
+          amount: Math.round(totalAmount * 100), // Explicit rounding
+          currency: "INR",
+          receipt: `receipt_${Date.now()}`,
+          payment_capture: 1,
+        });
 
-       return res.status(200).json({
-         orderId: razorpayOrder.id,
-         amount: Math.round(totalAmount * 100),
-         currency: "INR",
-         key_id: process.env.RAZORPAY_KEY_ID,
-         orderData: {
-           items: orderItems,
-           shippingAddress,
-           subTotal,
-           shippingCost,
-           totalAmount,
-           userId,
-         },
-       });
+        return res.status(200).json({
+          orderId: razorpayOrder.id,
+          amount: Math.round(totalAmount * 100),
+          currency: "INR",
+          key_id: process.env.RAZORPAY_KEY_ID,
+          orderData: {
+            items: orderItems,
+            shippingAddress,
+            subTotal,
+            shippingCost,
+            totalAmount,
+            userId,
+          },
+        });
       } catch (error) {
         console.error("Razorpay order creation failed:", error);
         return res
@@ -270,7 +268,7 @@ const placeOrder = async (req, res) => {
       }
     }
 
-    // For COD, proceed with order creation
+    
     if (paymentMethod === "COD") {
       // Update stock
       for (const cartItem of cartData.items) {

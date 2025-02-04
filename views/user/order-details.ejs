@@ -11,6 +11,52 @@
      <link rel="stylesheet" href="/assets/user-style/orders.css">
     <link rel="shortcut icon" type="image/x-icon" href="assets/img/favicon.ico" />
 </head>
+<style>
+    .swal-wide {
+    width: 500px !important;
+    padding: 25px !important;
+}
+
+.swal2-confirm-custom {
+    padding: 12px 25px !important;
+    font-size: 14px !important;
+    border-radius: 6px !important;
+    font-weight: 500 !important;
+}
+
+.swal2-cancel-custom {
+    padding: 12px 25px !important;
+    font-size: 14px !important;
+    border-radius: 6px !important;
+    font-weight: 500 !important;
+}
+
+/* Hover effect for select */
+select#reason-select:hover {
+    border-color: #3085d6;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+
+/* Focus effect for select */
+select#reason-select:focus {
+    border-color: #3085d6;
+    box-shadow: 0 0 0 2px rgba(48,133,214,0.2);
+    outline: none;
+}
+
+/* Hover effect for textarea */
+textarea#custom-reason:hover {
+    border-color: #3085d6;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+
+/* Focus effect for textarea */
+textarea#custom-reason:focus {
+    border-color: #3085d6;
+    box-shadow: 0 0 0 2px rgba(48,133,214,0.2);
+    outline: none;
+}
+</style>
 <body>
     <%-include('../partials/user/header')%>
       <input type="checkbox" id="sidebar-toggle" />
@@ -75,157 +121,519 @@
 
 async function cancelOrder(orderId) {
     try {
-        // Show a confirmation dialog before canceling
-        const confirmation = await Swal.fire({
-            title: 'Are you sure?',
-            text: 'Do you really want to cancel this order? This action cannot be undone.',
-            icon: 'warning',
+        // First step: Reason selection with styled options
+        const { value: reason } = await Swal.fire({
+            title: '<span style="font-size: 24px; font-weight: 600;">Cancel Order</span>',
+            html: `
+                <div style="margin-bottom: 20px;">
+                    <p style="color: #666; margin-bottom: 15px;">Please select a reason for cancellation</p>
+                    <select id="reason-select" class="swal2-select" style="
+                        width: 100%;
+                        padding: 12px;
+                        border: 1px solid #ddd;
+                        border-radius: 8px;
+                        background-color: #f8f9fa;
+                        font-size: 14px;
+                        color: #333;
+                        margin-bottom: 10px;
+                        box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+                        transition: all 0.3s ease;
+                    ">
+                        <option value="">Select a reason</option>
+                        <option value="Changed my mind">Changed my mind</option>
+                        <option value="Found better price elsewhere">Found better price elsewhere</option>
+                        <option value="Ordered by mistake">Ordered by mistake</option>
+                        <option value="Delivery time too long">Delivery time too long</option>
+                        <option value="Payment issues">Payment issues</option>
+                        <option value="Other">Other</option>
+                    </select>
+                </div>
+            `,
             showCancelButton: true,
-            confirmButtonColor: '#d33',
-            cancelButtonColor: '#3085d6',
-            confirmButtonText: 'Yes, cancel it!',
+            confirmButtonText: 'Continue',
+            cancelButtonText: 'Back',
+            confirmButtonColor: '#3085d6',
+            cancelButtonColor: '#d33',
+            customClass: {
+                popup: 'swal-wide',
+                confirmButton: 'swal2-confirm-custom',
+                cancelButton: 'swal2-cancel-custom'
+            },
+            preConfirm: () => {
+                const selectedReason = document.getElementById('reason-select').value;
+                if (!selectedReason) {
+                    Swal.showValidationMessage('Please select a reason for cancellation');
+                    return false;
+                }
+                return selectedReason;
+            }
         });
 
-        if (confirmation.isConfirmed) {
-            const response = await fetch(`/api/orders/${orderId}/cancel`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
+        if (!reason) return;
+
+        // If "Other" is selected, show custom reason input
+        let finalReason = reason;
+        if (reason === 'Other') {
+            const { value: customReason } = await Swal.fire({
+                title: '<span style="font-size: 24px; font-weight: 600;">Specify Reason</span>',
+                html: `
+                    <div style="margin-bottom: 20px;">
+                        <textarea id="custom-reason" class="swal2-textarea" 
+                            placeholder="Please provide details about your cancellation reason..."
+                            style="
+                                width: 100%;
+                                min-height: 100px;
+                                padding: 12px;
+                                border: 1px solid #ddd;
+                                border-radius: 8px;
+                                background-color: #f8f9fa;
+                                font-size: 14px;
+                                color: #333;
+                                resize: vertical;
+                                box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+                            "
+                        ></textarea>
+                    </div>
+                `,
+                showCancelButton: true,
+                confirmButtonText: 'Submit',
+                cancelButtonText: 'Back',
+                confirmButtonColor: '#3085d6',
+                cancelButtonColor: '#d33',
+                preConfirm: () => {
+                    const customReason = document.getElementById('custom-reason').value;
+                    if (!customReason.trim()) {
+                        Swal.showValidationMessage('Please provide a reason');
+                        return false;
+                    }
+                    return customReason;
+                }
             });
 
-            if (response.ok) {
-                Swal.fire({
-                    title: 'Cancelled!',
-                    text: 'Your order has been cancelled successfully.',
-                    icon: 'success',
-                }).then(() => {
-                    location.reload(); // Refresh the page to show updated status
-                });
-            } else {
-                const errorData = await response.json();
-                Swal.fire({
-                    title: 'Failed!',
-                    text: errorData.message || 'Failed to cancel the order. Please try again later.',
-                    icon: 'error',
-                });
+            if (!customReason) return;
+            finalReason = customReason;
+        }
+
+        // Final confirmation with styled dialog
+        const confirmation = await Swal.fire({
+            title: '<span style="font-size: 24px; font-weight: 600;">Confirm Cancellation</span>',
+            html: `
+                <div style="margin: 20px 0;">
+                    <p style="color: #666; margin-bottom: 15px;">Are you sure you want to cancel this order?</p>
+                    <div style="background: #f8f9fa; padding: 15px; border-radius: 8px; text-align: left;">
+                        <p style="margin: 0; color: #333;"><strong>Reason:</strong> ${finalReason}</p>
+                    </div>
+                    <p style="color: #dc3545; font-size: 12px; margin-top: 15px;">This action cannot be undone</p>
+                </div>
+            `,
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonText: 'Yes, cancel order',
+            cancelButtonText: 'No, keep order',
+            confirmButtonColor: '#dc3545',
+            cancelButtonColor: '#6c757d',
+            customClass: {
+                popup: 'swal-wide'
             }
+        });
+
+        if (!confirmation.isConfirmed) return;
+
+        // Rest of your existing code for API call and response handling...
+        const response = await fetch(`/api/orders/${orderId}/cancel`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ reason: finalReason })
+        });
+
+        const result = await response.json();
+
+        if (response.ok) {
+            // Update order in the orders array
+            const orderIndex = orders.findIndex(o => o.id === orderId);
+            if (orderIndex !== -1) {
+                orders[orderIndex].status = 'Cancelled';
+                orders[orderIndex].products.forEach(product => {
+                    product.status = 'Cancelled';
+                });
+                
+                const orderCard = document.querySelector(`[data-order-id="${orderId}"]`);
+                if (orderCard) {
+                    const newOrderCard = createOrderCard(orders[orderIndex]);
+                    orderCard.replaceWith(newOrderCard);
+                }
+            }
+
+            Swal.fire({
+                title: 'Order Cancelled',
+                text: 'Your order has been cancelled successfully.',
+                icon: 'success',
+                confirmButtonColor: '#3085d6'
+            });
+        } else {
+            throw new Error(result.message || 'Failed to cancel the order');
         }
     } catch (error) {
         console.error('Error cancelling order:', error);
         Swal.fire({
             title: 'Error!',
-            text: 'Something went wrong while cancelling the order.',
+            text: error.message || 'Something went wrong while cancelling the order.',
             icon: 'error',
+            confirmButtonColor: '#d33'
         });
     }
 }
-
-    async function cancelProduct(orderId, productId) {
-    try {
-        const confirmation = await Swal.fire({
-            title: 'Are you sure?',
-            text: 'Do you really want to cancel this product from the order?',
-            icon: 'warning',
-            showCancelButton: true,
-            confirmButtonColor: '#d33',
-            cancelButtonColor: '#3085d6',
-            confirmButtonText: 'Yes, cancel it!'
-        });
-
-        if (confirmation.isConfirmed) {
-            const response = await fetch(`/api/orders/${orderId}/product/${productId}/cancel`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                }
-            });
-
-            if (response.ok) {
-                await Swal.fire({
-                    title: 'Success!',
-                    text: 'Product cancelled successfully',
-                    icon: 'success'
-                });
-                location.reload();
-            } else {
-                const errorData = await response.json();
-                Swal.fire({
-                    title: 'Failed!',
-                    text: errorData.message || 'Failed to cancel the product',
-                    icon: 'error'
-                });
-            }
-        }
-    } catch (error) {
-        Swal.fire({
-            title: 'Error!',
-            text: 'Something went wrong while cancelling the product',
-            icon: 'error'
-        });
-    }
-}  
-
 async function cancelOrderProduct(orderId, productId) {
-    try {
-       
-        const result = await Swal.fire({
-            title: 'Cancel Product from Order',
-            text: "Are you sure you want to remove this product from the order? This will adjust the order total.",
-            icon: 'warning',
-            showCancelButton: true,
-            confirmButtonColor: '#3085d6',
-            cancelButtonColor: '#d33',
-            confirmButtonText: 'Yes, cancel product'
-        });
+   try {
+       // First step: Reason selection with styled options
+       const { value: reason } = await Swal.fire({
+           title: '<span style="font-size: 24px; font-weight: 600;">Cancel Product</span>',
+           html: `
+               <div style="margin-bottom: 20px;">
+                   <p style="color: #666; margin-bottom: 15px;">Please select a reason for cancelling this product</p>
+                   <select id="reason-select" class="swal2-select" style="
+                       width: 100%;
+                       padding: 12px;
+                       border: 1px solid #ddd;
+                       border-radius: 8px;
+                       background-color: #f8f9fa;
+                       font-size: 14px;
+                       color: #333;
+                       margin-bottom: 10px;
+                       box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+                       transition: all 0.3s ease;
+                   ">
+                       <option value="">Select a reason</option>
+                       <option value="Changed my mind">Changed my mind</option>
+                       <option value="Found better price elsewhere">Found better price elsewhere</option>
+                       <option value="Ordered by mistake">Ordered by mistake</option>
+                       <option value="Delivery time too long">Delivery time too long</option>
+                       <option value="Payment issues">Payment issues</option>
+                       <option value="Other">Other</option>
+                   </select>
+               </div>
+           `,
+           showCancelButton: true,
+           confirmButtonText: 'Continue',
+           cancelButtonText: 'Back',
+           confirmButtonColor: '#3085d6',
+           cancelButtonColor: '#d33',
+           customClass: {
+               popup: 'swal-wide',
+               confirmButton: 'swal2-confirm-custom',
+               cancelButton: 'swal2-cancel-custom'
+           },
+           preConfirm: () => {
+               const selectedReason = document.getElementById('reason-select').value;
+               if (!selectedReason) {
+                   Swal.showValidationMessage('Please select a reason for cancellation');
+                   return false;
+               }
+               return selectedReason;
+           }
+       });
 
-        if (!result.isConfirmed) {
-            return;
-        }
+       if (!reason) return;
 
-        // Send request to backend to cancel specific product
-        const response = await fetch('/admin/cancel-order-product', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({ 
-                orderId: orderId, 
-                productId: productId 
-            })
-        });
+       // If "Other" is selected, show custom reason input
+       let finalReason = reason;
+       if (reason === 'Other') {
+           const { value: customReason } = await Swal.fire({
+               title: '<span style="font-size: 24px; font-weight: 600;">Specify Reason</span>',
+               html: `
+                   <div style="margin-bottom: 20px;">
+                       <textarea id="custom-reason" class="swal2-textarea" 
+                           placeholder="Please provide details about your cancellation reason..."
+                           style="
+                               width: 100%;
+                               min-height: 100px;
+                               padding: 12px;
+                               border: 1px solid #ddd;
+                               border-radius: 8px;
+                               background-color: #f8f9fa;
+                               font-size: 14px;
+                               color: #333;
+                               resize: vertical;
+                               box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+                           "
+                       ></textarea>
+                   </div>
+               `,
+               showCancelButton: true,
+               confirmButtonText: 'Submit',
+               cancelButtonText: 'Back',
+               confirmButtonColor: '#3085d6',
+               cancelButtonColor: '#d33',
+               preConfirm: () => {
+                   const customReason = document.getElementById('custom-reason').value;
+                   if (!customReason.trim()) {
+                       Swal.showValidationMessage('Please provide a reason');
+                       return false;
+                   }
+                   return customReason;
+               }
+           });
 
-        const data = await response.json();
+           if (!customReason) return;
+           finalReason = customReason;
+       }
 
-        if (!response.ok) {
-            throw new Error(data.message || 'Failed to cancel product');
-        }
+       // Final confirmation with styled dialog
+       const confirmation = await Swal.fire({
+           title: '<span style="font-size: 24px; font-weight: 600;">Confirm Product Cancellation</span>',
+           html: `
+               <div style="margin: 20px 0;">
+                   <p style="color: #666; margin-bottom: 15px;">Are you sure you want to cancel this product from your order?</p>
+                   <div style="background: #f8f9fa; padding: 15px; border-radius: 8px; text-align: left;">
+                       <p style="margin: 0; color: #333;"><strong>Reason:</strong> ${finalReason}</p>
+                   </div>
+                   <p style="color: #dc3545; font-size: 12px; margin-top: 15px;">This action cannot be undone</p>
+               </div>
+           `,
+           icon: 'warning',
+           showCancelButton: true,
+           confirmButtonText: 'Yes, cancel product',
+           cancelButtonText: 'No, keep product',
+           confirmButtonColor: '#dc3545',
+           cancelButtonColor: '#6c757d',
+           customClass: {
+               popup: 'swal-wide'
+           }
+       });
 
-        // Success notification
-        await Swal.fire({
-            icon: 'success',
-            title: 'Product Cancelled',
-            text: 'The product has been removed from the order.',
-            timer: 2000,
-            showConfirmButton: false
-        });
+       if (!confirmation.isConfirmed) return;
 
-        // Optionally refresh the page or update the view
-        location.reload();
+       const response = await fetch('/admin/cancel-order-product', {
+           method: 'POST',
+           headers: {
+               'Content-Type': 'application/json'
+           },
+           body: JSON.stringify({ orderId, productId, reason: finalReason })
+       });
 
-    } catch (error) {
-        console.error('Error cancelling product:', error);
-        Swal.fire({
-            icon: 'error',
-            title: 'Cancellation Failed',
-            text: error.message || 'Unable to cancel the product'
-        });
-    }
+       const data = await response.json();
+
+       if (!response.ok) {
+           throw new Error(data.message || 'Failed to cancel product');
+       }
+
+       // Update local order data
+       const orderIndex = orders.findIndex(o => o.id === orderId);
+       if (orderIndex !== -1) {
+           const productIndex = orders[orderIndex].products.findIndex(p => p.productId === productId);
+           if (productIndex !== -1) {
+               orders[orderIndex].products[productIndex].status = 'Cancelled';
+               
+               const activeProducts = orders[orderIndex].products.filter(p => p.status !== 'Cancelled');
+               orders[orderIndex].total = activeProducts.reduce((sum, p) => sum + (p.price * p.quantity), 0);
+               
+               if (activeProducts.length === 0) {
+                   orders[orderIndex].status = 'Cancelled';
+               }
+
+               const orderCard = document.querySelector(`[data-order-id="${orderId}"]`);
+               if (orderCard) {
+                   const newOrderCard = createOrderCard(orders[orderIndex]);
+                   orderCard.replaceWith(newOrderCard);
+               }
+           }
+       }
+
+       await Swal.fire({
+           title: 'Product Cancelled',
+           text: 'The product has been successfully removed from your order.',
+           icon: 'success',
+           confirmButtonColor: '#3085d6',
+           timer: 2000,
+           showConfirmButton: false
+       });
+
+   } catch (error) {
+       console.error('Error cancelling product:', error);
+       Swal.fire({
+           title: 'Error!',
+           text: error.message || 'Unable to cancel the product',
+           icon: 'error',
+           confirmButtonColor: '#d33'
+       });
+   }
 }
-     function createOrderCard(order) {
+async function returnOrderProduct(orderId, productId) {
+   try {
+       // First step: Reason selection with styled options
+       const { value: reason } = await Swal.fire({
+           title: '<span style="font-size: 24px; font-weight: 600;">Return Product</span>',
+           html: `
+               <div style="margin-bottom: 20px;">
+                   <p style="color: #666; margin-bottom: 15px;">Please select a reason for returning this product</p>
+                   <select id="reason-select" class="swal2-select" style="
+                       width: 100%;
+                       padding: 12px;
+                       border: 1px solid #ddd;
+                       border-radius: 8px;
+                       background-color: #f8f9fa;
+                       font-size: 14px;
+                       color: #333;
+                       margin-bottom: 10px;
+                       box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+                       transition: all 0.3s ease;
+                   ">
+                       <option value="">Select a reason</option>
+                       <option value="Damaged Product">Damaged Product</option>
+                       <option value="Wrong Size">Wrong Size</option>
+                       <option value="Defective Item">Defective Item</option>
+                       <option value="Not as Described">Not as Described</option>
+                       <option value="Changed Mind">Changed Mind</option>
+                       <option value="Other">Other</option>
+                   </select>
+               </div>
+           `,
+           showCancelButton: true,
+           confirmButtonText: 'Continue',
+           cancelButtonText: 'Back',
+           confirmButtonColor: '#3085d6',
+           cancelButtonColor: '#d33',
+           customClass: {
+               popup: 'swal-wide',
+               confirmButton: 'swal2-confirm-custom',
+               cancelButton: 'swal2-cancel-custom'
+           },
+           preConfirm: () => {
+               const selectedReason = document.getElementById('reason-select').value;
+               if (!selectedReason) {
+                   Swal.showValidationMessage('Please select a reason for return');
+                   return false;
+               }
+               return selectedReason;
+           }
+       });
+
+       if (!reason) return;
+
+       // If "Other" is selected, show custom reason input
+       let finalReason = reason;
+       if (reason === 'Other') {
+           const { value: customReason } = await Swal.fire({
+               title: '<span style="font-size: 24px; font-weight: 600;">Specify Reason</span>',
+               html: `
+                   <div style="margin-bottom: 20px;">
+                       <textarea id="custom-reason" class="swal2-textarea" 
+                           placeholder="Please provide details about your return reason..."
+                           style="
+                               width: 100%;
+                               min-height: 100px;
+                               padding: 12px;
+                               border: 1px solid #ddd;
+                               border-radius: 8px;
+                               background-color: #f8f9fa;
+                               font-size: 14px;
+                               color: #333;
+                               resize: vertical;
+                               box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+                           "
+                       ></textarea>
+                   </div>
+               `,
+               showCancelButton: true,
+               confirmButtonText: 'Submit',
+               cancelButtonText: 'Back',
+               confirmButtonColor: '#3085d6',
+               cancelButtonColor: '#d33',
+               preConfirm: () => {
+                   const customReason = document.getElementById('custom-reason').value;
+                   if (!customReason.trim()) {
+                       Swal.showValidationMessage('Please provide a reason');
+                       return false;
+                   }
+                   return customReason;
+               }
+           });
+
+           if (!customReason) return;
+           finalReason = customReason;
+       }
+
+       // Final confirmation with styled dialog
+       const confirmation = await Swal.fire({
+           title: '<span style="font-size: 24px; font-weight: 600;">Confirm Product Return</span>',
+           html: `
+               <div style="margin: 20px 0;">
+                   <p style="color: #666; margin-bottom: 15px;">Are you sure you want to return this product?</p>
+                   <div style="background: #f8f9fa; padding: 15px; border-radius: 8px; text-align: left;">
+                       <p style="margin: 0; color: #333;"><strong>Reason:</strong> ${finalReason}</p>
+                   </div>
+                   <p style="color: #dc3545; font-size: 12px; margin-top: 15px;">This will send a return request to admin</p>
+               </div>
+           `,
+           icon: 'warning',
+           showCancelButton: true,
+           confirmButtonText: 'Yes, return product',
+           cancelButtonText: 'No, keep product',
+           confirmButtonColor: '#dc3545',
+           cancelButtonColor: '#6c757d',
+           customClass: {
+               popup: 'swal-wide'
+           }
+       });
+
+       if (!confirmation.isConfirmed) return;
+
+       const response = await fetch('/api/orders/return-product', {
+           method: 'POST',
+           headers: {
+               'Content-Type': 'application/json'
+           },
+           body: JSON.stringify({ orderId, productId, reason: finalReason })
+       });
+
+       const data = await response.json();
+
+       if (!response.ok) {
+           throw new Error(data.message || 'Failed to submit return request');
+       }
+
+       // Update local order data
+       const orderIndex = orders.findIndex(o => o.id === orderId);
+       if (orderIndex !== -1) {
+           const productIndex = orders[orderIndex].products.findIndex(p => p.productId === productId);
+           if (productIndex !== -1) {
+               orders[orderIndex].products[productIndex].status = 'Return Requested';
+           }
+
+           const orderCard = document.querySelector(`[data-order-id="${orderId}"]`);
+           if (orderCard) {
+               const newOrderCard = createOrderCard(orders[orderIndex]);
+               orderCard.replaceWith(newOrderCard);
+           }
+       }
+
+       await Swal.fire({
+           title: 'Return Request Submitted',
+           text: 'Your return request has been sent to the admin for review.',
+           icon: 'success',
+           confirmButtonColor: '#3085d6',
+           timer: 2000,
+           showConfirmButton: false
+       });
+
+   } catch (error) {
+       console.error('Error submitting return request:', error);
+       Swal.fire({
+           title: 'Error!',
+           text: error.message || 'Unable to submit return request',
+           icon: 'error',
+           confirmButtonColor: '#d33'
+       });
+   }
+}
+   function createOrderCard(order) {
     const orderCard = document.createElement('div');
     orderCard.className = 'order-card';
+    orderCard.setAttribute('data-order-id', order.id);
 
+    const isDelivered = order.status === 'Delivered';
     const canCancel = order.status === 'Pending' || order.status === 'Processing';
 
     orderCard.innerHTML = `
@@ -249,7 +657,6 @@ async function cancelOrderProduct(orderId, productId) {
             `<button class="cancel-order-btn" onclick="cancelOrder('${order.id}')">Cancel Order</button>` : ''}
         <button class="view-products">View Products</button>
         <div class="product-list">
-            
             ${order.products.map(product => `
                 <div class="product-item ${product.status === 'Cancelled' ? 'cancelled-product' : ''}">
                     <img src="${product.image}" alt="${product.name}" class="product-image">
@@ -258,12 +665,17 @@ async function cancelOrderProduct(orderId, productId) {
                             <p class="product-name">${product.name}</p>
                             <span class="order-status ${product.status.toLowerCase()}">${product.status}</span>
                         </div>
-                         <span class="product-quantity">Qty: ${product.quantity}</span>
+                        <span class="product-quantity">Qty: ${product.quantity}</span>
                         <p class="product-price">₹${product.price} </p>
                         
                         ${canCancel && product.status !== 'Cancelled' ? 
                             `<button class="cancel-product-btn" onclick="cancelOrderProduct('${order.id}', '${product.productId}')">
                                 Cancel Product
+                            </button>` : ''}
+                        
+                     ${order.status === 'Delivered' && product.status?.toLowerCase() === 'delivered' ?
+                            `<button class="return-product-btn" onclick="returnOrderProduct('${order.id}', '${product.productId}')">
+                                Return Product
                             </button>` : ''}
                     </div>
                 </div>

@@ -24,7 +24,7 @@ const addProducts = async (req, res) => {
   try {
     const productData = req.body;
 
-    // Check if the product already exists
+   
     const existingProduct = await Product.findOne({
       productName: productData.productName,
     });
@@ -38,12 +38,12 @@ const addProducts = async (req, res) => {
     if (req.files && req.files.length > 0) {
       const uploadDirectory = path.join("public", "uploads", "product-images");
 
-      // Create upload directory if it doesn't exist
+     
       if (!fs.existsSync(uploadDirectory)) {
         fs.mkdirSync(uploadDirectory, { recursive: true });
       }
 
-      // Process and resize uploaded images
+    
       for (let i = 0; i < req.files.length; i++) {
         const originalImagePath = req.files[i].path;
         const fileExtension = path.extname(req.files[i].originalname);
@@ -124,7 +124,7 @@ const editProduct = async (req, res) => {
       return res.status(404).json("Product not found");
     }
 
-    // Check if the updated product name already exists (excluding the current product)
+  
     const existingProduct = await Product.findOne({
       productName: productData.productName,
       _id: { $ne: id },
@@ -137,12 +137,12 @@ const editProduct = async (req, res) => {
         );
     }
 
-    const processedImages = product.productImage || []; // Retain existing images if no new ones are uploaded
+    const processedImages = product.productImage || []; 
 
     if (req.files && req.files.length > 0) {
       const uploadDirectory = path.join("public", "uploads", "product-images");
 
-      // Ensure the upload directory exists
+     
       if (!fs.existsSync(uploadDirectory)) {
         fs.mkdirSync(uploadDirectory, { recursive: true });
       }
@@ -283,7 +283,7 @@ const removeProductOffer = async (req, res) => {
   try {
     const { productId } = req.body;
 
-    // Find the product and reset the offer
+   
     const product = await Product.findById(productId);
     if (!product) {
       return res.status(404).json("Product not found");

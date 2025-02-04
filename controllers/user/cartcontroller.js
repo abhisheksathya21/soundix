@@ -24,7 +24,7 @@ const loadCart = async (req, res) => {
       totalAmount += cart.items[i].price * cart.items[i].quantity;
     }
     console.log("totalAmount", totalAmount);
-    cart.totalAmount = totalAmount;
+    cart.totalAmount = Math.round(totalAmount);
     await cart.save();
     
     res.render("cart", {
@@ -59,7 +59,7 @@ const addtoCart = async (req, res) => {
       });
     }
 
-    // Determine the best offer
+  
     const categoryOffer = product.category?.offer || null;
     const productOffer = product.offer || null;
     let bestOffer = null;
@@ -75,7 +75,7 @@ const addtoCart = async (req, res) => {
       bestOffer = productOffer;
     }
 
-    // Calculate discounted price
+    
     let finalPrice = product.salePrice;
     if (bestOffer) {
       finalPrice =
@@ -83,7 +83,7 @@ const addtoCart = async (req, res) => {
         (product.salePrice * bestOffer.discountPercentage) / 100;
     }
 
-    // Find user's cart
+    
     let cart = await Cart.findOne({ user: userId });
     if (!cart) {
       cart = new Cart({
@@ -92,7 +92,7 @@ const addtoCart = async (req, res) => {
       });
     }
 
-    // Check if product already in cart
+   
     const existingItem = cart.items.find(
       (item) => item.product.toString() === productId
     );
@@ -125,8 +125,8 @@ const addtoCart = async (req, res) => {
       cart.items.push({
         product: productId,
         quantity,
-        price: finalPrice, // Store original price for reference
-         // Store the discounted price
+        price: finalPrice, 
+         
       });
     }
 
@@ -146,7 +146,7 @@ const addToCartFromWishlist = async (req, res) => {
     const userId = req.session.user;
     const quantity = 1;
 
-    // Check if the product is in the wishlist
+    
     const wishlist = await Wishlist.findOne({ user: userId });
     if (
       !wishlist ||
@@ -155,7 +155,7 @@ const addToCartFromWishlist = async (req, res) => {
       return res.status(404).json({ error: "Product not found in wishlist" });
     }
 
-    // Fetch product details
+   
     const product = await Product.findById(productId).populate("category");
     if (!product) {
       return res.status(404).json({ error: "Product not found" });
@@ -164,14 +164,14 @@ const addToCartFromWishlist = async (req, res) => {
       return res.status(400).json({ error: "Product is blocked" });
     }
 
-    // Check if the requested quantity is available
+  
     if (quantity > product.quantity) {
       return res.status(400).json({
         error: `Requested quantity exceeds available stock. Only ${product.quantity} left.`,
       });
     }
 
-    // Determine the best offer
+   
     const categoryOffer = product.category?.offer || null;
     const productOffer = product.offer || null;
     let bestOffer = null;
@@ -187,7 +187,7 @@ const addToCartFromWishlist = async (req, res) => {
       bestOffer = productOffer;
     }
 
-    // Calculate the final discounted price
+   
     let finalPrice = product.salePrice;
     if (bestOffer) {
       finalPrice =
@@ -327,14 +327,14 @@ const updateQuantity = async (req, res) => {
         .status(400)
         .json({ success: false, message: "Quantity exceeds stock" });
     }
-    //update quantity
+   
     item.quantity = quantity;
     
     let totalAmount = 0;
     for (let i = 0; i < cart.items.length; i++) {
       totalAmount = totalAmount + cart.items[i].price * cart.items[i].quantity;
     }
-    cart.totalAmount = totalAmount;
+    cart.totalAmount = Math.round(totalAmount);
 
     await cart.save();
 

@@ -3,6 +3,7 @@ const Category = require("../../models/categorySchema");
 const Address = require("../../models/addressSchema");
 const User = require("../../models/userSchema");
 const Order = require("../../models/orderSchema");
+const Wallet = require("../../models/walletSchema");
 
 const getAllOrders = async (req, res) => {
   try {
@@ -19,14 +20,14 @@ const getAllOrders = async (req, res) => {
       .sort({ orderDate: -1 })
       .skip(skip)
       .limit(limit);
-    
+
     const transformedOrders = orders.map((order) => ({
       ...order.toObject(),
       status: order.orderStatus,
       isCancellable:
         order.orderStatus !== "Cancelled" && order.orderStatus !== "Delivered",
     }));
-   
+
     res.render("orders", {
       orders: transformedOrders,
       currentPage: page,
@@ -73,7 +74,6 @@ const updateOrderStatus = async (req, res) => {
       });
     }
 
-  
     if (
       order.orderStatus === "Cancelled" ||
       order.orderStatus === "Delivered"
@@ -84,43 +84,57 @@ const updateOrderStatus = async (req, res) => {
       });
     }
 
-    
-   if (status === "Cancelled") {
-     try {
-       for (const item of order.items) {
-         const product = await Product.findById(item.productId._id);
-         if (product) {
-           product.quantity += item.quantity; 
-           await product.save();
-           console.log(
-             `Updated quantity for product ${product.productName}: New quantity = ${product.quantity}`
-           );
-         }
-       }
+    if (status === "Cancelled") {
+      try {
+        if (order.paymentMethod === "Razorpay") {
+          let wallet = await Wallet.findOne({ userId: order.userId });
 
-       
-       order.orderStatus = status;
-       await order.save();
+          if (!wallet) {
+            wallet = new Wallet({ userId: order.userId });
+          }
 
-       return res.status(200).json({
-         success: true,
-         message: "Order cancelled and stock updated successfully",
-       });
-     } catch (error) {
-       console.error("Error updating product stock:", error);
-       return res.status(500).json({
-         success: false,
-         error: "Failed to update product stock",
-       });
-     }
-   }
+          // Add refund transaction
+          await wallet.addTransaction({
+            type: "Refund",
+            amount: order.totalAmount,
+            orderId: order._id,
+            description: `Admin cancelled order ${order.orderId}`,
+            status: "Completed",
+          });
+        }
 
-   
+        for (const item of order.items) {
+          const product = await Product.findById(item.productId._id);
+          if (product) {
+            product.quantity += item.quantity;
+            await product.save();
+            console.log(
+              `Updated quantity for product ${product.productName}: New quantity = ${product.quantity}`
+            );
+          }
+        }
+
+        order.orderStatus = status;
+        await order.save();
+
+        return res.status(200).json({
+          success: true,
+          message:
+            "Order cancelled, stock updated, and refund processed successfully",
+        });
+      } catch (error) {
+        console.error("Error processing cancellation:", error);
+        return res.status(500).json({
+          success: false,
+          error: "Failed to process cancellation",
+        });
+      }
+    }
+
     order.orderStatus = status;
     order.statusHistory.push({ status, updatedAt: new Date() });
     await order.save();
 
-    // Transform the updated order to match frontend expectations
     const transformedOrder = {
       ...order.toObject(),
       status: order.orderStatus,
@@ -140,19 +154,20 @@ const updateOrderStatus = async (req, res) => {
   }
 };
 
-
 const cancelProductOrder = async (req, res) => {
-
   try {
     console.log("cancelproductOrder");
     const { orderId, productId } = req.body;
     console.log("orderid,productid", orderId, productId);
-    const order = await Order.findOne({ _id:orderId });
-    console.log("order",order);
+
+    const order = await Order.findOne({ _id: orderId });
+    console.log("order", order);
+
     if (!order) {
-      return res
-        .status(404)
-        .json({ success: false, message: "Order not found" });
+      return res.status(404).json({
+        success: false,
+        message: "Order not found",
+      });
     }
 
     if (["Shipped", "Delivered", "Cancelled"].includes(order.orderStatus)) {
@@ -165,6 +180,7 @@ const cancelProductOrder = async (req, res) => {
     const productItem = order.items.find(
       (item) => item.productId.toString() === productId
     );
+
     if (!productItem) {
       return res.status(404).json({
         success: false,
@@ -176,6 +192,26 @@ const cancelProductOrder = async (req, res) => {
       return res.status(400).json({
         success: false,
         message: "Product is already cancelled",
+      });
+    }
+
+    const refundAmount = productItem.price * productItem.quantity;
+
+    if (order.paymentMethod === "Razorpay") {
+      let wallet = await Wallet.findOne({ userId: order.userId });
+
+      // Create wallet if it doesn't exist
+      if (!wallet) {
+        wallet = new Wallet({ userId: order.userId });
+      }
+
+      // Add refund transaction
+      await wallet.addTransaction({
+        type: "Refund",
+        amount: refundAmount,
+        orderId: order._id,
+        description: `Admin cancelled product in order ${order.orderId}`,
+        status: "Completed",
       });
     }
 
@@ -191,6 +227,7 @@ const cancelProductOrder = async (req, res) => {
     const activeItems = order.items.filter(
       (item) => item.status !== "Cancelled"
     );
+
     if (activeItems.length === 0) {
       order.orderStatus = "Cancelled";
       order.cancelledAt = new Date();
@@ -205,7 +242,7 @@ const cancelProductOrder = async (req, res) => {
 
     res.status(200).json({
       success: true,
-      message: "Product cancelled successfully",
+      message: "Product cancelled and refund processed successfully",
     });
     console.log("product cancelled successfully");
   } catch (error) {

@@ -73,18 +73,20 @@ router.get("/order-success", UserAuth, ordercontroller.orderSuccess);
 
 //order cancel
 // Cancel order route
-router.post(
-  "/api/orders/:orderId/cancel",
-  UserAuth,
-  ordercontroller.cancelOrder
-);
+router.post("/api/orders/:orderId/cancel",UserAuth,ordercontroller.cancelOrder);
 
+router.post("/admin/cancel-order-product",UserAuth,ordercontroller.cancelProductOrder);
+// In your routes file
 router.post(
-  "/admin/cancel-order-product",
+  "/api/orders/return-product",
   UserAuth,
-  ordercontroller.cancelProductOrder
+  ordercontroller.createReturnRequest
 );
-
+router.post(
+  "/admin/process-return",
+  UserAuth,
+  ordercontroller.processReturnRequest
+);
 //userProfile
 router.get("/userProfile", UserAuth, profilecontroller.userProfile);
 router.post("/userProfile", UserAuth, profilecontroller.userUpdate);
@@ -97,22 +99,18 @@ router.post("/addAddress", UserAuth, profilecontroller.addAddress);
 router.get("/editAddress", UserAuth, profilecontroller.editAddress);
 router.post("/updateAddress", UserAuth, profilecontroller.updateAddress);
 router.get("/deleteAddress", UserAuth, profilecontroller.deleteAddress);
-
 router.get("/orders", UserAuth, profilecontroller.orders);
 //wallet
 
 router.get("/wallet", UserAuth, walletcontroller.wallet);
 router.post("/add-money", UserAuth, walletcontroller.addMoney);
 router.post("/verify-recharge", UserAuth, walletcontroller.verifyRecharge);
+
+
 // Google authentication route
-router.get("/auth/google", passport.authenticate("google", { scope: ["profile", "email"] }));
+router.get("/auth/google", passport.authenticate("google", { scope: ["profile", "email"],prompt:"select_account" }));
 
-
-router.get(
-  "/auth/google/callback",
-  passport.authenticate("google", { failureRedirect: "/login" }),
-  usercontroller.googleAuth // Use the googleAuth method from usercontroller
-);
+router.get("/auth/google/callback",passport.authenticate("google", { failureRedirect: "/login" }),usercontroller.googleAuth );
 
 
 module.exports = router;

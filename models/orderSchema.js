@@ -30,7 +30,44 @@ const orderSchema = new mongoose.Schema({
       },
       status: {
         type: String,
-        enum: ["Pending", "Processing", "Shipped", "Delivered", "Cancelled"],
+        enum: [
+          "Pending",
+          "Processing",
+          "Shipped",
+          "Delivered",
+          "Cancelled",
+          "Return Requested",
+          "Returned",
+        ],
+        default: "Pending",
+      },
+      cancellationReason: {
+        type: String, // Stores the reason if the product is canceled
+        trim: true,
+      },
+      cancelledAt: {
+        type: Date, // Timestamp when the product was canceled
+      },
+      // Return-related fields
+      returnReason: {
+        type: String,
+        trim: true,
+      },
+      returnStatus: {
+        type: String,
+        enum: ["Pending", "Approved", "Rejected"],
+        default: "Pending",
+      },
+      returnedAt: {
+        type: Date, // Timestamp when the product was returned
+      },
+      refundAmount: {
+        type: Number,
+        default: 0,
+      },
+      refundStatus: {
+        type: String,
+        enum: ["Pending", "Processed"],
         default: "Pending",
       },
     },
@@ -100,13 +137,13 @@ const orderSchema = new mongoose.Schema({
   },
   paymentMethod: {
     type: String,
-    enum: ['COD', 'Razorpay','WALLET'],
+    enum: ["COD", "Razorpay", "WALLET"],
     required: true,
   },
   paymentDetails: {
     razorpayOrderId: String,
     razorpayPaymentId: String,
-    razorpaySignature: String
+    razorpaySignature: String,
   },
   paymentStatus: {
     type: String,
@@ -117,6 +154,13 @@ const orderSchema = new mongoose.Schema({
     type: String,
     enum: ["Pending", "Processing", "Shipped", "Delivered", "Cancelled"],
     default: "Pending",
+  },
+  cancellationReason: {
+    type: String, // Stores the reason if the entire order is canceled
+    trim: true,
+  },
+  cancelledAt: {
+    type: Date, // Timestamp when the order was canceled
   },
   orderDate: {
     type: Date,
@@ -130,6 +174,28 @@ const orderSchema = new mongoose.Schema({
       },
       comment: String,
       date: {
+        type: Date,
+        default: Date.now,
+      },
+    },
+  ],
+  returnRequests: [
+    {
+      productId: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Product",
+        required: true,
+      },
+      reason: {
+        type: String,
+        required: true,
+      },
+      status: {
+        type: String,
+        enum: ["Pending", "Approved", "Rejected"],
+        default: "Pending",
+      },
+      requestDate: {
         type: Date,
         default: Date.now,
       },
