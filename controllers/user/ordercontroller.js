@@ -139,7 +139,7 @@ const createReturnRequest = async (req, res) => {
       });
     }
 
-    // Check if order is delivered
+   
     if (order.orderStatus !== "Delivered") {
       return res.status(400).json({
         success: false,
@@ -158,7 +158,7 @@ const createReturnRequest = async (req, res) => {
       });
     }
 
-    // Check if product is already returned or cancellable
+  
     if (
       productItem.status === "Returned" ||
       productItem.returnStatus === "Approved"
@@ -169,7 +169,7 @@ const createReturnRequest = async (req, res) => {
       });
     }
 
-    // Create return request
+  
     order.returnRequests.push({
       productId: productItem.productId,
       reason: reason,
@@ -177,12 +177,12 @@ const createReturnRequest = async (req, res) => {
       requestDate: new Date(),
     });
 
-    // Update product status
+   
     productItem.status = "Return Requested";
     productItem.returnReason = reason;
     productItem.returnStatus = "Pending";
 
-    // Add to status history
+
     order.statusHistory.push({
       status: "Return Requested",
       comment: `Return requested for product ${productId}. Reason: ${reason}`,
@@ -255,7 +255,7 @@ const processReturnRequest = async (req, res) => {
         status: "Completed",
       });
 
-      // Return product to inventory
+      
       const product = await Product.findById(productId);
       if (product) {
         product.quantity += productItem.quantity;
@@ -269,19 +269,18 @@ const processReturnRequest = async (req, res) => {
       productItem.refundStatus = "Processed";
       returnRequest.status = "Approved";
 
-      // Add to status history
       order.statusHistory.push({
         status: "Product Returned",
         comment: `Product ${productId} return approved and refunded`,
         date: new Date(),
       });
     } else {
-      // Reject return
+     
       productItem.status = "Delivered";
       productItem.returnStatus = "Rejected";
       returnRequest.status = "Rejected";
 
-      // Add to status history
+    
       order.statusHistory.push({
         status: "Return Rejected",
         comment: `Product ${productId} return request rejected`,
@@ -313,7 +312,7 @@ const processReturnRequest = async (req, res) => {
 const cancelOrder = async (req, res) => {
   try {
     const orderId = req.params.orderId;
-    const { reason } = req.body; // Get the cancellation reason from request
+    const { reason } = req.body; 
     const userId = req.session.user;
 
     const order = await Order.findOne({ orderId: orderId, userId: userId });
@@ -331,7 +330,7 @@ const cancelOrder = async (req, res) => {
         .json({ success: false, message: "Order cannot be cancelled" });
     }
 
-    // Process refund to wallet for Razorpay or Wallet payments
+    
     if (["WALLET", "Razorpay"].includes(order.paymentMethod)) {
       let wallet = await Wallet.findOne({ userId });
 
@@ -348,7 +347,7 @@ const cancelOrder = async (req, res) => {
       });
     }
 
-    // Return products to inventory & update their status
+   
     for (const item of order.items) {
       const product = await Product.findById(item.productId);
       if (product) {
@@ -361,12 +360,12 @@ const cancelOrder = async (req, res) => {
       item.cancellationReason = reason; // Add reason to each item
     }
 
-    // Update order status and add cancellation details
+    
     order.orderStatus = "Cancelled";
     order.cancelledAt = new Date();
     order.cancellationReason = reason;
 
-    // Add to status history
+   
     order.statusHistory.push({
       status: "Cancelled",
       comment: `Order cancelled by user. Reason: ${reason}`,
@@ -400,7 +399,7 @@ const cancelOrder = async (req, res) => {
 
 const cancelProductOrder = async (req, res) => {
   try {
-    const { orderId, productId, reason } = req.body; // Get reason from request body
+    const { orderId, productId, reason } = req.body; 
     const userId = req.session.user;
 
     const order = await Order.findOne({ orderId, userId });
@@ -436,7 +435,7 @@ const cancelProductOrder = async (req, res) => {
 
     const refundAmount = productItem.price * productItem.quantity;
 
-    // Process refund to wallet for Razorpay or Wallet payments
+   
     if (["WALLET", "Razorpay"].includes(order.paymentMethod)) {
       let wallet = await Wallet.findOne({ userId });
 
@@ -453,19 +452,19 @@ const cancelProductOrder = async (req, res) => {
       });
     }
 
-    // Return product to inventory
+   
     const product = await Product.findById(productId);
     if (product) {
       product.quantity += productItem.quantity;
       await product.save();
     }
 
-    // Update product status with cancellation reason
+    
     productItem.status = "Cancelled";
     productItem.cancelledAt = new Date();
     productItem.cancellationReason = reason;
 
-    // Add to status history
+    
     order.statusHistory.push({
       status: "Product Cancelled",
       comment: `Product ${
@@ -474,7 +473,7 @@ const cancelProductOrder = async (req, res) => {
       date: new Date(),
     });
 
-    // Check if all products are cancelled
+   
     const activeItems = order.items.filter(
       (item) => item.status !== "Cancelled"
     );

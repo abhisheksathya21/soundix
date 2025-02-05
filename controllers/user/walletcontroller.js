@@ -8,7 +8,7 @@ const Wallet = require("../../models/walletSchema");
 const Razorpay = require("razorpay"); // Add this
 const crypto = require("crypto"); // Add this
 
-// Initialize Razorpay - Add this
+
 const razorpay = new Razorpay({
   key_id: process.env.RAZORPAY_KEY_ID,
   key_secret: process.env.RAZORPAY_KEY_SECRET,
@@ -85,7 +85,7 @@ const addMoney = async (req, res) => {
     }
 
     const razorpayOrder = await razorpay.orders.create({
-      amount: Math.round(amount * 100), // Ensure amount is an integer
+      amount: Math.round(amount * 100), 
       currency: "INR",
       receipt: `wallet_${Date.now()}`,
       payment_capture: 1,

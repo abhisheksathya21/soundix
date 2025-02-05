@@ -50,25 +50,25 @@ const loadhomepage = async (req, res) => {
       quantity: { $gt: 0 },
     }).populate("category");
 
-    // **Apply Best Offer to Each Product**
+   
     const updatedProducts = productData.map((product) => {
       const categoryOffer = product.category?.offer || null;
       const productOffer = product.offer || null;
 
-      // Determine the best offer
+      
       const bestOffer =
         [categoryOffer, productOffer]
           .filter((offer) => offer?.discountPercentage)
           .sort((a, b) => b.discountPercentage - a.discountPercentage)[0] ||
         null;
 
-      // Calculate the final price
+     
       let basePrice = product.salePrice ?? product.regularPrice ?? 0;
       let finalPrice = basePrice;
 
       if (bestOffer) {
         let discountAmount = (basePrice * bestOffer.discountPercentage) / 100;
-        discountAmount = Math.min(discountAmount, basePrice); // Ensure discount doesn't exceed base price
+        discountAmount = Math.min(discountAmount, basePrice); 
         finalPrice = basePrice - discountAmount;
       }
 
@@ -99,9 +99,9 @@ const loadSignup = async (req, res) => {
 };
 const loadlogin = async (req, res) => {
   try {
-    const message = req.query.message; // Get the message from the query parameter
+    const message = req.query.message; 
     if (!req.session.user) {
-      return res.render("login", { user: null, message }); // Pass the message to the login page
+      return res.render("login", { user: null, message }); 
     } else {
       res.redirect("/");
     }
@@ -561,7 +561,7 @@ const loadShopPage = async (req, res) => {
       .limit(limit)
       .populate("category");
 
-    // **Apply Best Offer to Each Product**
+  
     const updatedProducts = products.map((product) => {
       const categoryOffer = product.category?.offer || null;
       const productOffer = product.offer || null;
@@ -581,7 +581,7 @@ const loadShopPage = async (req, res) => {
         bestOffer = productOffer;
       }
 
-      let finalPrice = product.salePrice ?? product.regularPrice; // Use salePrice if available, otherwise regularPrice
+      let finalPrice = product.salePrice ?? product.regularPrice; 
       if (bestOffer) {
         finalPrice =
           finalPrice - (finalPrice * bestOffer.discountPercentage) / 100;
@@ -655,15 +655,15 @@ const loadShopPage = async (req, res) => {
   }
 };
 
-// Helper function to generate pagination URLs
+
 const generatePageUrl = (req, pageNum) => {
   const url = new URL(req.protocol + "://" + req.get("host") + req.originalUrl);
   const params = new URLSearchParams(url.searchParams);
 
-  // Update or add page parameter
+  
   params.set("page", pageNum);
 
-  // Keep all other existing parameters (sort, search, category)
+  
   return `/shop?${params.toString()}`;
 };
 

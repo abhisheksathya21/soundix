@@ -131,8 +131,18 @@ const updateOrderStatus = async (req, res) => {
       }
     }
 
+    // If order is being marked as "Delivered", update all non-cancelled items
+    if (status === "Delivered") {
+      order.items.forEach((item) => {
+        if (item.status !== "Cancelled") {
+          item.status = "Delivered";
+        }
+      });
+    }
+
     order.orderStatus = status;
     order.statusHistory.push({ status, updatedAt: new Date() });
+
     await order.save();
 
     const transformedOrder = {
@@ -253,8 +263,180 @@ const cancelProductOrder = async (req, res) => {
     });
   }
 };
+
+const getReturnRequests = async (req, res) => {
+  try {
+    const page = parseInt(req.query.page) || 1;
+    const limit = 5;
+    const skip = (page - 1) * limit;
+
+    const orders = await Order.find({
+      "items.returnStatus": "Pending", // Only pending return requests
+      "items.status": "Return Requested", // Ensures the product has a return request
+      "items.returnReason": { $exists: true, $ne: "" }, // Must have a reason
+    })
+      .populate("userId", "fullname email")
+      .populate("items.productId", "productName productImage")
+      .sort({ createdAt: -1 })
+      .skip(skip)
+      .limit(limit);
+
+    const filteredOrders = orders
+      .map((order) => {
+        const filteredItems = order.items.filter(
+          (item) =>
+            item.returnStatus === "Pending" &&
+            item.status === "Return Requested" && // Ensures it has a pending return request
+            item.returnReason &&
+            item.returnReason.trim() !== ""
+        );
+
+        if (filteredItems.length === 0) return null;
+
+        return {
+          ...order.toObject(),
+          items: filteredItems,
+        };
+      })
+      .filter((order) => order !== null);
+
+    const totalRequests = await Order.countDocuments({
+      "items.returnStatus": "Pending",
+      "items.status": "Return Requested",
+      "items.returnReason": { $exists: true, $ne: "" },
+    });
+
+    const totalPages = Math.ceil(totalRequests / limit);
+
+    res.render("return-requests", {
+      orders: filteredOrders,
+      currentPage: page,
+      totalPages,
+      hasNextPage: page < totalPages,
+      hasPrevPage: page > 1,
+      nextPage: page + 1,
+      prevPage: page - 1,
+      lastPage: totalPages,
+    });
+  } catch (error) {
+    console.error("Error fetching return requests:", error);
+    res
+      .status(500)
+      .render("error", { message: "Failed to load return requests" });
+  }
+};
+
+
+
+
+const processReturnRequest = async (req, res) => {
+  try {
+    console.log("Processing Return Request");
+    const { orderId, productId, status, reason } = req.body;
+
+    const order = await Order.findById(orderId)
+      .populate("userId")
+      .populate("items.productId");
+
+    if (!order) {
+      return res.status(404).json({ success: false, message: "Order not found" });
+    }
+
+    const productItem = order.items.find(
+      (item) => item.productId._id.toString() === productId.toString()
+    );
+
+    if (!productItem) {
+      return res.status(404).json({ success: false, message: "Product not found in the order" });
+    }
+
+    if (productItem.returnStatus !== "Pending") {
+      return res.status(400).json({
+        success: false,
+        message: "No pending return request found for this product",
+      });
+    }
+
+    if (status === "Approved") {
+      const refundAmount = productItem.price * productItem.quantity;
+
+      let wallet = await Wallet.findOne({ userId: order.userId._id });
+      if (!wallet) {
+        wallet = new Wallet({ userId: order.userId._id, transactions: [] });
+      }
+
+     
+      await wallet.addTransaction({
+        type: "Refund",
+        amount: refundAmount,
+        orderId: order._id,
+        description: `Refund for returned product in order ${order.orderId}`,
+        status: "Completed",
+      });
+
+     
+      wallet.balance += refundAmount;
+      await wallet.save();
+
+   
+      if (productItem.status !== "Cancelled") {
+        const product = await Product.findById(productId);
+        if (product) {
+          product.quantity += productItem.quantity;
+          await product.save();
+        }
+      }
+
+      productItem.status = "Returned";
+      productItem.returnStatus = "Approved";
+      productItem.returnedAt = new Date();
+
+      order.statusHistory.push({
+        status: "Return Approved",
+        comment: `Return request approved for product ${productItem.productId.productName}. Refund processed.`,
+        date: new Date(),
+      });
+    } else {
+      productItem.status = "Delivered";
+      productItem.returnStatus = "Rejected";
+      productItem.returnReason = reason;
+
+      order.statusHistory.push({
+        status: "Return Rejected",
+        comment: `Return request rejected for product ${productItem.productId.productName}. Reason: ${reason}`,
+        date: new Date(),
+      });
+    }
+
+    const allItemsReturned = order.items.every((item) => item.returnStatus === "Approved");
+    if (allItemsReturned) {
+      order.orderStatus = "Returned";
+    }
+
+    await order.save();
+
+    res.status(200).json({
+      success: true,
+      message: `Return request ${status.toLowerCase()} successfully`,
+      data: {
+        orderId: order.orderId,
+        productId,
+        status: productItem.returnStatus,
+      },
+    });
+  } catch (error) {
+    console.error("Error processing return request:", error);
+    res.status(500).json({ success: false, message: "Error processing return request" });
+  }
+};
+
+
+
+
 module.exports = {
   getAllOrders,
   updateOrderStatus,
   cancelProductOrder,
+  processReturnRequest,
+  getReturnRequests,
 };

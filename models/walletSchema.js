@@ -63,13 +63,23 @@ walletSchema.pre("save", function (next) {
 walletSchema.index({ userId: 1 });
 
 // Helper method to add transaction
+// ✅ Ensure balance is updated after adding a transaction
 walletSchema.methods.addTransaction = async function (transactionData) {
+  if (
+    (transactionData.type === "Withdrawal" || transactionData.type === "Purchase") &&
+    this.balance < transactionData.amount
+  ) {
+    throw new Error("Insufficient balance");
+  }
+
   this.transactions.push(transactionData);
   this.balance +=
     transactionData.type === "Withdrawal" || transactionData.type === "Purchase"
       ? -transactionData.amount
       : transactionData.amount;
-  return this.save();
+
+  await this.save(); // ✅ Ensure changes are saved to DB
 };
+
 
 module.exports = mongoose.model("Wallet", walletSchema);

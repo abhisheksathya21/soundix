@@ -14,7 +14,7 @@ const loadWishlist = async (req, res) => {
     const userId = req.session.user;
     const userData = await User.findOne({ _id: userId });
 
-    // Fetch wishlist and populate product details
+   
     const wishlist = await Wishlist.findOne({ user: userId }).populate(
       "items.product"
     );
@@ -28,16 +28,16 @@ const loadWishlist = async (req, res) => {
       });
     }
 
-    // Process each item to calculate the final price
+   
     wishlist.items = wishlist.items.map((item) => {
       const product = item.product;
-      let finalPrice = product.salePrice || product.regularPrice; // Default price
+      let finalPrice = product.salePrice || product.regularPrice; 
 
-      // Get category and product offers
+      
       const categoryOffer = product.category?.offer || null;
       const productOffer = product.offer || null;
 
-      // Determine the best discount (higher percentage)
+      
       let bestDiscount = 0;
       if (
         categoryOffer?.discountPercentage &&
@@ -53,14 +53,14 @@ const loadWishlist = async (req, res) => {
         bestDiscount = productOffer.discountPercentage;
       }
 
-      // Apply discount if any
+      
       if (bestDiscount > 0) {
         finalPrice = finalPrice - (finalPrice * bestDiscount) / 100;
       }
 
       return {
         ...item.toObject(),
-        finalPrice, // Attach calculated final price
+        finalPrice, 
       };
     });
 
@@ -80,7 +80,7 @@ const toggleWishlist = async (req, res) => {
     const userId = req.session.user;
     const { productId } = req.body;
 
-    // First, verify both userId and productId exist
+   
     if (!userId || !productId) {
       return res.status(400).json({
         success: false,
@@ -88,7 +88,7 @@ const toggleWishlist = async (req, res) => {
       });
     }
 
-    // Find existing wishlist or create new one
+
     let wishlist = await Wishlist.findOne({ user: userId });
     if (!wishlist) {
       wishlist = new Wishlist({
@@ -97,7 +97,7 @@ const toggleWishlist = async (req, res) => {
       });
     }
 
-    // Check if item exists in wishlist
+  
     const existingItem = wishlist.items.find(
       (item) => item.product.toString() === productId
     );
@@ -142,7 +142,7 @@ const removeFromWishlist = async (req, res) => {
     const userId = req.session.user;
     const { productId } = req.body;
 
-    // Use findOneAndUpdate instead of find and save
+    
     const wishlist = await Wishlist.findOneAndUpdate(
       { user: userId },
       { $pull: { items: { product: productId } } },

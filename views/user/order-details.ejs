@@ -673,10 +673,11 @@ async function returnOrderProduct(orderId, productId) {
                                 Cancel Product
                             </button>` : ''}
                         
-                     ${order.status === 'Delivered' && product.status?.toLowerCase() === 'delivered' ?
-                            `<button class="return-product-btn" onclick="returnOrderProduct('${order.id}', '${product.productId}')">
-                                Return Product
-                            </button>` : ''}
+                     ${order.status.toLowerCase() === 'delivered' && product.status.toLowerCase() === 'delivered' ? 
+    `<button class="return-product-btn" onclick="returnOrderProduct('${order.id}', '${product.productId}')">
+        Return Product
+    </button>` : ''}
+
                     </div>
                 </div>
             `).join('')}

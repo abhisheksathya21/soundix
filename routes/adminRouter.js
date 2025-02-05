@@ -73,18 +73,18 @@ router.post("/toggleCouponStatus", couponcontroller.toggleCouponStatus);
 
 //order lists
 router.get("/orders",AdminAuth, ordercontroller.getAllOrders)
-function print(req,res,next){
-  console.log("print");
-  next()
-}
+
 
 
 //order status
 router.post("/update-order-status",AdminAuth,ordercontroller.updateOrderStatus);
-router.post(
-  "/cancel-order",AdminAuth,
-  ordercontroller.cancelProductOrder
-);
+router.post("/cancel-order",AdminAuth,ordercontroller.cancelProductOrder);
+//
+
+router.get("/return-requests", AdminAuth,ordercontroller.getReturnRequests);
+router.post("/process-return-request",AdminAuth,ordercontroller.processReturnRequest);
+
+
 
 
 
