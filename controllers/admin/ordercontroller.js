@@ -4,6 +4,10 @@ const Address = require("../../models/addressSchema");
 const User = require("../../models/userSchema");
 const Order = require("../../models/orderSchema");
 const Wallet = require("../../models/walletSchema");
+const { generatePDF, generateExcel } = require("../../utils/reportGenerator");
+
+
+
 
 const getAllOrders = async (req, res) => {
   try {
@@ -432,6 +436,69 @@ const processReturnRequest = async (req, res) => {
 
 
 
+const getSalesReport = async (req, res) => {
+  try {
+    const orders = await Order.find(
+      {},
+      "orderId orderDate totalAmount discountAmount"
+    );
+
+    const salesData = orders.map((order) => ({
+      orderId: order.orderId,
+      date: order.orderDate,
+      amount: order.totalAmount,
+      discount: order.discountAmount,
+    }));
+
+    res.json(salesData);
+  } catch (error) {
+    console.error("Error fetching sales report:", error);
+    res.status(500).json({ error: "Failed to fetch sales report" });
+  }
+};
+
+
+const exportSalesReportPDF = async (req, res) => {
+  try {
+    const orders = await Order.find(
+      {},
+      "orderId orderDate totalAmount discountAmount"
+    );
+    const pdfBuffer = await generatePDF(orders);
+
+    res.set({
+      "Content-Type": "application/pdf",
+      "Content-Disposition": 'attachment; filename="sales-report.pdf"',
+    });
+    res.send(pdfBuffer);
+  } catch (error) {
+    console.error("Error generating PDF:", error);
+    res.status(500).json({ error: "Failed to generate PDF" });
+  }
+};
+
+
+const exportSalesReportExcel = async (req, res) => {
+  try {
+    const orders = await Order.find(
+      {},
+      "orderId orderDate totalAmount discountAmount"
+    );
+    const excelBuffer = await generateExcel(orders);
+
+    res.set({
+      "Content-Type":
+        "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+      "Content-Disposition": 'attachment; filename="sales-report.xlsx"',
+    });
+    res.send(excelBuffer);
+  } catch (error) {
+    console.error("Error generating Excel:", error);
+    res.status(500).json({ error: "Failed to generate Excel" });
+  }
+};
+
+
 
 module.exports = {
   getAllOrders,
@@ -439,4 +506,7 @@ module.exports = {
   cancelProductOrder,
   processReturnRequest,
   getReturnRequests,
+  exportSalesReportExcel,
+  exportSalesReportPDF,
+  getSalesReport,
 };

@@ -7,6 +7,7 @@ const categorycontroller=require('../controllers/admin/categorycontroller');
 const productcontroller=require('../controllers/admin/productcontroller');
 const ordercontroller=require('../controllers/admin/ordercontroller');
 const couponcontroller=require('../controllers/admin/couponcontroller');
+const salesReportcontroller =require('../controllers/admin/salesReportcontroller');
 const {UserAuth,AdminAuth}=require('../middlewares/auth');
 
 
@@ -21,6 +22,25 @@ const storage = multer.diskStorage({
         cb(null, `${uuidv4()}.${ext}`); // Unique filename
     }
 });
+
+
+
+router.get("/sales-report", AdminAuth, salesReportcontroller.getSalesReport);
+router.get(
+  "/sales-report/data",
+  AdminAuth,
+  salesReportcontroller.getSalesReportData
+);
+router.get(
+  "/sales-report/export/pdf",
+  AdminAuth,
+  salesReportcontroller.exportSalesReportPDF
+);
+router.get(
+  "/sales-report/export/excel",
+  AdminAuth,
+  salesReportcontroller.exportSalesReportExcel
+);
 
 
 const uploads = multer({ storage: storage });

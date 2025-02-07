@@ -135,6 +135,10 @@ const orderSchema = new mongoose.Schema({
     type: Number,
     required: true,
   },
+  offerDiscount: {
+    type: Number,
+    default: 0,
+  },
   paymentMethod: {
     type: String,
     enum: ["COD", "Razorpay", "WALLET"],
@@ -159,7 +163,6 @@ const orderSchema = new mongoose.Schema({
       "Delivered",
       "Cancelled",
       "Returned",
-      
     ],
     default: "Pending",
   },

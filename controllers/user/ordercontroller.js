@@ -213,7 +213,7 @@ const createReturnRequest = async (req, res) => {
 const processReturnRequest = async (req, res) => {
   try {
     const { orderId, productId, status } = req.body;
-    const adminId = req.session.admin; // Assuming admin authentication
+    const adminId = req.session.admin; 
 
     const order = await Order.findOne({ orderId });
     if (!order) {

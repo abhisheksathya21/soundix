@@ -220,7 +220,7 @@
           updateSummaryAmounts(total);
         };
 
-        // Keep SweetAlert for remove confirmation
+       
         removeButtons.forEach((button) => {
           button.addEventListener("click", async (event) => {
             const productId = event.target.getAttribute("data-product-id");
@@ -259,7 +259,7 @@
                   updateCartTotal();
                   showToast('Item removed from cart', 'success');
 
-                  // Check if cart is empty after removal
+                  
                   const remainingItems = document.querySelectorAll('.cart-item');
                   if (remainingItems.length === 0) {
                     location.reload();
@@ -279,7 +279,7 @@
           });
         });
 
-        // Use toast messages for quantity updates
+       
         quantityButtons.forEach((button) => {
           button.addEventListener("click", async (event) => {
             const productId = event.target.getAttribute("data-product-id");

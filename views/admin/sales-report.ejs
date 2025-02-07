@@ -1,0 +1,286 @@
+<%- include('../partials/admin/header') %>
+
+    <main class="main-content" id="mainContent">
+
+        <!-- Add your dashboard content here -->
+
+        <head>
+            <link rel="stylesheet" href="/assets/admin-style/sales.css">
+            <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+        </head>
+
+        <body>
+            <div class="container">
+                <h2>Sales Report</h2>
+
+                <div class="filter-section">
+                    <input type="date" id="start-date">
+                    <input type="date" id="end-date">
+                    <select id="date-range">
+                        <option value="this-month">This Month</option>
+                        <option value="last-month">Last Month</option>
+                        <option value="this-year">This Year</option>
+                        <option value="custom">Custom Range</option>
+                    </select>
+                    <button id="apply-filter" class="btn-primary">Apply Filter</button>
+                </div>
+
+                <div class="summary-cards">
+                    <div class="card">
+                        <h3>Total Orders</h3>
+                        <span id="total-orders">0</span>
+                    </div>
+                    <div class="card">
+                        <h3>Gross Sales</h3>
+                        <span id="gross-sales">₹0</span>
+                    </div>
+                    <div class="card">
+                        <h3>Total Discounts</h3>
+                        <span id="total-discounts">₹0</span>
+                    </div>
+                    <div class="card">
+                        <h3>Net Revenue</h3>
+                        <span id="net-revenue">₹0</span>
+                    </div>
+                </div>
+
+                <div class="export-options">
+                    <button id="export-excel" class="btn-secondary">
+                        <i class="fas fa-file-excel"></i> Export Excel
+                    </button>
+                    <button id="export-pdf" class="btn-secondary">
+                        <i class="fas fa-file-pdf"></i> Export PDF
+                    </button>
+                </div>
+
+                <div class="table-responsive">
+                    <table id="sales-table">
+                        <thead>
+                            <tr>
+                                <th>Order ID</th>
+                                <th>Date</th>
+                                <th>Total Amount</th>
+                                <th>Discounts</th>
+                                <th>Final Amount</th>
+                                <th>Payment</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+                        <tbody></tbody>
+                    </table>
+                </div>
+            </div>
+
+            <script>
+            function formatCurrency(amount) {
+    return new Intl.NumberFormat('en-IN', {
+        style: 'currency',
+        currency: 'INR',
+        minimumFractionDigits: 2
+    }).format(amount || 0);
+}
+
+function formatDate(dateString) {
+    if (!dateString) return 'N/A';
+    return new Date(dateString).toLocaleDateString('en-IN', {
+        year: 'numeric',
+        month: 'short',
+        day: 'numeric'
+    });
+}
+
+function addDataLabels() {
+    const headers = Array.from(document.querySelectorAll('#sales-table thead th')).map(th => th.textContent);
+    const rows = document.querySelectorAll('#sales-table tbody tr');
+
+    rows.forEach(row => {
+        const cells = row.querySelectorAll('td');
+        cells.forEach((cell, index) => {
+            cell.setAttribute('data-label', headers[index]);
+        });
+    });
+}
+
+function getCurrentFilterParams() {
+    const dateRange = document.getElementById("date-range").value;
+    const params = {
+        dateRange: dateRange
+    };
+
+    if (dateRange === "custom") {
+        params.startDate = document.getElementById("start-date").value;
+        params.endDate = document.getElementById("end-date").value;
+    }
+
+    return params;
+}
+
+async function fetchSalesReport(params = {}) {
+    try {
+        console.log("Fetching sales report with params:", params);
+        const response = await axios.get("/admin/sales-report/data", { params });
+        console.log("Received response:", response.data);
+
+        if (!response.data) {
+            throw new Error("No data received from server");
+        }
+
+        const { totalOrders, grossSales, totalDiscounts, netRevenue, orders } = response.data;
+
+        document.getElementById("total-orders").innerText = totalOrders;
+        document.getElementById("gross-sales").innerText = formatCurrency(grossSales);
+        document.getElementById("total-discounts").innerText = formatCurrency(totalDiscounts);
+        document.getElementById("net-revenue").innerText = formatCurrency(netRevenue);
+
+        const tableBody = document.querySelector("#sales-table tbody");
+        if (!tableBody) {
+            throw new Error("Table body element not found");
+        }
+
+        tableBody.innerHTML = orders.map(order => `
+            <tr>
+                <td>${order.orderId || 'N/A'}</td>
+                <td>${formatDate(order.orderDate)}</td>
+                <td>${formatCurrency(order.subTotal)}</td>
+                <td class="discount">${formatCurrency(order.discountAmount)}</td>
+                <td>${formatCurrency(order.finalAmount)}</td>
+                <td>${order.paymentMethod || 'N/A'}</td>
+                <td><span class="status ${(order.status || '').toLowerCase()}">${order.status || 'N/A'}</span></td>
+            </tr>
+        `).join('');
+
+        addDataLabels();
+    } catch (error) {
+        console.error("Error fetching sales report:", error);
+        alert(`Failed to fetch sales report: ${error.message}`);
+    }
+}
+
+document.addEventListener("DOMContentLoaded", () => {
+    const dateRange = document.getElementById("date-range");
+    const startDate = document.getElementById("start-date");
+    const endDate = document.getElementById("end-date");
+
+    // Initially hide date inputs
+    startDate.style.display = "none";
+    endDate.style.display = "none";
+
+    // Set max date for date inputs to today
+    const today = new Date().toISOString().split('T')[0];
+    startDate.max = today;
+    endDate.max = today;
+
+    dateRange.addEventListener("change", () => {
+        const isCustom = dateRange.value === "custom";
+        startDate.style.display = isCustom ? "inline" : "none";
+        endDate.style.display = isCustom ? "inline" : "none";
+
+        if (!isCustom) {
+            startDate.value = "";
+            endDate.value = "";
+        }
+    });
+
+    document.getElementById("apply-filter").addEventListener("click", async () => {
+        try {
+            const selectedRange = dateRange.value;
+            let params = {};
+
+            if (selectedRange === "custom") {
+                if (!startDate.value || !endDate.value) {
+                    alert("Please select both start and end dates for custom range");
+                    return;
+                }
+
+                const start = new Date(startDate.value);
+                const end = new Date(endDate.value);
+
+                if (end < start) {
+                    alert("End date must be after start date");
+                    return;
+                }
+
+                params = {
+                    startDate: startDate.value,
+                    endDate: endDate.value,
+                    dateRange: "custom"
+                };
+            } else {
+                params = {
+                    dateRange: selectedRange
+                };
+            }
+
+            console.log("Sending params:", params);
+            await fetchSalesReport(params);
+
+        } catch (error) {
+            console.error("Error applying filter:", error);
+            alert("Error applying filter. Please try again.");
+        }
+    });
+
+    // Export PDF button click handler
+    document.getElementById("export-pdf").addEventListener("click", async () => {
+        try {
+            const params = getCurrentFilterParams();
+            const response = await axios({
+                url: '/admin/sales-report/export/pdf',
+                method: 'GET',
+                responseType: 'blob',
+                params: params
+            });
+            
+            // Create blob link to download
+            const url = window.URL.createObjectURL(new Blob([response.data]));
+            const link = document.createElement('a');
+            link.href = url;
+            link.setAttribute('download', 'sales-report.pdf');
+            document.body.appendChild(link);
+            link.click();
+            link.remove();
+            window.URL.revokeObjectURL(url);
+        } catch (error) {
+            console.error("Error downloading PDF:", error);
+            alert("Failed to download PDF report");
+        }
+    });
+
+    // Export Excel button click handler
+    document.getElementById("export-excel").addEventListener("click", async () => {
+        try {
+            const params = getCurrentFilterParams();
+            const response = await axios({
+                url: '/admin/sales-report/export/excel',
+                method: 'GET',
+                responseType: 'blob',
+                params: params
+            });
+            
+            // Create blob link to download
+            const url = window.URL.createObjectURL(new Blob([response.data]));
+            const link = document.createElement('a');
+            link.href = url;
+            link.setAttribute('download', 'sales-report.xlsx');
+            document.body.appendChild(link);
+            link.click();
+            link.remove();
+            window.URL.revokeObjectURL(url);
+        } catch (error) {
+            console.error("Error downloading Excel:", error);
+            alert("Failed to download Excel report");
+        }
+    });
+
+    // Initial load without filters
+    fetchSalesReport();
+});
+            </script>
+
+
+
+
+
+    </main>
+
+    <%- include('../partials/admin/footer') %>

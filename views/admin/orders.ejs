@@ -154,7 +154,7 @@
               
                 async function updateOrderStatus(orderId, status, selectElement) {
                     try {
-                        // Show confirmation dialog for cancellation
+                      
                         if (status === 'Cancelled') {
                             const result = await Swal.fire({
                                 title: 'Are you sure?',
@@ -167,7 +167,7 @@
                             });
 
                             if (!result.isConfirmed) {
-                                // Reset select to previous value if user cancels
+                               
                                 const order = orders.find((o) => o._id === orderId);
                                 selectElement.value = order.status;
                                 return;
@@ -188,7 +188,7 @@
                             throw new Error(data.error || 'Failed to update status');
                         }
 
-                        // Update the select element's state
+                       
                         selectElement.className = 'status-select ' + status.toLowerCase();
                         if (status === 'Cancelled' || status === 'Delivered') {
                             selectElement.disabled = true;
