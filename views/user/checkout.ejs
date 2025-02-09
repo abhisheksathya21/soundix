@@ -296,18 +296,18 @@
                   </div>
                   <% }); %>
                 </div>
-                <div class="add-address-container">
-                  <a href="/addressManagement" class="continue-shopping"
-                    >Add address</a
-                  >
-                </div>
+           <!-- Replace your current add address container -->
+<div class="add-address-container">
+  <!-- Changed to type="button" to prevent form submission -->
+  <button type="button" onclick="openAddressModal()" class="continue-shopping">Add address</button>
+</div>
                 <% } else { %>
                 <p>No address found. Please add an address.</p>
-                <div class="add-address-container">
-                  <a href="/addressManagement" class="continue-shopping"
-                    >Add address</a
-                  >
-                </div>
+              <!-- Replace your current add address container -->
+<div class="add-address-container">
+  <!-- Changed to type="button" to prevent form submission -->
+  <button type="button" onclick="openAddressModal()" class="continue-shopping">Add address</button>
+</div>
                 <% } %>
               </form>
             </div>
@@ -383,25 +383,93 @@
               <% } %>
             </div>
             <!-- Order Summary -->
-            <div class="section">
-              <h2>Order Summary</h2>
-              <% if (cart && cart.items.length > 0) { %>
-              <p>Subtotal:₹<%= cart.totalAmount %></p>
-              <p>Shipping: ₹0.00</p>
-              <p>Tax:₹0.00</p>
-              <div class="total">Total: ₹<%= cart.totalAmount %></div>
-              <% } else { %>
-              <p>No items to display.</p>
-              <% } %>
-              <button class="btn" onclick="submitOrder()">Place Order</button>
-            </div>
+            <!-- Order Summary -->
+<div class="section">
+  <h2>Order Summary</h2>
+  <% if (cart && cart.items.length > 0) { %>
+    <p>Subtotal: ₹<%= cart.totalAmount %></p>
+    <p>Shipping: ₹0.00</p>
+    <p>Tax: ₹0.00</p>
+    <p id="discount-amount" style="color: #2ecc71;">Discount: -₹0.00</p>
+    <div class="total">Total: ₹<%= cart.totalAmount %></div>
+  <% } else { %>
+    <p>No items to display.</p>
+  <% } %>
+  <button class="btn" onclick="submitOrder()">Place Order</button>
+</div>
           </div>
         </div>
       </div>
     </div>
+   <div id="addressModal" style="display: none;" class="modal">
+  <div class="modal-content">
+    <div class="modal-header">
+      <h2>Add New Address</h2>
+      <span class="close-modal" onclick="closeAddressModal()">&times;</span>
+    </div>
+    
+    <!-- Remove method="post" from form to prevent default submission -->
+    <form id="add-address-form">
+      <div class="form-grid">
+        <div class="form-group">
+          <label for="address-type">Address Type:</label>
+          <input type="text" id="address-type" name="addressType" required />
+        </div>
+        
+        <div class="form-group">
+          <label for="address-name">Name:</label>
+          <input type="text" id="address-name" name="name" required />
+        </div>
+
+        <div class="form-group">
+          <label for="address-city">City:</label>
+          <input type="text" id="address-city" name="city" required />
+        </div>
+
+        <div class="form-group">
+          <label for="address-landmark">Landmark:</label>
+          <input type="text" id="address-landmark" name="landmark" />
+        </div>
+
+        <div class="form-group">
+          <label for="address-district">District:</label>
+          <input type="text" id="address-district" name="district" required />
+        </div>
+
+        <div class="form-group">
+          <label for="address-state">State:</label>
+          <input type="text" id="address-state" name="state" required />
+        </div>
+
+        <div class="form-group">
+          <label for="address-pincode">Pincode:</label>
+          <input type="text" id="address-pincode" name="pincode" required pattern="\d{6}" title="Pincode must be 6 digits." />
+        </div>
+
+        <div class="form-group">
+          <label for="address-phone">Phone:</label>
+          <input type="tel" id="address-phone" name="phone" required pattern="\d{10}" title="Phone number must be 10 digits." />
+        </div>
+
+        <div class="form-group full-width">
+          <label for="address-alt-phone">Alternative Phone:</label>
+          <input type="tel" id="address-alt-phone" name="alternativePhone" pattern="\d{10}" title="Phone number must be 10 digits." />
+        </div>
+      </div>
+
+      <div class="form-actions">
+        <!-- Changed to type="submit" for form submission -->
+        <button type="submit" class="submit-btn">Save Address</button>
+        <!-- Changed to type="button" for closing modal -->
+        <button type="button" onclick="closeAddressModal()" class="cancel-btn">Cancel</button>
+      </div>
+    </form>
+  </div>
+</div>
     <br />
     <br />
     <br />
+
     <%- include('../partials/user/footer')%>
     <div class="toast-container"></div>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
@@ -512,19 +580,24 @@
       }
 
       function updateOrderSummary(discountAmount) {
-          if (typeof discountAmount === "undefined") {
-              discountAmount = 0; // Set default value if undefined
-          }
+    if (typeof discountAmount === "undefined") {
+        discountAmount = 0;
+    }
 
-          const subtotalEl = document.querySelector('.section .total');
-          const originalTotal = <%= cart.totalAmount %>;  // Get the original total amount
-          const newTotal = originalTotal - discountAmount; // Apply discount
+    const subtotalEl = document.querySelector('.section .total');
+    const discountEl = document.getElementById('discount-amount');
+    const originalTotal = <%= cart.totalAmount %>;
+    const newTotal = originalTotal - discountAmount;
 
-          subtotalEl.innerHTML = `Total: ₹${newTotal}`;
+    // Update discount display
+    discountEl.innerHTML = `Discount: -₹${discountAmount.toFixed(2)}`;
+    
+    // Update total
+    subtotalEl.innerHTML = `Total: ₹${newTotal.toFixed(2)}`;
 
-          // Store discount amount globally to send it in order request
-          window.discountAmount = discountAmount;
-      }
+    // Store discount amount globally to send it in order request
+    window.discountAmount = discountAmount;
+}
 
       async function submitOrder() {
           const shippingForm = document.getElementById('shipping-form');
@@ -599,7 +672,7 @@
                       window.location.href = '/order-success';
                   }, 1500);
               } else if (paymentMethod === 'RAZORPAY') {
-                  // Handle Razorpay payment
+                
                   const options = {
                       key: data.key_id,
                       amount: data.amount,
@@ -609,7 +682,7 @@
                       order_id: data.orderId,
                       handler: async function (response) {
                           try {
-                              // Verify payment
+                             
                               const verifyResponse = await fetch('/verify-payment', {
                                   method: 'POST',
                                   headers: {
@@ -656,6 +729,78 @@
               console.error('Order Error:', error);
           }
       }
+    document.addEventListener('DOMContentLoaded', function() {
+    // Modal functions
+    window.openAddressModal = function() {
+        document.getElementById('addressModal').style.display = 'block';
+        document.body.style.overflow = 'hidden';
+    }
+
+    window.closeAddressModal = function() {
+        document.getElementById('addressModal').style.display = 'none';
+        document.body.style.overflow = 'auto';
+    }
+
+    // Close modal when clicking outside
+    window.onclick = function(event) {
+        const modal = document.getElementById('addressModal');
+        if (event.target === modal) {
+            closeAddressModal();
+        }
+    }
+
+    // Form submission handler
+    const addressForm = document.getElementById('add-address-form');
+    if (addressForm) {
+        addressForm.addEventListener('submit', async function(e) {
+            e.preventDefault(); // Prevent form from submitting normally
+
+            const formData = new FormData(e.target);
+            const data = {
+                addressType: formData.get('addressType'),
+                name: formData.get('name'),
+                city: formData.get('city'),
+                landmark: formData.get('landmark'),
+                district: formData.get('district'),
+                state: formData.get('state'),
+                pincode: formData.get('pincode'),
+                phone: formData.get('phone'),
+                alternativePhone: formData.get('alternativePhone'),
+            };
+
+            try {
+                const response = await fetch('/addAddress', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(data),
+                });
+
+                const result = await response.json();
+                if (response.ok) {
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Success!',
+                        text: result.message,
+                    }).then(() => {
+                        window.location.reload();
+                    });
+                } else {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error',
+                        text: result.message,
+                    });
+                }
+            } catch (error) {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Ooops...',
+                    text: 'Something went wrong please try again later',
+                });
+            }
+        });
+    }
+});
     </script>
   </body>
 </html>

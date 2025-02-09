@@ -135,13 +135,6 @@ body {
   transition: background-color 0.3s ease;
 }
 
-.wishlist-btn .heart-icon {
-  width: 24px;
-  height: 24px;
-  stroke: #888;
-  fill: none;
-  transition: stroke 0.3s ease, fill 0.3s ease;
-}
 
 .wishlist-btn:hover .heart-icon {
   stroke: #ff4d4d;

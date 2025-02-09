@@ -16,34 +16,28 @@ const productDetails = async (req, res) => {
       return res.status(404).send("Product not found");
     }
 
-   
+    // Fetch category and product-level offers for main product
     const categoryOffer = productData.category?.offer || null;
-    console.log("categoryOffer", categoryOffer);
-
-  
     const productOffer = productData.offer || null;
-    console.log("productOffer", productOffer);
-   let bestOffer = null;
 
-   if (categoryOffer?.discountPercentage && productOffer?.discountPercentage) {
-     bestOffer =
-       categoryOffer.discountPercentage > productOffer.discountPercentage
-         ? categoryOffer
-         : productOffer;
-   } else if (categoryOffer?.discountPercentage) {
-     bestOffer = categoryOffer;
-   } else if (productOffer?.discountPercentage) {
-     bestOffer = productOffer;
-   }
-   console.log("productData",productData.salePrice);
+    // Determine best offer for main product
+    let bestOffer = null;
+    if (categoryOffer?.discountPercentage && productOffer?.discountPercentage) {
+      bestOffer =
+        categoryOffer.discountPercentage > productOffer.discountPercentage
+          ? categoryOffer
+          : productOffer;
+    } else {
+      bestOffer = categoryOffer || productOffer;
+    }
 
-   let finalPrice = productData.salePrice;
-   if (bestOffer) {
-     finalPrice =
-       productData.salePrice -
-       (productData.salePrice * bestOffer.discountPercentage) / 100;
-   }
-
+    // Calculate final price for main product
+    let finalPrice = productData.salePrice;
+    if (bestOffer) {
+      finalPrice =
+        productData.salePrice -
+        (productData.salePrice * bestOffer.discountPercentage) / 100;
+    }
 
     // Find related products with pagination
     const totalRelatedProducts = await Product.countDocuments({
@@ -51,12 +45,47 @@ const productDetails = async (req, res) => {
       _id: { $ne: productData._id },
     });
 
-    const RelatedProducts = await Product.find({
+    let RelatedProducts = await Product.find({
       category: productData.category._id,
       _id: { $ne: productData._id },
     })
       .skip((page - 1) * limit)
-      .limit(limit);
+      .limit(limit)
+      .populate("category");
+
+    // Apply the same offer logic to related products
+    RelatedProducts = RelatedProducts.map((relatedProduct) => {
+      const relatedCategoryOffer = relatedProduct.category?.offer || null;
+      const relatedProductOffer = relatedProduct.offer || null;
+
+      let relatedBestOffer = null;
+      if (
+        relatedCategoryOffer?.discountPercentage &&
+        relatedProductOffer?.discountPercentage
+      ) {
+        relatedBestOffer =
+          relatedCategoryOffer.discountPercentage >
+          relatedProductOffer.discountPercentage
+            ? relatedCategoryOffer
+            : relatedProductOffer;
+      } else {
+        relatedBestOffer = relatedCategoryOffer || relatedProductOffer;
+      }
+
+      let relatedFinalPrice = relatedProduct.salePrice;
+      if (relatedBestOffer) {
+        relatedFinalPrice =
+          relatedProduct.salePrice -
+          (relatedProduct.salePrice * relatedBestOffer.discountPercentage) /
+            100;
+      }
+
+      return {
+        ...relatedProduct._doc, // Spread original product data
+        bestOffer: relatedBestOffer,
+        finalPrice: relatedFinalPrice,
+      };
+    });
 
     const totalPages = Math.ceil(totalRelatedProducts / limit);
 
@@ -72,7 +101,7 @@ const productDetails = async (req, res) => {
       quantity: productData.quantity,
       category: productData.category,
       breadcrumbs,
-      RelatedProducts,
+      products: RelatedProducts,
       currentPage: page,
       totalPages,
       totalRelatedProducts,

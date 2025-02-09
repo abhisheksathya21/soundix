@@ -11,14 +11,33 @@ const { generatePDF, generateExcel } = require("../../utils/reportGenerator");
 
 const getAllOrders = async (req, res) => {
   try {
+    
+      const search = req.query.search || "";
+
+    
+      const matchingUsers = await User.find({
+        fullname: { $regex: search, $options: "i" },
+        email:{$regex: search, $options: "i"}
+      }).select("_id");
+
+      const userIds = matchingUsers.map((user) => user._id);
+
+     
+      const searchQuery = {
+        $or: [
+          { orderId: { $regex: search, $options: "i" } },
+          { userId: { $in: userIds } }, 
+          
+        ],
+      };
     const page = parseInt(req.query.page) || 1;
     const limit = 5;
     const skip = (page - 1) * limit;
 
-    const totalOrders = await Order.countDocuments();
+    const totalOrders = await Order.countDocuments(searchQuery);
     const totalPages = Math.ceil(totalOrders / limit);
 
-    const orders = await Order.find()
+    const orders = await Order.find(searchQuery)
       .populate("userId", "fullname email")
       .populate("items.productId")
       .sort({ orderDate: -1 })
@@ -31,6 +50,7 @@ const getAllOrders = async (req, res) => {
       isCancellable:
         order.orderStatus !== "Cancelled" && order.orderStatus !== "Delivered",
     }));
+   
 
     res.render("orders", {
       orders: transformedOrders,
@@ -41,6 +61,7 @@ const getAllOrders = async (req, res) => {
       nextPage: page + 1,
       prevPage: page - 1,
       lastPage: totalPages,
+      search,
     });
   } catch (error) {
     console.error("Error fetching orders:", error);
@@ -135,7 +156,7 @@ const updateOrderStatus = async (req, res) => {
       }
     }
 
-    // If order is being marked as "Delivered", update all non-cancelled items
+   
     if (status === "Delivered") {
       order.items.forEach((item) => {
         if (item.status !== "Cancelled") {

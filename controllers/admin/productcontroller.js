@@ -61,7 +61,7 @@ const addProducts = async (req, res) => {
       }
     }
 
-    // Validate category
+    
     const category = await Category.findOne({ name: productData.category });
     if (!category) {
       return res.status(400).json({
@@ -69,7 +69,7 @@ const addProducts = async (req, res) => {
       });
     }
 
-    // Create and save the new product
+   
     const newProduct = new Product({
       productName: productData.productName,
       description: productData.description,
@@ -197,6 +197,7 @@ const getAllproducts = async (req, res) => {
     const productData = await Product.find({
       productName: { $regex: new RegExp(".*" + search + ".*", "i") },
     })
+      
       .limit(limit * 1)
       .skip((page - 1) * limit)
       .populate("category")
@@ -252,7 +253,7 @@ const addProductOffer = async (req, res) => {
   try {
     const { productId, discountPercentage, startDate, endDate } = req.body;
 
-    // Validate offer data
+  
     if (discountPercentage < 1 || discountPercentage > 99) {
       return res
         .status(400)
@@ -262,7 +263,7 @@ const addProductOffer = async (req, res) => {
       return res.status(400).json("End date must be after start date");
     }
 
-    // Find the product and update it
+    
     const product = await Product.findById(productId);
     if (!product) {
       return res.status(404).json("Product not found");

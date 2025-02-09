@@ -10,7 +10,7 @@ const getSalesReport = async (req, res) => {
   }
 };
 
-// Helper function to build filter based on date parameters
+
 const buildDateFilter = (startDate, endDate, dateRange) => {
   let filter = { orderStatus: { $ne: "Cancelled" } };
 
@@ -87,7 +87,13 @@ const getSalesReportData = async (req, res) => {
     console.log("Query parameters received:", req.query);
     const { startDate, endDate, dateRange } = req.query;
 
-    const filter = buildDateFilter(startDate, endDate, dateRange);
+    // Combine date filter with delivered status filter
+    const dateFilter = buildDateFilter(startDate, endDate, dateRange);
+    const filter = {
+      ...dateFilter,
+      orderStatus: "Delivered", // Only include delivered orders
+    };
+
     console.log("Final MongoDB filter:", filter);
 
     const orders = await Order.find(filter)
@@ -96,7 +102,7 @@ const getSalesReportData = async (req, res) => {
       )
       .lean();
 
-    console.log(`Found ${orders.length} orders`);
+    console.log(`Found ${orders.length} delivered orders`);
 
     const totalOrders = orders.length;
     const grossSales = orders.reduce(

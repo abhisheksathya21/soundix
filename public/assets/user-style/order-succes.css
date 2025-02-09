@@ -145,3 +145,52 @@ main:hover {
             width: 100%;
         }
     }
+
+    .order-details {
+        background: #f8f9fa;
+        padding: 2rem;
+        border-radius: 8px;
+        margin: 2rem 0;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+
+    .order-details h2, .order-details h3 {
+        color: #333;
+        margin-bottom: 1rem;
+    }
+
+    .order-details p {
+        margin: 0.5rem 0;
+        color: #666;
+    }
+
+    .order-items {
+        margin: 1rem 0;
+    }
+
+    .order-item {
+        padding: 1rem;
+        border-bottom: 1px solid #eee;
+    }
+
+    .order-item:last-child {
+        border-bottom: none;
+    }
+
+    .order-totals {
+        margin-top: 1rem;
+        padding-top: 1rem;
+        border-top: 2px solid #eee;
+    }
+
+    .order-totals p {
+        display: flex;
+        justify-content: space-between;
+        margin: 0.5rem 0;
+    }
+
+    .order-totals p:last-child {
+        font-weight: bold;
+        color: #333;
+        font-size: 1.1em;
+    }

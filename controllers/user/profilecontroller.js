@@ -17,7 +17,7 @@ const userProfile = async (req, res) => {
       return res.render("userProfile", {
         user: userData,
         userAddress: addressData,
-        isGoogleUser: !!userData.googleId, // Convert to boolean
+        isGoogleUser: !!userData.googleId, 
       });
     }
   } catch (error) {
@@ -28,8 +28,8 @@ const userProfile = async (req, res) => {
 const userUpdate = async (req, res) => {
   try {
     const userId = req.session.user;
-    const { name, email, phone } = req.body;
-
+    const { name, phone } = req.body;
+    const userData = await User.findOne({ _id: userId });
     await User.updateOne(
       { _id: userId },
       { $set: { fullname: name, phone: phone } }
@@ -106,7 +106,7 @@ const addressManagement = async (req, res) => {
       return res.render("addressManagement", {
         user: userData,
         userAddress: addressData,
-        isGoogleUser: !!userData.googleId, // Convert to boolean
+        isGoogleUser: !!userData.googleId, 
       });
     }
   } catch (error) {
@@ -190,6 +190,7 @@ const addAddress = async (req, res) => {
     return res.status(500).json({ message: "Internal Server Error" });
   }
 };
+
 const editAddress = async (req, res) => {
   try{
     const addressId = req.query.id;
@@ -214,6 +215,8 @@ const editAddress = async (req, res) => {
     res.redirect('/pageNotFound')
   }
 }
+
+
 const updateAddress = async (req, res) => {
   try {
     const data = req.body;
@@ -257,6 +260,8 @@ const updateAddress = async (req, res) => {
     res.redirect(302, "/pageNotFound");
   }
 };
+
+
 
 
 const deleteAddress = async (req, res) => {

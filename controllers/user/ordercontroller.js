@@ -19,9 +19,17 @@ const orderSuccess = async (req, res) => {
     if (!userId) {
       return res.redirect("/login");
     }
-    const OrderData = await Order.find({ userId: userId });
+   
+    const latestOrder = await Order.findOne({ userId: userId })
+      .sort({ createdAt: -1 })
+      .populate('items.productId'); 
+      
     const userData = await User.findById(userId);
-    res.render("order-success", { orderData: OrderData, userData: userData });
+    console.log("latestOrder", latestOrder);
+    res.render("order-success", { 
+      orderData: latestOrder, 
+      userData: userData 
+    });
   } catch (error) {
     console.error("Error loading order success page:", error);
     res.redirect("/pageNotFound");

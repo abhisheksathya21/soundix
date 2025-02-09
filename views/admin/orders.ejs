@@ -1,3 +1,4 @@
+
 <%-include('../partials/admin/header') %>
 
     <link rel="stylesheet" href="/assets/admin-style/order.css">
@@ -7,14 +8,24 @@
             <h2 class="content-title">Orders</h2>
         </div>
         <div class="container">
+<div class="search-container mb-4">
+    <form action="/admin/orders/" method="get" class="search-form">
+      <div class="search-box">
+        <input type="text" class="search-input" placeholder="Search customers..." name="search">
+        <button class="search-button" type="submit">Search</button>
+      </div>
+    </form>
+  </div>
 
             <div class="table-wrapper">
                 <table class="order-table">
                     <thead>
                         <tr>
                             <th>Customer</th>
+                            <th>OrderId</th>
                             <th>Email</th>
                             <th>Total Price</th>
+                            <th>paymentMethod</th>
                             <th>Status</th>
                             <th>Date</th>
                             <th>Actions</th>
@@ -27,10 +38,14 @@
                                     <%= order.userId.fullname %>
                                 </td>
                                 <td>
+                                    <%= order.orderId %>
+                                </td>
+                                <td>
                                     <%= order.userId.email %>
                                 </td>
                                 <td>₹<%= order.totalAmount.toFixed(2) %>
                                 </td>
+                                <td><%=order.paymentMethod%></td>
                                 <td>
                                     <select class="status-select <%= order.status.toLowerCase() %>"
                                         data-order-id="<%= order._id %>" <%=order.status==='Cancelled' ||
@@ -85,62 +100,118 @@
             </div>
         </div>
 
+        
         <!-- Order Details Modal -->
-        <div id="orderModal" class="modal">
-            <div class="modal-content">
-                <span class="close">&times;</span>
-                <div class="modal-header">
-                    <h2>Order Details</h2>
+<div id="orderModal" class="modal">
+    <div class="modal-content">
+        <span class="close">&times;</span>
+        <div class="modal-header">
+            <h2>Order Details</h2>
+        </div>
+        <div class="modal-body">
+            <div class="order-info">
+                <div class="info-section">
+                    <h3>Customer Information</h3>
+                    <div class="detail-row">
+                        <strong>Name:</strong>
+                        <span id="modalCustomer"></span>
+                    </div>
+                    <div class="detail-row">
+                        <strong>Email:</strong>
+                        <span id="modalEmail"></span>
+                    </div>
+                    <div class="detail-row">
+                        <strong>Order ID:</strong>
+                        <span id="modalOrderId"></span>
+                    </div>
+                    <div class="detail-row">
+                        <strong>Order Date:</strong>
+                        <span id="modalDate"></span>
+                    </div>
+                    <div class="detail-row">
+                        <strong>Status:</strong>
+                        <span id="modalStatus"></span>
+                    </div>
+                    <div class="detail-row">
+                        <strong>Payment Method:</strong>
+                        <span id="modalPaymentMethod"></span>
+                    </div>
+                    <div class="detail-row">
+                        <strong>Payment Status:</strong>
+                        <span id="modalPaymentStatus"></span>
+                    </div>
                 </div>
-                <div class="modal-body">
-                    <div class="order-info">
-                        <div class="info-section">
-                            <h3>Customer Information</h3>
-                            <div class="detail-row">
-                                <strong>Name:</strong>
-                                <span id="modalCustomer"></span>
-                            </div>
-                            <div class="detail-row">
-                                <strong>Email:</strong>
-                                <span id="modalEmail"></span>
-                            </div>
-                            <div class="detail-row">
-                                <strong>Order Date:</strong>
-                                <span id="modalDate"></span>
-                            </div>
-                            <div class="detail-row">
-                                <strong>Status:</strong>
-                                <span id="modalStatus"></span>
-                            </div>
-                        </div>
 
-                        <div class="info-section">
-                            <h3>Products</h3>
-                            <div class="products-grid" id="modalProducts">
-                                <!-- Products will be dynamically inserted here -->
-                            </div>
-                        </div>
+                <div class="info-section">
+                    <h3>Shipping Address</h3>
+                    <div class="detail-row">
+                        <strong>Name:</strong>
+                        <span id="modalShippingName"></span>
+                    </div>
+                    <div class="detail-row">
+                        <strong>Address Type:</strong>
+                        <span id="modalAddressType"></span>
+                    </div>
+                    <div class="detail-row">
+                        <strong>Street:</strong>
+                        <span id="modalStreet"></span>
+                    </div>
+                    <div class="detail-row">
+                        <strong>City:</strong>
+                        <span id="modalCity"></span>
+                    </div>
+                    <div class="detail-row">
+                        <strong>State:</strong>
+                        <span id="modalState"></span>
+                    </div>
+                    <div class="detail-row">
+                        <strong>Country:</strong>
+                        <span id="modalCountry"></span>
+                    </div>
+                    <div class="detail-row">
+                        <strong>Pin Code:</strong>
+                        <span id="modalPinCode"></span>
+                    </div>
+                    <div class="detail-row">
+                        <strong>Phone:</strong>
+                        <span id="modalPhone"></span>
+                    </div>
+                </div>
 
-                        <div class="info-section">
-                            <h3>Order Summary</h3>
-                            <div class="detail-row">
-                                <strong>Subtotal:</strong>
-                                <span id="modalSubtotal"></span>
-                            </div>
-                            <div class="detail-row">
-                                <strong>Shipping:</strong>
-                                <span id="modalShipping"></span>
-                            </div>
-                            <div class="detail-row total">
-                                <strong>Total:</strong>
-                                <span id="modalPrice"></span>
-                            </div>
-                        </div>
+                <div class="info-section">
+                    <h3>Products</h3>
+                    <div class="products-grid" id="modalProducts">
+                        <!-- Products will be dynamically inserted here -->
+                    </div>
+                </div>
+
+                <div class="info-section">
+                    <h3>Order Summary</h3>
+                    <div class="detail-row">
+                        <strong>Subtotal:</strong>
+                        <span id="modalSubtotal"></span>
+                    </div>
+                    <div class="detail-row">
+                        <strong>Discount:</strong>
+                        <span id="modalDiscount"></span>
+                    </div>
+                    <div class="detail-row">
+                        <strong>Tax Amount:</strong>
+                        <span id="modalTax"></span>
+                    </div>
+                    <div class="detail-row">
+                        <strong>Shipping:</strong>
+                        <span id="modalShipping"></span>
+                    </div>
+                    <div class="detail-row total">
+                        <strong>Total:</strong>
+                        <span id="modalPrice"></span>
                     </div>
                 </div>
             </div>
         </div>
-
+    </div>
+</div>
         <!-- External Libraries -->
         <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
@@ -300,27 +371,44 @@
                 });
 
 
-                viewDetailsBtns.forEach((btn) => {
-                    btn.addEventListener('click', function () {
-                        const orderId = this.dataset.orderId;
-                        const order = orders.find((o) => o._id === orderId);
+              viewDetailsBtns.forEach((btn) => {
+    btn.addEventListener('click', function () {
+        const orderId = this.dataset.orderId;
+        const order = orders.find((o) => o._id === orderId);
 
-                        if (!order) return;
+        if (!order) return;
 
-                        // Update modal content
-                        document.getElementById('modalCustomer').textContent = order.userId.fullname;
-                        document.getElementById('modalEmail').textContent = order.userId.email;
-                        document.getElementById('modalDate').textContent = new Date(order.orderDate).toLocaleDateString();
-                        document.getElementById('modalStatus').textContent = order.status;
-                        document.getElementById('modalPrice').textContent = `₹${order.totalAmount.toFixed(2)}`;
-                        document.getElementById('modalSubtotal').textContent = `₹${order.totalAmount.toFixed(2)}`;
-                        document.getElementById('modalShipping').textContent = 'Free';
+        // Update customer information
+        document.getElementById('modalCustomer').textContent = order.userId.fullname;
+        document.getElementById('modalEmail').textContent = order.userId.email;
+        document.getElementById('modalOrderId').textContent = order.orderId;
+        document.getElementById('modalDate').textContent = new Date(order.orderDate).toLocaleDateString();
+        document.getElementById('modalStatus').textContent = order.status;
+        document.getElementById('modalPaymentMethod').textContent = order.paymentMethod;
+        document.getElementById('modalPaymentStatus').textContent = order.paymentStatus;
 
+        // Update shipping address
+        document.getElementById('modalShippingName').textContent = order.shippingAddress.name;
+        document.getElementById('modalAddressType').textContent = order.shippingAddress.addressType;
+        document.getElementById('modalStreet').textContent = order.shippingAddress.street;
+        document.getElementById('modalCity').textContent = order.shippingAddress.city;
+        document.getElementById('modalState').textContent = order.shippingAddress.state;
+        document.getElementById('modalCountry').textContent = order.shippingAddress.country;
+        document.getElementById('modalPinCode').textContent = order.shippingAddress.pinCode;
+        document.getElementById('modalPhone').textContent = order.shippingAddress.phoneNumber;
 
-                        const productsGrid = document.getElementById('modalProducts');
-                        productsGrid.innerHTML = order.items
-                            .map(
-                                (item) => `
+        // Update order summary
+        document.getElementById('modalSubtotal').textContent = `₹${order.subTotal.toFixed(2)}`;
+        document.getElementById('modalDiscount').textContent = `₹${order.discountAmount.toFixed(2)}`;
+        document.getElementById('modalTax').textContent = `₹${order.taxAmount.toFixed(2)}`;
+        document.getElementById('modalShipping').textContent = 'Free';
+        document.getElementById('modalPrice').textContent = `₹${order.totalAmount.toFixed(2)}`;
+
+        // Update products grid (keeping your existing product grid code)
+        const productsGrid = document.getElementById('modalProducts');
+        productsGrid.innerHTML = order.items
+            .map(
+                (item) => `
                     <div class="product-card">
                         <img src="${item.productId.productImage[0]}" alt="${item.productId.productName}">
                         <h4>${item.productId.productName}</h4>
@@ -333,13 +421,12 @@
                         </button>
                     </div>
                 `
-                            )
-                            .join('');
+            )
+            .join('');
 
-
-                        modal.style.display = 'block';
-                    });
-                });
+        modal.style.display = 'block';
+    });
+});
 
 
                 closeBtn.onclick = function () {

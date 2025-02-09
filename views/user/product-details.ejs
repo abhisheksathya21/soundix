@@ -9,7 +9,53 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="/assets/user-style/product-details.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
-     <style>
+    <style>
+        .toast-container {
+        position: fixed;
+        top: 110px;
+        right: 20px;
+        z-index: 1000;
+    }
+
+    .toast {
+        background: white;
+        color: #333;
+        padding: 12px 24px;
+        border-radius: 4px;
+        margin-bottom: 10px;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        opacity: 0;
+        transform: translateX(100%);
+        transition: all 0.3s ease;
+    }
+
+    .toast.show {
+        opacity: 1;
+        transform: translateX(0);
+    }
+
+    .toast.success {
+        border-left: 4px solid #4CAF50;
+    }
+
+    .toast.error {
+        border-left: 4px solid #f44336;
+    }
+
+    .toast-icon {
+        font-size: 18px;
+    }
+
+    .toast.success .toast-icon {
+        color: #4CAF50;
+    }
+
+    .toast.error .toast-icon {
+        color: #f44336;
+    }
     .offer-badge {
       position: relative;
       display: inline-flex;
@@ -25,7 +71,7 @@
     }
 
     .offer-percentage {
-      font-size: 24px;
+      font-size: 20px;
       font-weight: bold;
     }
 
@@ -61,6 +107,7 @@
         opacity: 0;
       }
     }
+    
   </style>
   </head>
 
@@ -116,7 +163,7 @@
     
         <!-- Pricing Information -->
         <div class="price">
-            <span class="sale-price">Rs. <%= finalPrice %></span>
+            <span class="sale-price" >Rs. <%= finalPrice %></span>
             <span class="original-price">Rs. <%= product.salePrice %></span>
 
         </div>
@@ -127,14 +174,20 @@
         </div>
 
         <!-- Action Buttons -->
-        <div class="action-buttons">
-            <button class="add-to-cart" data-product-id="<%= product._id %>" data-price="<%= product.salePrice %>">
-                <i class="fas fa-shopping-cart"></i> Add to Cart
-            </button>
-            <button class="add-to-wishlist" data-product-id="<%= product._id %>">
-                <i class="fas fa-heart"></i> 
-            </button>
-        </div>
+      <div class="action-buttons">
+    <button class="add-to-cart" data-product-id="<%= product._id %>" data-price="<%= product.salePrice %>">
+        <i class="fas fa-shopping-cart"></i> Add to Cart
+    </button>
+    <!-- Add the wishlist button here -->
+    <button class="wishlist-btn" data-product-id="<%= product._id %>">
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" 
+             viewBox="0 0 24 24" fill="none" stroke="currentColor" 
+             stroke-width="2" stroke-linecap="round" stroke-linejoin="round" 
+             class="heart-icon">
+            <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path>
+        </svg>
+    </button>
+</div>
 
         <!-- Product Features -->
         <div class="features-list">
@@ -173,37 +226,59 @@
 
     <section class="related-products">
     <h1>Related Products</h1>
-    <div class="rp-row">
-        <% RelatedProducts.forEach(function(product) { %>
-            <div class="rp-col">
-                <div class="rp-product-card">
-                    <div class="rp-product-img-wrapper">
-                        <img src="<%= product.productImage[0] %>" alt="<%= product.productName %>" class="rp-product-img">
-                        <div class="rp-product-actions">
-                            <button class="rp-add-to-cart" data-product-id="<%= product._id %>" data-price="<%= product.salePrice %>">
-                                Add to cart
-                            </button>
-                            <button class="wishlist-btn" data-product-id="<%= product._id %>">
-  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" 
-       viewBox="0 0 24 24" fill="none" stroke="currentColor" 
-       stroke-width="2" stroke-linecap="round" stroke-linejoin="round" 
-       class="heart-icon">
-    <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path>
-  </svg>
+    <div class="product-grid">
+    <% for (i = 0; i < products.length; i++) { %>
+        <div class="product-card">
+            <div class="product-image">
+                <a href="/productDetails?id=<%= products[i]._id %>">
+                    <img src="<%= products[i].productImage[0] %>" alt="<%= products[i].productName %>">
+                </a>
+               <button class="wishlist-btn" data-product-id="<%= products[i]._id %>">
+    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" 
+         viewBox="0 0 24 24" fill="none" stroke="currentColor" 
+         stroke-width="2" stroke-linecap="round" stroke-linejoin="round" 
+         class="heart-icon">
+        <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path>
+    </svg>
 </button>
-                        </div>
-                    </div>
-                    <div class="rp-product-info">
-                        <h3 class="rp-product-name">
-                            <a href="/productDetails?id=<%= product._id %>"><%= product.productName %></a>
-                        </h3>
-                        <span class="rp-product-price">₹<%= product.salePrice %></span>
-                    </div>
-                </div>
             </div>
-        <% }); %>
-    </div>
+            <div class="product-info">
+                <h3 class="product-name">
+                    <%= products[i].productName %>
+                </h3>
 
+                <!-- Display Offer if Available -->
+                <% if (products[i].bestOffer) { %>
+                    <span class="offer-label" style="color: #3fd26b;
+    font-weight: 600;
+    font-size: 0.875rem;
+    padding: 0.25rem 0.5rem;
+    border-radius: 0.25rem;
+    background-color: rgba(168, 255, 179, 0.1);">
+                        <%= products[i].bestOffer.discountPercentage %>% OFF
+                    </span>
+                <% } %>
+
+                <!-- Show Original Price Only if Discount Exists -->
+                <% if (products[i].bestOffer) { %>
+                    <span class="product-price original-price" style=" color: #7D879C;
+    text-decoration: line-through;
+    font-size: 0.875rem;
+    margin-right: 0.5rem;">₹<s><%= products[i].salePrice %></s></span>
+                <% } %>
+
+                <!-- Final Price After Discount -->
+                <span class="product-price final-price">₹<%= products[i].finalPrice %></span>
+            </div>
+
+            <div class="product-actions">
+                <button class="add-to-cart" data-product-id="<%= products[i]._id %>" data-price="<%= products[i].finalPrice %>">
+                    Add to cart
+                </button>
+            </div>
+        </div>
+    <% } %>
+</div>
     <!-- Pagination -->
     <% if (totalPages > 1) { %>
     <div class="pagination">
@@ -230,16 +305,38 @@
 </section>
     </main>
     </div>
+    <div class="toast-container"></div>
 
    <link
   rel="stylesheet"
   href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css"
 />
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-
-<script>
+   <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+         <script>
   document.addEventListener("DOMContentLoaded", function () {
-    // Get the add to cart button
+    // Function to show toast notifications
+    function showToast(message, type = "success") {
+      const toastContainer = document.querySelector(".toast-container");
+      const toast = document.createElement("div");
+      toast.className = `toast ${type}`;
+      toast.innerHTML = `
+        <i class="toast-icon ${type === "success" ? "fas fa-check-circle" : "fas fa-times-circle"}"></i>
+        ${message}
+      `;
+      toastContainer.appendChild(toast);
+
+      // Show the toast
+      setTimeout(() => toast.classList.add("show"), 10);
+
+      // Remove the toast after 3 seconds
+      setTimeout(() => {
+        toast.classList.remove("show");
+        setTimeout(() => toast.remove(), 300); // Wait for the transition to complete
+      }, 3000);
+    }
+
+    // Add to cart functionality for the main product
     const addToCartButton = document.querySelector(".add-to-cart");
     if (addToCartButton) {
       addToCartButton.addEventListener("click", async function (e) {
@@ -265,104 +362,127 @@
             throw new Error(result.error || "Failed to add to cart");
           }
 
-          // Show success message
-          Swal.fire({
-            position: "center",
-            icon: "success",
-            title: "Success!",
-            text: "Product added to cart successfully!",
-            showConfirmButton: true,
-            confirmButtonText: "OK",
-          });
+          // Show success toast
+          showToast("Product added to cart successfully!");
 
           // Update cart count in header if you have one
           updateCartCount(result.items.length);
         } catch (error) {
           console.error("Error adding to cart:", error);
-
-          Swal.fire({
-            icon: "error",
-            title: "Failed!",
-            text: error.message,
-            position: "center",
-            showConfirmButton: true,
-            confirmButtonText: "OK",
-          });
+          showToast(error.message, "error"); // Show error toast
         }
       });
     }
 
-    // Optional: Function to update cart count in header
+    // Add to cart functionality for related products
+    const relatedProductButtons = document.querySelectorAll(".product-grid .add-to-cart");
+    relatedProductButtons.forEach(button => {
+      button.addEventListener("click", async function (e) {
+        try {
+          const productId = this.getAttribute("data-product-id");
+          const price = parseFloat(this.getAttribute("data-price"));
+
+          const response = await fetch("/cart-add", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+              productId,
+              price,
+              quantity: 1,
+            }),
+          });
+
+          const result = await response.json();
+
+          if (!response.ok) {
+            throw new Error(result.error || "Failed to add to cart");
+          }
+
+          // Show success toast
+          showToast("Product added to cart successfully!");
+
+          // Update cart count in header if you have one
+          const cartCountElement = document.querySelector(".cart-count");
+          if (cartCountElement) {
+            cartCountElement.textContent = result.items.length;
+          }
+        } catch (error) {
+          console.error("Error adding to cart:", error);
+          showToast(error.message, "error"); // Show error toast
+        }
+      });
+    });
+
+    // Function to update cart count in header
     function updateCartCount(count) {
       const cartCountElement = document.querySelector(".cart-count");
       if (cartCountElement) {
         cartCountElement.textContent = count;
       }
     }
-  });
-</script>
-<script>
-  document.addEventListener("DOMContentLoaded", function () {
-  // Get all related product "Add to Cart" buttons
-  const relatedProductButtons = document.querySelectorAll(".rp-add-to-cart");
 
-  // Add event listeners to each related product button
-  relatedProductButtons.forEach(button => {
-    button.addEventListener("click", async function(e) {
+    // Wishlist functionality
+    async function fetchWishlistState() {
       try {
-        const productId = this.getAttribute("data-product-id");
-        const price = parseFloat(this.getAttribute("data-price"));
-
-        const response = await fetch("/cart-add", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            productId,
-            price,
-            quantity: 1
-          }),
-        });
-
-        const result = await response.json();
-
-        if (!response.ok) {
-          throw new Error(result.error || "Failed to add to cart");
+        const response = await fetch("/wishlist/state");
+        const data = await response.json();
+        if (data.success) {
+          // Update heart icons for items in wishlist
+          data.wishlistItems.forEach(itemId => {
+            const heartIcon = document.querySelector(
+              `.wishlist-btn[data-product-id="${itemId}"] .heart-icon`
+            );
+            if (heartIcon) {
+              heartIcon.setAttribute('fill', 'red');
+            }
+          });
         }
-
-        // Show success message
-        Swal.fire({
-          position: "center",
-          icon: "success",
-          title: "Success!",
-          text: "Product added to cart successfully!",
-          showConfirmButton: true,
-          confirmButtonText: "OK",
-        });
-
-        // Update cart count in header if you have one
-        const cartCountElement = document.querySelector(".cart-count");
-        if (cartCountElement) {
-          cartCountElement.textContent = result.items.length;
-        }
-
       } catch (error) {
-        console.error("Error adding to cart:", error);
-        
-        Swal.fire({
-          icon: "error",
-          title: "Failed!",
-          text: error.message,
-          position: "center",
-          showConfirmButton: true,
-          confirmButtonText: "OK",
-        });
+        console.error("Error fetching wishlist state:", error);
       }
+    }
+
+    // Call this when page loads
+    fetchWishlistState();
+
+    // Add click handlers for wishlist buttons (both main product and related products)
+    const wishlistButtons = document.querySelectorAll(".wishlist-btn");
+    wishlistButtons.forEach(button => {
+      button.addEventListener("click", async function (e) {
+        e.preventDefault();
+
+        // Get product ID from the button itself
+        const productId = this.getAttribute('data-product-id');
+        const heartIcon = this.querySelector('.heart-icon');
+
+        try {
+          const response = await fetch("/wishlist/toggle", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json"
+            },
+            body: JSON.stringify({ productId })
+          });
+
+          const data = await response.json();
+
+          if (data.success) {
+            // Toggle heart fill based on response
+            heartIcon.setAttribute('fill', data.isAdded ? 'red' : 'none');
+            showToast(data.message); // Show toast for wishlist update
+          }
+        } catch (error) {
+          console.error("Error toggling wishlist:", error);
+          showToast("Failed to update wishlist", "error"); // Show error toast
+        }
+      });
     });
   });
-});
 </script>
+
+
 
 <script>
   function updateMainImage(imageSrc) {
@@ -412,62 +532,7 @@
     mainImage.style.transform = "scale(1)";
   });
 </script>
-<script>
-  document.addEventListener("DOMContentLoaded", function () {
-    const stars = document.querySelectorAll(".star");
-    const ratingText = document.querySelector(".rating-text");
-    let currentRating = 0;
 
-    stars.forEach((star) => {
-      star.addEventListener("click", () => {
-        const rating = parseInt(star.getAttribute("data-rating"));
-        setRating(rating);
-      });
-
-      star.addEventListener("keydown", (e) => {
-        if (e.key === "Enter" || e.key === " ") {
-          e.preventDefault();
-          const rating = parseInt(star.getAttribute("data-rating"));
-          setRating(rating);
-        }
-      });
-    });
-
-    function setRating(rating) {
-      currentRating = rating;
-      stars.forEach((star, index) => {
-        if (index < rating) {
-          star.classList.add("active");
-          star.setAttribute("aria-checked", "true");
-        } else {
-          star.classList.remove("active");
-          star.setAttribute("aria-checked", "false");
-        }
-      });
-      updateRatingText();
-    }
-
-    function updateRatingText() {
-      const ratingTexts = [
-        "Rate this product",
-        "Poor",
-        "Fair",
-        "Average",
-        "Good",
-        "Excellent",
-      ];
-      ratingText.textContent = ratingTexts[currentRating];
-    }
-
-    // Initialize stars with proper ARIA attributes
-    stars.forEach((star, index) => {
-      star.setAttribute("role", "radio");
-      star.setAttribute("aria-checked", "false");
-      star.setAttribute("tabindex", "0");
-      star.setAttribute("aria-label", `Rate ${index + 1} out of 5 stars`);
-    });
-  });
-</script>
 
 <%- include('../partials/user/footer')%>
 

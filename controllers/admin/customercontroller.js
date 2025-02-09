@@ -5,6 +5,7 @@ const User=require('../../models/userSchema');
 const customerInfo = async (req, res) => {
     try {
         const search = req.query.search || "";
+        console.log(search);
         const page = parseInt(req.query.page) || 1;
         const limit = 6;
 
@@ -12,14 +13,17 @@ const customerInfo = async (req, res) => {
             isAdmin: false,
             $or: [
                 { fullname: { $regex: search, $options: 'i' } },
-                { email: { $regex: search, $options: 'i' } }
+                { email: { $regex: search, $options: 'i' } },
+                { phone: { $regex: search, $options: 'i' } }
             ]
         };
-
+        console.log("searchQuery", searchQuery);
         const UserData = await User.find(searchQuery)
+            .sort({_id: -1})
             .limit(limit)
             .skip((page - 1) * limit)
-            .exec();
+            .exec()
+           
 
         const count = await User.countDocuments(searchQuery);
 
@@ -33,7 +37,7 @@ const customerInfo = async (req, res) => {
         });
     } catch (error) {
         console.error("Error fetching customer information:", error);
-        return res.status(500).send("Internal Server Error");
+        return res.redirect('/pageError');
     }
 };
 

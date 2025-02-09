@@ -5,64 +5,121 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Order Success - Adidas</title>
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;700&display=swap" rel="stylesheet">
-   <link rel="stylesheet" href="/assets/user-style/order-succes.css">
-    <link
-      rel="shortcut icon"
-      type="image/x-icon"s
-      href="assets/img/favicon.ico"
-    />
-    
+    <link rel="stylesheet" href="/assets/user-style/order-succes.css">
+    <link rel="shortcut icon" type="image/x-icon" href="assets/img/favicon.ico" />
+    <style>
+        .order-details {
+            background: #f8f9fa;
+            padding: 2rem;
+            border-radius: 8px;
+            margin: 2rem 0;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .order-details h2, .order-details h3 {
+            color: #333;
+            margin-bottom: 1rem;
+        }
+
+        .order-items {
+            margin: 1rem 0;
+        }
+
+        .order-item {
+            padding: 1rem;
+            border-bottom: 1px solid #eee;
+        }
+
+        .order-totals {
+            margin-top: 1rem;
+            padding-top: 1rem;
+            border-top: 2px solid #eee;
+        }
+    </style>
 </head>
 <body>
-      <%- include('../partials/user/header')%>
+    <%- include('../partials/user/header')%>
   
-  
-  <div class="content">
-    <div class="container">
-        <header>
-           <img src="" alt="">
-                <path d="M59.4 0L44.3 30.6 29.4 0H0l29.3 40L59.4 0zM30.1 27.4L22.7 16 37.8 16 30.1 27.4z"/>
-            </svg>
-        </header>
-        <main>
-            <div class="success-icon">
-                <svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 24 24">
-                    <path d="M0 0h24v24H0z" fill="none"/>
-                    <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/>
-                </svg>
-            </div>
-            <h1>Order Successful!</h1>
-            <p>Thank you for your purchase. Your order has been received and is being processed.</p>
-            <div class="order-details">
-                <h2>Order Details</h2>
-                <p><strong>Order Number:</strong> <span id="orderNumber"></span></p>
-                <p><strong>Estimated Delivery:</strong> <span id="estimatedDelivery"></span></p>
-            </div>
-            <div class="cta-buttons">
-                <a href="/orders" class="btn primary">Track Order</a>
-                <a href="/shop" class="btn secondary">Continue Shopping</a>
-            </div>
-        </main>
-        <footer>
-            <p>&copy; 2023 Adidas. All rights reserved.</p>
-        </footer>
-    </div>
- </div>
- <%- include('../partials/user/footer')%>
-  
-        <script>
-    document.addEventListener('DOMContentLoaded', function() {
-        // Generate a random order number
-        const orderNumber = Math.floor(Math.random() * 1000000) + 1000000;
-        document.getElementById('orderNumber').textContent = orderNumber;
+    <div class="content">
+        <div class="container">
+            <main>
+                <div class="success-icon">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 24 24">
+                        <path d="M0 0h24v24H0z" fill="none"/>
+                        <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/>
+                    </svg>
+                </div>
+                <h1>Order Successful!</h1>
+                <p>Thank you for your purchase. Your order has been received and is being processed.</p>
+                
+                <div class="order-details">
+                    <h2>Order Details</h2>
+                    <% if (orderData) { %>
+                        <% if (orderData.orderId) { %>
+                            <p><strong>Order ID:</strong> <%= orderData.orderId %></p>
+                        <% } %>
+                        
+                        <% if (orderData.createdAt) { %>
+                            <p><strong>Order Date:</strong> <%= new Date(orderData.createdAt).toLocaleDateString() %></p>
+                        <% } %>
+                        
+                        <% if (orderData.paymentMethod) { %>
+                            <p><strong>Payment Method:</strong> <%= orderData.paymentMethod %></p>
+                        <% } %>
+                        
+                        <% if (orderData.paymentStatus) { %>
+                            <p><strong>Payment Status:</strong> <%= orderData.paymentStatus %></p>
+                        <% } %>
 
-        // Calculate estimated delivery date (7 days from now)
-        const deliveryDate = new Date();
-        deliveryDate.setDate(deliveryDate.getDate() + 7);
-        const options = { year: 'numeric', month: 'long', day: 'numeric' };
-        document.getElementById('estimatedDelivery').textContent = deliveryDate.toLocaleDateString('en-US', options);
-    });
-</script>
-    
+                        <% if (orderData.shippingAddress) { %>
+                            <h3>Shipping Address</h3>
+                            <p>
+                                <%= orderData.shippingAddress.name || '' %><br>
+                                <%= orderData.shippingAddress.street || '' %><br>
+                                <%= orderData.shippingAddress.city || '' %>, <%= orderData.shippingAddress.state || '' %><br>
+                                <%= orderData.shippingAddress.pinCode || '' %><br>
+                                Phone: <%= orderData.shippingAddress.phoneNumber || '' %>
+                            </p>
+                        <% } %>
+
+                        <% if (orderData.items && orderData.items.length > 0) { %>
+                            <h3>Order Summary</h3>
+                            <div class="order-items">
+                                <% orderData.items.forEach(item => { %>
+                                    <div class="order-item">
+                                        <% if (item.productId && item.productId.productName) { %>
+                                            <p><strong><%= item.productId.productName %></strong></p>
+                                        <% } %>
+                                        <p>Quantity: <%= item.quantity || 0 %></p>
+                                        <p>Price: ₹<%= item.price || 0 %></p>
+                                    </div>
+                                <% }); %>
+                            </div>
+                        <% } %>
+
+                        <div class="order-totals">
+                            <p><strong>Subtotal:</strong> ₹<%= orderData.subTotal || 0 %></p>
+                            <% if (orderData.discountAmount) { %>
+                                <p><strong>Discount:</strong> -₹<%= orderData.discountAmount %></p>
+                            <% } %>
+                            <p><strong>Shipping:</strong> ₹<%= orderData.shippingCost || 0 %></p>
+                            <p><strong>Total Amount:</strong> ₹<%= orderData.totalAmount || 0 %></p>
+                        </div>
+                    <% } else { %>
+                        <p>Order information not available.</p>
+                    <% } %>
+                </div>
+
+                <div class="cta-buttons">
+                    <a href="/orders" class="btn primary">Track Order</a>
+                    <a href="/shop" class="btn secondary">Continue Shopping</a>
+                </div>
+            </main>
+            <footer>
+                <p>&copy; 2024 Adidas. All rights reserved.</p>
+            </footer>
+        </div>
+    </div>
+    <%- include('../partials/user/footer')%>
 </body>
 </html>
