@@ -581,3 +581,64 @@ body {
 .pagination .next-link {
     font-weight: bold;
 }
+.action-buttons {
+    display: flex;
+    gap: 1rem;
+    align-items: center;
+    margin-bottom: 2rem;
+}
+
+.add-to-cart {
+    flex: 1;
+    padding: 0.75rem 1.5rem;
+    border: none;
+    background: linear-gradient(135deg, var(--gradient-start), var(--gradient-end));
+    color: #fff;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    border-radius: 8px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    font-size: 0.9rem;
+}
+
+.main-wishlist-btn {
+    flex-shrink: 0;
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: none;
+    border: 1px solid #ddd; /* Optional for visibility */
+    border-radius: 50%;
+    cursor: pointer;
+    transition: background-color 0.3s ease, border-color 0.3s ease;
+    z-index: 10;
+}
+
+.main-wishlist-btn .heart-icon {
+    stroke: #333; /* Default visible stroke */
+    width: 24px;
+    height: 24px;
+    transition: fill 0.3s ease, stroke 0.3s ease;
+}
+
+.main-wishlist-btn:hover .heart-icon {
+    stroke: #ff4d4d;
+}
+
+.main-wishlist-btn.active .heart-icon {
+    fill: #ff4d4d;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .action-buttons {
+        flex-direction: column;
+    }
+    .main-wishlist-btn {
+        margin-top: 1rem;
+    }
+}

@@ -86,15 +86,15 @@ exports.generatePDF = async (orders) => {
         .text("Sales Report", { align: "center" })
         .moveDown(1);
 
-      // Column Layout (Adjusted for Removal of "Offers")
+      // Adjusted Column Layout
       const columns = [
-        { name: "Order ID", x: 40, width: 100 },
-        { name: "Date", x: 140, width: 80 },
-        { name: "Subtotal", x: 220, width: 90 },
-        { name: "Discount", x: 310, width: 90 },
-        { name: "Final Amount", x: 400, width: 100 },
-        { name: "Payment", x: 500, width: 90 },
-        { name: "Status", x: 590, width: 90 },
+        { name: "Order ID", x: 40, width: 80 },
+        { name: "Date", x: 120, width: 70 },
+        { name: "Subtotal", x: 190, width: 70 },
+        { name: "Discount", x: 260, width: 70 },
+        { name: "Final Amount", x: 330, width: 80 },
+        { name: "Payment", x: 410, width: 70 },
+        { name: "Status", x: 480, width: 75 },
       ];
 
       let yPosition = doc.y + 10;
@@ -102,7 +102,7 @@ exports.generatePDF = async (orders) => {
 
       // Draw Table Header
       doc
-        .rect(40, yPosition - 5, 640, rowHeight)
+        .rect(40, yPosition - 5, 515, rowHeight) // Adjusted width from 640 to 515
         .fill("#DDDDDD")
         .stroke();
       doc.fillColor("black").fontSize(10);
@@ -119,7 +119,7 @@ exports.generatePDF = async (orders) => {
         .strokeColor("#cccccc")
         .lineWidth(0.5)
         .moveTo(40, doc.y)
-        .lineTo(680, doc.y)
+        .lineTo(555, doc.y) // Adjusted from 680 to 555
         .stroke();
       yPosition = doc.y + 5;
 
@@ -134,7 +134,7 @@ exports.generatePDF = async (orders) => {
         // Alternating Row Colors
         if (index % 2 === 0) {
           doc
-            .rect(40, yPosition - 5, 640, rowHeight)
+            .rect(40, yPosition - 5, 515, rowHeight) // Adjusted width from 640 to 515
             .fill("#F3F3F3")
             .stroke();
           doc.fillColor("black");

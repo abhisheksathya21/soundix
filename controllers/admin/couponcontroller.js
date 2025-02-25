@@ -36,7 +36,7 @@ const createCoupon = async (req, res) => {
       perUserLimit
     } = req.body;
 
-    // Check if coupon code already exists
+    
     const existingCoupon = await Coupon.findOne({ code });
     if (existingCoupon) {
       return res.status(400).json({ message: 'Coupon code already exists' });

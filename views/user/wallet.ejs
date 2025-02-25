@@ -1,333 +1,227 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
+<head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Order Details - Adidas</title>
-    <link
-      href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;700&display=swap"
-      rel="stylesheet"
-    />
-    <link
-      rel="stylesheet"
-      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
-    />
-    <link rel="stylesheet" href="/assets/user-style/sidebar.css" />
-    <link rel="stylesheet" href="/assets/user-style/wallet.css" />
-    <link
-      rel="shortcut icon"
-      type="image/x-icon"
-      href="assets/img/favicon.ico"
-    />
-  </head>
-  <style>
-    .transaction-history {
-      background: #fff;
-      padding: 1.5rem;
-      border-radius: 8px;
-      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-      margin-top: 2rem;
-    }
+    <title>Wallet - Adidas</title>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;700&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+    <link rel="shortcut icon" type="image/x-icon" href="assets/img/favicon.ico" />
+    <link rel="stylesheet" href="/assets/user-style/wallet.css">
+</head>
+<body>
+    <%- include('../partials/user/header')%>
+    <div class="page-container">
+       
 
-    .transaction-history h3 {
-      margin-bottom: 1.5rem;
-      color: #333;
-    }
+        <aside class="sidebar">
+            <nav>
+                <ul class="sidebar-menu">
+                    <li><a href="/userProfile">Account Overview</a></li>
+                    <li><a href="/orders">Order Details</a></li>
+                    <li><a href="/addressManagement">Manage Address</a></li>
+                    <li><a href="/wallet" class="active">Wallet</a></li>
+                    <li><a href="/wishlist">Wishlist</a></li>
+                </ul>
+            </nav>
+            <button class="logout-btn">Logout</button>
+        </aside>
 
-    .transaction-table-container {
-      max-height: 400px;
-      overflow-y: auto;
-    }
+        <main class="container">
+            <div class="view-port">
+                <div class="wallet-container">
+                    <h1>Wallet</h1>
+                    <div class="wallet-card">
+                        <div class="wallet-label">Available Balance</div>
+                        <div class="wallet-balance">₹<%= walletBalance %></div>
+                    </div>
 
-    .transaction-table {
-      width: 100%;
-      border-collapse: collapse;
-      min-width: 600px;
-    }
+                    <div class="add-money-form">
+                        <h3 class="mb-4">Add Money to Wallet</h3>
+                        <form id="addMoneyForm">
+                            <div class="mb-3">
+                                <label for="amount" class="form-label">Enter Amount (₹)</label>
+                                <input
+                                    type="number"
+                                    class="form-control"
+                                    id="amount"
+                                    name="amount"
+                                    min="1"
+                                    required
+                                />
+                            </div>
+                            <button type="submit" class="btn-primary">Add Money</button>
+                        </form>
+                    </div>
 
-    .transaction-table th {
-      background-color: #f8f9fa;
-      padding: 12px 15px;
-      text-align: left;
-      font-weight: 600;
-      color: #495057;
-      border-bottom: 2px solid #dee2e6;
-      position: sticky;
-      top: 0;
-      z-index: 1;
-      background-color: #fff;
-    }
-
-    .transaction-table td {
-      padding: 12px 15px;
-      border-bottom: 1px solid #dee2e6;
-      color: #212529;
-    }
-
-    .transaction-table tbody tr:hover {
-      background-color: #f8f9fa;
-    }
-
-    .amount-debit {
-      color: #dc3545;
-      font-weight: 500;
-    }
-
-    .amount-credit {
-      color: #28a745;
-      font-weight: 500;
-    }
-
-    .status-badge {
-      padding: 4px 8px;
-      border-radius: 4px;
-      font-size: 0.875rem;
-      font-weight: 500;
-    }
-
-    .status-completed {
-      background-color: #d4edda;
-      color: #155724;
-    }
-
-    .status-pending {
-      background-color: #fff3cd;
-      color: #856404;
-    }
-
-    .status-failed {
-      background-color: #f8d7da;
-      color: #721c24;
-    }
-
-    .table-wrapper {
-      overflow-x: auto;
-      margin: 0 -1.5rem;
-      padding: 0 1.5rem;
-    }
-
-    .no-transactions {
-      text-align: center;
-      padding: 2rem;
-      color: #6c757d;
-      background-color: #f8f9fa;
-      border-radius: 8px;
-      margin-top: 1rem;
-    }
-
-    @media (max-width: 768px) {
-      .transaction-history {
-        padding: 1rem;
-      }
-
-      .transaction-table td,
-      .transaction-table th {
-        padding: 8px 12px;
-      }
-    }
-  </style>
-
-  <body>
-    <%-include('../partials/user/header')%>
-    <input type="checkbox" id="sidebar-toggle" />
-    <label for="sidebar-toggle" class="sidebar-toggle-label">☰</label>
-
-    <!-- Sidebar content remains the same -->
-    <aside class="sidebar">
-      <nav>
-        <ul class="sidebar-menu">
-          <li><a href="/userProfile">Account Overview</a></li>
-          <li><a href="/orders">Order Details</a></li>
-          <li><a href="/addressManagement">Manage Address</a></li>
-          <li><a href="/wallet" class="active">Wallet</a></li>
-
-          <li><a href="/wishlist">Wishlist</a></li>
-        </ul>
-      </nav>
-      <button class="logout-btn">Logout</button>
-    </aside>
-    <main class="container">
-      <div class="view-port">
-        <div class="wallet-container">
-          <!-- Wallet Balance Card -->
-          <div class="wallet-card">
-            <div class="wallet-label">Available Balance</div>
-            <div class="wallet-balance">₹<%= walletBalance %></div>
-          </div>
-
-          <!-- Add Money Form -->
-          <div class="add-money-form">
-            <h3 class="mb-4">Add Money to Wallet</h3>
-            <form id="addMoneyForm">
-              <div class="mb-3">
-                <label for="amount" class="form-label">Enter Amount (₹)</label>
-                <input
-                  type="number"
-                  class="form-control"
-                  id="amount"
-                  name="amount"
-                  min="1"
-                  required
-                />
-              </div>
-              <button type="submit" class="btn btn-primary">Add Money</button>
-            </form>
-          </div>
-
-          <!-- Transaction History -->
-          <!-- Transaction History -->
-          <div class="transaction-history">
-            <h3>Transaction History</h3>
-            <% if (transactions && transactions.length > 0) { %>
-            <div class="table-wrapper">
-              <div class="transaction-table-container">
-                <table class="transaction-table">
-                  <thead>
-                    <tr>
-                      <th>Type</th>
-                      <th>Description</th>
-                      <th>Date</th>
-                      <th>Amount</th>
-                      <th>Status</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    <% transactions.forEach(function(transaction) { %>
-                    <tr>
-                      <td><%= transaction.type %></td>
-                      <td><%= transaction.description %></td>
-                      <td><%= transaction.date %></td>
-                      <td
-                        class="<%= transaction.isDebit ? 'amount-debit' : 'amount-credit' %>"
-                      >
-                        <%= transaction.isDebit ? '-' : '+' %>₹<%=
-                        transaction.amount %>
-                      </td>
-                      <td>
-                        <% if (transaction.status) { %>
-                        <span
-                          class="status-badge status-<%= transaction.status.toLowerCase() %>"
-                        >
-                          <%= transaction.status %>
-                        </span>
+                    <div class="transaction-history">
+                        <h3>Transaction History</h3>
+                        <% if (transactions && transactions.length > 0) { %>
+                        <div class="table-wrapper">
+                            <div class="transaction-table-container">
+                                <table class="transaction-table">
+                                    <thead>
+                                        <tr>
+                                            <th>Type</th>
+                                            <th>Description</th>
+                                            <th>Date</th>
+                                            <th>Amount</th>
+                                            <th>Status</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <% transactions.forEach(function(transaction) { %>
+                                        <tr>
+                                            <td><%= transaction.type %></td>
+                                            <td><%= transaction.description %></td>
+                                            <td><%= transaction.date %></td>
+                                            <td class="<%= transaction.isDebit ? 'amount-debit' : 'amount-credit' %>">
+                                                <%= transaction.isDebit ? '-' : '+' %>₹<%= transaction.amount %>
+                                            </td>
+                                            <td>
+                                                <% if (transaction.status) { %>
+                                                <span class="status-badge status-<%= transaction.status.toLowerCase() %>">
+                                                    <%= transaction.status %>
+                                                </span>
+                                                <% } else { %>
+                                                <span class="status-badge status-completed">Completed</span>
+                                                <% } %>
+                                            </td>
+                                        </tr>
+                                        <% }); %>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
                         <% } else { %>
-                        <span class="status-badge status-completed"
-                          >Completed</span
-                        >
+                        <div class="no-transactions">
+                            <p>No transactions found</p>
+                        </div>
                         <% } %>
-                      </td>
-                    </tr>
-                    <% }); %>
-                  </tbody>
-                </table>
-              </div>
+                    </div>
+                </div>
             </div>
-            <% } else { %>
-            <div class="no-transactions">
-              <p>No transactions found</p>
-            </div>
-            <% } %>
-          </div>
-        </div>
-      </div>
-    </main>
+        </main>
+    </div>
 
-    <!-- Add these scripts before your custom script -->
+    <%- include('../partials/user/footer')%>
     <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-
     <script>
-      document
-        .getElementById("addMoneyForm")
-        .addEventListener("submit", async (e) => {
-          e.preventDefault();
-          const amount = document.getElementById("amount").value;
+        document.getElementById("addMoneyForm").addEventListener("submit", async (e) => {
+            e.preventDefault();
+            const amount = document.getElementById("amount").value;
 
-          try {
-            // Create order
-            const response = await fetch("/add-money", {
-              method: "POST",
-              headers: { "Content-Type": "application/json" },
-              body: JSON.stringify({ amount }),
-            });
-            const data = await response.json();
-
-            if (data.error) {
-              throw new Error(data.error);
+            if (amount <= 0) {
+                Swal.fire({
+                    icon: "error",
+                    title: "Invalid Amount",
+                    text: "Please enter a valid amount greater than 0.",
+                });
+                return;
             }
 
-           
-            const options = {
-              key: data.key_id,
-              amount: data.amount,
-              currency: data.currency,
-              order_id: data.orderId,
-              name: "Wallet Recharge",
-              description: "Add money to wallet",
-              handler: async function (response) {
-                try {
-                  // Verify payment
-                  const verifyResponse = await fetch("/verify-recharge", {
+            try {
+                const response = await fetch("/add-money", {
                     method: "POST",
                     headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify({
-                      razorpay_order_id: response.razorpay_order_id,
-                      razorpay_payment_id: response.razorpay_payment_id,
-                      razorpay_signature: response.razorpay_signature,
-                      amount: data.amount,
-                    }),
-                  });
+                    body: JSON.stringify({ amount }),
+                });
+                const data = await response.json();
 
-                  const verifyData = await verifyResponse.json();
-                  if (verifyData.success) {
+                if (data.error) {
+                    throw new Error(data.error);
+                }
+
+                const options = {
+                    key: data.key_id,
+                    amount: data.amount,
+                    currency: data.currency,
+                    order_id: data.orderId,
+                    name: "Wallet Recharge",
+                    description: "Add money to wallet",
+                    handler: async function (response) {
+                        try {
+                            const verifyResponse = await fetch("/verify-recharge", {
+                                method: "POST",
+                                headers: { "Content-Type": "application/json" },
+                                body: JSON.stringify({
+                                    razorpay_order_id: response.razorpay_order_id,
+                                    razorpay_payment_id: response.razorpay_payment_id,
+                                    razorpay_signature: response.razorpay_signature,
+                                    amount: data.amount,
+                                }),
+                            });
+
+                            const verifyData = await verifyResponse.json();
+                            if (verifyData.success) {
+                                Swal.fire({
+                                    icon: "success",
+                                    title: "Success",
+                                    text: "Money added to wallet successfully!",
+                                }).then(() => {
+                                    location.reload();
+                                });
+                            } else {
+                                throw new Error("Payment verification failed");
+                            }
+                        } catch (error) {
+                            Swal.fire({
+                                icon: "error",
+                                title: "Error",
+                                text: "Failed to verify payment. Please contact support.",
+                            });
+                        }
+                    },
+                    prefill: {
+                        name: "User",
+                        email: "user@example.com",
+                        contact: "",
+                    },
+                    theme: {
+                        color: "#4A90E2",
+                    },
+                };
+
+                const rzp = new Razorpay(options);
+                rzp.open();
+
+                rzp.on("payment.failed", function (response) {
                     Swal.fire({
-                      icon: "success",
-                      title: "Success",
-                      text: "Money added to wallet successfully!",
-                    }).then(() => {
-                      location.reload();
+                        icon: "error",
+                        title: "Payment Failed",
+                        text: "The payment was unsuccessful. Please try again.",
                     });
-                  } else {
-                    throw new Error("Payment verification failed");
-                  }
-                } catch (error) {
-                  Swal.fire({
+                });
+            } catch (error) {
+                Swal.fire({
                     icon: "error",
                     title: "Error",
-                    text: "Failed to verify payment. Please contact support.",
-                  });
-                }
-              },
-              prefill: {
-                name: "User",
-                email: "user@example.com",
-                contact: "",
-              },
-              theme: {
-                color: "#3399cc",
-              },
-            };
-
-            const rzp = new Razorpay(options);
-            rzp.open();
-
-            rzp.on("payment.failed", function (response) {
-              Swal.fire({
-                icon: "error",
-                title: "Payment Failed",
-                text: "The payment was unsuccessful. Please try again.",
-              });
-            });
-          } catch (error) {
-            Swal.fire({
-              icon: "error",
-              title: "Error",
-              text: error.message,
-            });
-          }
+                    text: error.message,
+                });
+            }
         });
-    </script>
 
-    <%-include('../partials/user/footer')%>
-  </body>
+        function logout() {
+            Swal.fire({
+                title: 'Are you sure?',
+                text: "You will be logged out of your account!",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#4A90E2',
+                cancelButtonColor: '#ff4444',
+                confirmButtonText: 'Yes, log out!'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    Swal.fire(
+                        'Logged Out!',
+                        'You have been successfully logged out.',
+                        'success'
+                    );
+                    setTimeout(() => { window.location.href = '/logout'; }, 1500);
+                }
+            });
+        }
+    </script>
+</body>
 </html>

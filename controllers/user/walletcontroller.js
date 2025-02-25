@@ -5,8 +5,8 @@ const Cart = require("../../models/cartSchema");
 const Address = require("../../models/addressSchema");
 const Order = require("../../models/orderSchema");
 const Wallet = require("../../models/walletSchema");
-const Razorpay = require("razorpay"); // Add this
-const crypto = require("crypto"); // Add this
+const Razorpay = require("razorpay"); 
+const crypto = require("crypto"); 
 
 
 const razorpay = new Razorpay({
@@ -17,6 +17,7 @@ const razorpay = new Razorpay({
 const wallet = async (req, res) => {
   try {
     const userId = req.session.user;
+    const userData=await User.findOne({_id:userId});
     let wallet = await Wallet.findOne({ userId });
 
     if (!wallet) {
@@ -41,12 +42,12 @@ const wallet = async (req, res) => {
       (a, b) => new Date(b.date) - new Date(a.date)
     );
     
-    console.log("Wallet balance:", wallet.balance.toFixed(2));
-    console.log("Transactions:", sortedTransactions);
+   
 
     res.render("wallet", {
       walletBalance: wallet.balance.toFixed(2),
       transactions: sortedTransactions,
+      user:userData
     });
   } catch (error) {
     console.error("Error fetching wallet:", error);

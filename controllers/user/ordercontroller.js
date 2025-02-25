@@ -21,7 +21,7 @@ const orderSuccess = async (req, res) => {
     }
    
     const latestOrder = await Order.findOne({ userId: userId })
-      .sort({ createdAt: -1 })
+      .sort({_id: -1 })
       .populate('items.productId'); 
       
     const userData = await User.findById(userId);
@@ -115,7 +115,7 @@ const verifyPayment = async (req, res) => {
       taxAmount: 0,
       totalAmount,
       paymentMethod: "Razorpay",
-      orderStatus: "Pending", // Changed from "Confirmed" to "Pending"
+      orderStatus: "Pending", 
       paymentStatus: "Paid",
       paymentDetails: {
         razorpayOrderId: razorpay_order_id,
@@ -270,7 +270,7 @@ const processReturnRequest = async (req, res) => {
         await product.save();
       }
 
-      // Update order and product status
+      
       productItem.status = "Returned";
       productItem.returnStatus = "Approved";
       productItem.refundAmount = refundAmount;
@@ -365,7 +365,7 @@ const cancelOrder = async (req, res) => {
 
       item.status = "Cancelled";
       item.cancelledAt = new Date();
-      item.cancellationReason = reason; // Add reason to each item
+      item.cancellationReason = reason; 
     }
 
     
@@ -490,7 +490,7 @@ const cancelProductOrder = async (req, res) => {
       order.cancelledAt = new Date();
       order.cancellationReason = "All products cancelled";
     } else {
-      // Update total amount for remaining active items
+      
       order.totalAmount = activeItems.reduce(
         (total, item) => total + item.price * item.quantity,
         0

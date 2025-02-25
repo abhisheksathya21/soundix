@@ -516,13 +516,17 @@ const loadShopPage = async (req, res) => {
     const categoryId = req.query.category || null;
     const searchQuery = req.query.search || null;
 
+    
     const categories = await Category.find({ isListed: true });
 
+    
     const productFilter = {
       isBlocked: false,
+      category: { $in: categories.map((category) => category._id) },
       quantity: { $gt: 0 },
     };
 
+    
     if (searchQuery) {
       productFilter.$or = [
         { productName: { $regex: searchQuery, $options: "i" } },
@@ -530,10 +534,12 @@ const loadShopPage = async (req, res) => {
       ];
     }
 
+   
     if (categoryId) {
       productFilter.category = categoryId;
     }
 
+   
     let sortCriteria;
     switch (sortParam) {
       case "priceLowHigh":
@@ -549,42 +555,40 @@ const loadShopPage = async (req, res) => {
         sortCriteria = { productName: -1 };
         break;
       default:
-        sortCriteria = { createdOn: -1 };
+        sortCriteria = { createdOn: -1 }; 
     }
 
+   
     const totalProducts = await Product.countDocuments(productFilter);
     const totalPages = Math.ceil(totalProducts / limit);
 
+    
     const products = await Product.find(productFilter)
       .sort(sortCriteria)
       .skip(skip)
       .limit(limit)
       .populate("category");
 
-  
+   
     const updatedProducts = products.map((product) => {
       const categoryOffer = product.category?.offer || null;
       const productOffer = product.offer || null;
-      let bestOffer = null;
 
-      if (
-        categoryOffer?.discountPercentage &&
-        productOffer?.discountPercentage
-      ) {
-        bestOffer =
-          categoryOffer.discountPercentage > productOffer.discountPercentage
-            ? categoryOffer
-            : productOffer;
-      } else if (categoryOffer?.discountPercentage) {
-        bestOffer = categoryOffer;
-      } else if (productOffer?.discountPercentage) {
-        bestOffer = productOffer;
-      }
+     
+      const bestOffer =
+        [categoryOffer, productOffer]
+          .filter((offer) => offer?.discountPercentage)
+          .sort((a, b) => b.discountPercentage - a.discountPercentage)[0] ||
+        null;
 
-      let finalPrice = product.salePrice ?? product.regularPrice; 
+     
+      let basePrice = product.salePrice ?? product.regularPrice ?? 0;
+      let finalPrice = basePrice;
+
       if (bestOffer) {
-        finalPrice =
-          finalPrice - (finalPrice * bestOffer.discountPercentage) / 100;
+        let discountAmount = (basePrice * bestOffer.discountPercentage) / 100;
+        discountAmount = Math.min(discountAmount, basePrice); 
+        finalPrice = basePrice - discountAmount;
       }
 
       return {
@@ -594,6 +598,7 @@ const loadShopPage = async (req, res) => {
       };
     });
 
+ 
     const generatePageUrl = (pageNum) => {
       const baseUrl = "/shop?";
       const params = new URLSearchParams();
@@ -604,6 +609,7 @@ const loadShopPage = async (req, res) => {
       return baseUrl + params.toString();
     };
 
+   
     const paginationLinks = [];
     for (let i = 1; i <= totalPages; i++) {
       paginationLinks.push({
@@ -613,6 +619,7 @@ const loadShopPage = async (req, res) => {
       });
     }
 
+   
     const breadcrumbs = [
       { name: "Home", url: "/" },
       { name: "Shop", url: "/shop" },
@@ -631,9 +638,10 @@ const loadShopPage = async (req, res) => {
       breadcrumbs.push({ name: `Search: ${searchQuery}`, url: "" });
     }
 
+   
     res.render("shop", {
       user: userId ? await User.findOne({ _id: userId }) : null,
-      products: updatedProducts, // Now contains finalPrice
+      products: updatedProducts,
       categories,
       currentCategory: categoryId,
       currentSort: sortParam,
@@ -654,7 +662,6 @@ const loadShopPage = async (req, res) => {
     res.redirect("/pageNotFound");
   }
 };
-
 
 const generatePageUrl = (req, pageNum) => {
   const url = new URL(req.protocol + "://" + req.get("host") + req.originalUrl);

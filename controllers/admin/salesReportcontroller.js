@@ -87,11 +87,11 @@ const getSalesReportData = async (req, res) => {
     console.log("Query parameters received:", req.query);
     const { startDate, endDate, dateRange } = req.query;
 
-    // Combine date filter with delivered status filter
+    
     const dateFilter = buildDateFilter(startDate, endDate, dateRange);
     const filter = {
       ...dateFilter,
-      orderStatus: "Delivered", // Only include delivered orders
+      orderStatus: "Delivered", 
     };
 
     console.log("Final MongoDB filter:", filter);

@@ -467,3 +467,94 @@ body {
     animation: none;
     opacity: 0;
 }
+  .product-info {
+    padding: 1rem;
+}
+
+.pricing-container {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-top: 0.5rem;
+}
+
+.price-block {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.final-price {
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: #2B3445;
+}
+
+.original-price {
+    font-size: 0.875rem;
+    color: #7D879C;
+    text-decoration: line-through;
+}
+
+.offer-label {
+    background-color: #E94560;
+    color: white;
+    padding: 0.25rem 0.5rem;
+    border-radius: 0.25rem;
+    font-size: 0.875rem;
+    font-weight: 600;
+}
+
+.product-name {
+    font-size: 1rem;
+    font-weight: 500;
+    color: #2B3445;
+    margin-bottom: 0.5rem;
+    line-height: 1.5;
+}
+    .toast-container {
+        position: fixed;
+        top: 110px;
+        right: 20px;
+        z-index: 1000;
+    }
+
+    .toast {
+        background: white;
+        color: #333;
+        padding: 12px 24px;
+        border-radius: 4px;
+        margin-bottom: 10px;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        opacity: 0;
+        transform: translateX(100%);
+        transition: all 0.3s ease;
+    }
+
+    .toast.show {
+        opacity: 1;
+        transform: translateX(0);
+    }
+
+    .toast.success {
+        border-left: 4px solid #4CAF50;
+    }
+
+    .toast.error {
+        border-left: 4px solid #f44336;
+    }
+
+    .toast-icon {
+        font-size: 18px;
+    }
+
+    .toast.success .toast-icon {
+        color: #4CAF50;
+    }
+
+    .toast.error .toast-icon {
+        color: #f44336;
+    }

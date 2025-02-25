@@ -13,9 +13,14 @@ const wishlistSchema = new mongoose.Schema({
         ref: "Product", // References the Product collection
         required: true,
       },
+      finalPrice: {
+        type: Number,
+        required: true,
+        min: 0,
+      },
       addedOn: {
         type: Date,
-        default: Date.now, // Tracks when the product was added to the wishlist
+        default: Date.now, // Tracks when the product was added to
       },
     },
   ],

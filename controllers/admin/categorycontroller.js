@@ -155,7 +155,7 @@ const editcategory = async (req, res) => {
        
         const existingCategory = await Category.findOne({ 
             name: categoryName, 
-            _id: { $ne: id } // Exclude the current category from the check
+            _id: { $ne: id } 
         });
 
       
@@ -164,7 +164,7 @@ const editcategory = async (req, res) => {
             return res.status(400).json({ error: "Category exists, please choose another name" });
         }
 
-        // Update the category
+        
         const updatedCategory = await Category.findByIdAndUpdate(
             id, 
             {
@@ -187,32 +187,63 @@ const editcategory = async (req, res) => {
     }
 };
 
-const listcategory=async(req,res)=>{
-    try{
-        const id=req.query.id;
-    
-    await Category.updateOne({_id:id},{$set:{isListed:false}});
-    
-    res.redirect('/admin/category')
+const listcategory = async (req, res) => {
+    try {
+        const id = req.query.id;
+        const category = await Category.findById(id);
 
+        if (!category) {
+            return res.status(404).json({
+                success: false,
+                message: 'Category not found'
+            });
+        }
+
+        await Category.updateOne({ _id: id }, { $set: { isListed: false } });
+
+        res.json({
+            success: true,
+            message: `Category ${category.name} unlisted successfully`,
+            categoryId: id,
+            type: 'unlist' 
+        });
+    } catch (error) {
+        console.error("Error unlisting category:", error);
+        res.status(500).json({
+            success: false,
+            message: 'Error unlisting category'
+        });
     }
-    catch(error){
-        res.redirect('/admin/pageError');
+};
+
+const Unlistcategory = async (req, res) => {
+    try {
+        const id = req.query.id;
+        const category = await Category.findById(id);
+
+        if (!category) {
+            return res.status(404).json({
+                success: false,
+                message: 'Category not found'
+            });
+        }
+
+        await Category.updateOne({ _id: id }, { $set: { isListed: true } });
+
+        res.json({
+            success: true,
+            message: `Category ${category.name} listed successfully`,
+            categoryId: id,
+            type: 'list' 
+        });
+    } catch (error) {
+        console.error("Error listing category:", error);
+        res.status(500).json({
+            success: false,
+            message: 'Error listing category'
+        });
     }
-    
-}
-const Unlistcategory=async(req,res)=>{
-    try{
-        const id=req.query.id;
-        
-        await Category.updateOne({_id:id},{$set:{isListed:true}});
-      
-        res.redirect('/admin/category');
-    }
-    catch(error){
-        res.redirect('/admin/pageError')
-    }
-}
+};
 
 
 

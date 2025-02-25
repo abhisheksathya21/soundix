@@ -53,6 +53,7 @@ router.post("/cart-add", UserAuth, cartcontroller.addtoCart);
 router.post("/cart-add-from-wishlist", UserAuth, cartcontroller.addToCartFromWishlist);
 router.post("/removeCart", UserAuth, cartcontroller.removeCart);
 router.post("/updateQuantity", UserAuth, cartcontroller.updateQuantity);
+router.get("/validate-cart", UserAuth, cartcontroller.validateCart); 
 
 
 //wishlist

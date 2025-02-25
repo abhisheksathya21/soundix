@@ -1,0 +1,287 @@
+<!DOCTYPE html>
+<html class="no-js" lang="zxx">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="/assets/user-style/header.css">
+    <style>
+       
+    </style>
+</head>
+<body>
+   
+
+    <!-- Header -->
+    <header class="header-area">
+        <div class="main-header header-sticky">
+            <div class="menu-wrapper">
+                <!-- Logo -->
+                <div class="logo">
+                    <a href="/">
+                        <img src="/assets/img/beat-logo-161616.png" alt="SoundZone Logo" />
+                    </a>
+                </div>
+
+                <!-- Navigation (Desktop) -->
+                <div class="main-menu d-none d-lg-block">
+                    <nav>
+                        <ul id="navigation">
+                            <li><a href="/">Home</a></li>
+                            <li><a href="/shop">Shop</a></li>
+                            <li>
+                                <a href="#">Account</a>
+                                <ul class="submenu">
+                                    <% if (locals.user) { %>
+                                        <li><a href="#"><%= locals.user.fullname %></a></li>
+                                        <li><a href="/userProfile">User Profile</a></li>
+                                        <li><a href="#" onclick="logout(event)">Logout</a></li>
+                                    <% } else { %>
+                                        <li><a href="/signup">Sign Up</a></li>
+                                        <li><a href="/login">Login</a></li>
+                                    <% } %>
+                                </ul>
+                            </li>
+                        </ul>
+                    </nav>
+                </div>
+
+                <!-- Right Side -->
+                <div class="right-side">
+                    <!-- Search (Desktop Form) -->
+                    <div class="search-box search-desktop d-none d-lg-flex">
+                        <form action="/shop" method="GET" class="search-form">
+                            <input 
+                                type="text" 
+                                name="search" 
+                                placeholder="Search..." 
+                                value="<%= locals.searchQuery || '' %>"
+                            >
+                            <% if (locals.currentSort) { %>
+                                <input type="hidden" name="sort" value="<%= currentSort %>">
+                            <% } %>
+                            <button type="submit">
+                                <i class="fa-solid fa-magnifying-glass"></i>
+                            </button>
+                            <button type="button" class="clear-search">
+                                <i class="fa-solid fa-times"></i>
+                            </button>
+                        </form>
+                    </div>
+                    <button class="search-toggle d-lg-none">
+                        <i class="fa-solid fa-magnifying-glass"></i>
+                    </button>
+
+                    <!-- Wishlist (Desktop) -->
+                    <a href="/wishlist" class="icon-link wishlist-icon">
+                        <i class="fa-solid fa-heart"></i>
+                        <% if (locals.wishlistItemCount && wishlistItemCount > 0) { %>
+                            <span class="wishlist-counter"><%= wishlistItemCount %></span>
+                        <% } %>
+                    </a>
+
+                    <!-- Cart -->
+                    <a href="/cart" class="icon-link cart-icon">
+                        <i class="fa-solid fa-cart-shopping"></i>
+                        <% if (locals.cartItemCount && cartItemCount > 0) { %>
+                            <span class="cart-counter"><%= cartItemCount %></span>
+                        <% } %>
+                    </a>
+
+                    <!-- Mobile Menu Toggle -->
+                    <div class="mobile-menu-toggle d-lg-none">
+                        <span></span>
+                        <span></span>
+                        <span></span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Mobile Menu -->
+            <div class="mobile-menu d-lg-none">
+                <nav>
+                    <ul>
+                        <li><a href="/">Home</a></li>
+                        <li><a href="/shop">Shop</a></li>
+                        <li>
+                            <a href="/wishlist" class="icon-link wishlist-icon">
+                                <i class="fa-solid fa-heart"></i> Wishlist
+                                <% if (locals.wishlistItemCount && wishlistItemCount > 0) { %>
+                                    <span class="wishlist-counter"><%= wishlistItemCount %></span>
+                                <% } %>
+                            </a>
+                        </li>
+                        <li>
+                            <a href="/cart" class="cart-mobile">
+                                <i class="fa-solid fa-cart-shopping"></i> Cart
+                                <% if (locals.cartItemCount && cartItemCount > 0) { %>
+                                    <span class="cart-counter"><%= cartItemCount %></span>
+                                <% } %>
+                            </a>
+                        </li>
+                        <li>
+                            <a href="#" class="account-toggle">
+                                <i class="fa-solid fa-user"></i> Account
+                            </a>
+                            <ul class="submenu">
+                                <% if (locals.user) { %>
+                                    <li><a href="/signup"><%= locals.user.fullname %></a></li>
+                                    <li><a href="/userProfile">User Profile</a></li>
+                                    <li><a href="#" onclick="logout(event)">Logout</a></li>
+                                <% } else { %>
+                                    <li><a href="/signup">Sign Up</a></li>
+                                    <li><a href="/login">Login</a></li>
+                                <% } %>
+                            </ul>
+                        </li>
+                    </ul>
+                </nav>
+            </div>
+
+            <!-- Search Modal (Mobile) -->
+            <div class="search-modal d-lg-none">
+                <div class="search-modal-content">
+                    <button class="close-search-modal">×</button>
+                    <form action="/shop" method="GET" class="search-form">
+                        <input 
+                            type="text" 
+                            name="search" 
+                            placeholder="Search..." 
+                            value="<%= locals.searchQuery || '' %>"
+                        >
+                        <% if (locals.currentSort) { %>
+                            <input type="hidden" name="sort" value="<%= currentSort %>">
+                        <% } %>
+                        <button type="submit">
+                            <i class="fa-solid fa-magnifying-glass"></i>
+                        </button>
+                        <button type="button" class="clear-search">
+                            <i class="fa-solid fa-times"></i>
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Toast Container -->
+    <div class="toast-container" id="toast-container"></div>
+
+    <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script>
+        // Preloader
+       
+
+        // Custom Toast Function
+        function showToast(type, title, text) {
+            const toastContainer = document.getElementById('toast-container');
+            const toast = document.createElement('div');
+            toast.className = `toast ${type}`;
+            toast.innerHTML = `
+                <i class="fas ${type === 'success' ? 'fa-check-circle' : 'fa-exclamation-circle'} toast-icon"></i>
+                <div>
+                    <strong>${title}</strong>
+                    <p>${text}</p>
+                </div>
+            `;
+            toastContainer.appendChild(toast);
+
+            setTimeout(() => toast.classList.add('show'), 10);
+            setTimeout(() => {
+                toast.classList.remove('show');
+                setTimeout(() => toast.remove(), 300);
+            }, 3000);
+        }
+
+        // Logout Function (Switched to GET)
+        async function logout(event) {
+            event.preventDefault(); // Prevent default link behavior
+
+            const result = await Swal.fire({
+                title: 'Are you sure?',
+                text: "You will be logged out of your account!",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#4A90E2',
+                cancelButtonColor: '#ff4444',
+                confirmButtonText: 'Yes, log out!'
+            });
+
+            if (result.isConfirmed) {
+                showToast('success', 'Logged Out!', 'You have been successfully logged out.');
+                setTimeout(() => {
+                    window.location.href = '/logout'; // Use GET redirect
+                }, 1500);
+            }
+        }
+
+        // Event Listeners
+        document.addEventListener('DOMContentLoaded', () => {
+            const mobileMenuToggle = document.querySelector('.mobile-menu-toggle');
+            const mobileMenu = document.querySelector('.mobile-menu');
+            const searchToggle = document.querySelector('.search-toggle');
+            const searchModal = document.querySelector('.search-modal');
+            const closeSearchModal = document.querySelector('.close-search-modal');
+            const accountToggle = document.querySelector('.account-toggle');
+            const submenu = mobileMenu.querySelector('.submenu');
+            const searchForms = document.querySelectorAll('.search-form');
+
+            // Mobile Menu Toggle
+            mobileMenuToggle.addEventListener('click', () => {
+                mobileMenuToggle.classList.toggle('active');
+                mobileMenu.classList.toggle('active');
+            });
+
+            document.addEventListener('click', (e) => {
+                if (!mobileMenu.contains(e.target) && !mobileMenuToggle.contains(e.target) && mobileMenu.classList.contains('active')) {
+                    mobileMenuToggle.classList.remove('active');
+                    mobileMenu.classList.remove('active');
+                }
+            });
+
+            // Search Modal Toggle
+            searchToggle.addEventListener('click', () => {
+                searchModal.classList.add('active');
+            });
+
+            closeSearchModal.addEventListener('click', () => {
+                searchModal.classList.remove('active');
+            });
+
+            searchModal.addEventListener('click', (e) => {
+                if (e.target === searchModal) {
+                    searchModal.classList.remove('active');
+                }
+            });
+
+            // Account Submenu Toggle
+            accountToggle.addEventListener('click', (e) => {
+                e.preventDefault();
+                submenu.classList.toggle('active');
+            });
+
+            // Search Form Clear Functionality
+            searchForms.forEach(form => {
+                const input = form.querySelector('input[name="search"]');
+                const clearButton = form.querySelector('.clear-search');
+
+                clearButton.style.display = input.value.trim() ? 'block' : 'none';
+
+                input.addEventListener('input', () => {
+                    clearButton.style.display = input.value.trim() ? 'block' : 'none';
+                });
+
+                clearButton.addEventListener('click', () => {
+                    input.value = '';
+                    clearButton.style.display = 'none';
+                    form.submit();
+                });
+            });
+        });
+    </script>
+    <script>
+        console.log("Wishlist Count: <%= wishlistItemCount %>");
+    </script>
+</body>
+</html>

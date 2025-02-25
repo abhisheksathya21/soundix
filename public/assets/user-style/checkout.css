@@ -27,7 +27,7 @@
             max-width: 1200px;
             margin: 0 auto;
             padding: 20px;
-            padding-top: 100px;
+            padding-top: 50px;
         }
 /* Cart section container */
 .section.cart-section {
@@ -64,18 +64,16 @@
     background: var(--gradient-end);
 }
 .continue-shopping {
-    display: inline-block;
-    padding: 10px 20px;
     background: linear-gradient(135deg, var(--gradient-start), var(--gradient-end));
-    color: var(--secondary-color);
-    text-decoration: none;
-    border-radius: 4px;
-    font-weight: 500;
-    text-transform: uppercase;
-    font-size: 14px;
-    letter-spacing: 0.5px;
-    transition: all 0.3s ease;
-    box-shadow: 0 2px 4px rgba(0, 123, 255, 0.2);
+            color: var(--secondary-color);
+            padding: 12px 20px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            transition: background-color 0.3s ease;
 }
 
 .continue-shopping:hover {
@@ -563,3 +561,228 @@
     padding: 15px;
   }
 }
+ /* Main section styling */
+ .section {
+    padding: 2rem;
+    margin: 1rem 0;
+    background: #ffffff;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  }
+
+  .section h2 {
+    color: #333;
+    margin-bottom: 1.5rem;
+    font-size: 1.5rem;
+    font-weight: 600;
+  }
+
+  /* Coupon input section */
+  .coupon-container {
+    display: flex;
+    gap: 1rem;
+    margin-bottom: 1rem;
+  }
+
+  #coupon-code {
+    flex: 1;
+    padding: 0.75rem 1rem;
+    border: 2px solid #e0e0e0;
+    border-radius: 4px;
+    font-size: 1rem;
+    transition: border-color 0.3s ease;
+  }
+
+  #coupon-code:focus {
+    outline: none;
+    border-color: linear-gradient(135deg, var(--gradient-start), var(--gradient-end));
+  }
+
+  .coupon-container button {
+    padding: 0.75rem 1.5rem;
+    background: linear-gradient(135deg, var(--gradient-start), var(--gradient-end));
+            color: var(--secondary-color);
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-weight: 500;
+    transition: background-color 0.3s ease;
+  }
+
+  .coupon-container button:hover {
+    transform: translateY(-2px);
+box-shadow: 0 6px 20px rgba(0, 123, 255, 0.4);
+  }
+ 
+
+
+  /* Available coupons section */
+  .coupons-container {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 1.5rem;
+  }
+
+  .coupon-card {
+    border: 2px dashed #e0e0e0;
+    border-radius: 8px;
+    padding: 1.5rem;
+    background: #f8f9fa;
+    transition: transform 0.3s ease;
+  }
+
+  .coupon-card:hover {
+    transform: translateY(-2px);
+  }
+
+  .coupon-details {
+    margin-bottom: 1rem;
+  }
+
+  .coupon-code {
+    display: inline-block;
+    background: #2ecc71;
+    color: white;
+    border-width: 1px;
+    border-color:white ;
+    padding: 0.25rem 0.75rem;
+    border-radius: 4px;
+    font-weight: 400;
+    margin-bottom: 0.5rem;
+  }
+
+  .coupon-discount {
+    display: block;
+    font-size: 1.5rem;
+    color: #2c3e50;
+    font-weight: 700;
+    margin: 0.5rem 0;
+  }
+
+  .coupon-details p {
+    color: #666;
+    margin: 0.25rem 0;
+    font-size: 0.9rem;
+  }
+
+  .coupon-card button {
+    width: 100%;
+    padding: 0.75rem;
+    background-color: white;
+    border: 2px solid #4a90e2;
+    color: #4a90e2;
+    border-radius: 4px;
+    cursor: pointer;
+    font-weight: 500;
+    transition: all 0.3s ease;
+  }
+
+  .coupon-card button:hover {
+    background: linear-gradient(135deg, var(--gradient-start), var(--gradient-end));
+    color: white;
+  }
+
+  #coupon-message {
+    margin-top: 0.5rem;
+    padding: 0.5rem;
+    border-radius: 4px;
+  }
+
+  #coupon-message.success {
+    background-color: #d4edda;
+    color: #155724;
+    border: 1px solid #c3e6cb;
+  }
+
+  #coupon-message.error {
+    background-color: #f8d7da;
+    color: #721c24;
+    border: 1px solid #f5c6cb;
+  }
+
+  /* Responsive adjustments */
+  @media (max-width: 768px) {
+    .section {
+      padding: 1rem;
+    }
+
+    .coupon-container {
+      flex-direction: column;
+    }
+
+    .coupon-container button {
+      width: 100%;
+    }
+  }
+  /* Keep all your existing CSS and add these additional styles */
+
+  .available-coupons {
+    max-height: 400px; /* Adjust this value based on your needs */
+    overflow: hidden;
+  }
+
+  .coupons-container {
+    max-height: 350px; /* Should be less than available-coupons max-height */
+    overflow-y: auto;
+    padding-right: 8px; /* Adds space for scrollbar */
+  }
+
+  /* Custom scrollbar styling */
+  .coupons-container::-webkit-scrollbar {
+    width: 6px;
+  }
+
+  .coupons-container::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    border-radius: 3px;
+  }
+
+  .coupons-container::-webkit-scrollbar-thumb {
+    background: #c1c1c1;
+    border-radius: 3px;
+  }
+
+  .coupons-container::-webkit-scrollbar-thumb:hover {
+    background: #a8a8a8;
+  }
+
+  /* Adjust grid layout to show one coupon at a time */
+  .coupons-container {
+    display: block; /* Override the grid display */
+  }
+
+  .coupon-card {
+    margin-bottom: 1rem; /* Add space between cards */
+  }
+
+  /* Ensure the last card doesn't have bottom margin */
+  .coupon-card:last-child {
+    margin-bottom: 0;
+  }
+
+  /* Adjust responsive behavior */
+  @media (max-width: 768px) {
+    .available-coupons {
+      max-height: 350px; /* Slightly smaller on mobile */
+    }
+
+    .coupons-container {
+      max-height: 300px;
+    }
+  }
+  .unavailable-items {
+    background: #fff3f3;
+    padding: 10px;
+    border-radius: 5px;
+    margin-bottom: 15px;
+  }
+  .unavailable-items h3 {
+    color: #e74c3c;
+    font-size: 16px;
+    margin-bottom: 5px;
+  }
+  .unavailable-items p {
+    color: #333;
+    font-size: 14px;
+    margin: 5px 0;
+  }

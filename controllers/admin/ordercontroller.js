@@ -235,12 +235,12 @@ const cancelProductOrder = async (req, res) => {
     if (order.paymentMethod === "Razorpay") {
       let wallet = await Wallet.findOne({ userId: order.userId });
 
-      // Create wallet if it doesn't exist
+      
       if (!wallet) {
         wallet = new Wallet({ userId: order.userId });
       }
 
-      // Add refund transaction
+      
       await wallet.addTransaction({
         type: "Refund",
         amount: refundAmount,
@@ -296,9 +296,9 @@ const getReturnRequests = async (req, res) => {
     const skip = (page - 1) * limit;
 
     const orders = await Order.find({
-      "items.returnStatus": "Pending", // Only pending return requests
-      "items.status": "Return Requested", // Ensures the product has a return request
-      "items.returnReason": { $exists: true, $ne: "" }, // Must have a reason
+      "items.returnStatus": "Pending", 
+      "items.status": "Return Requested", 
+      "items.returnReason": { $exists: true, $ne: "" }, 
     })
       .populate("userId", "fullname email")
       .populate("items.productId", "productName productImage")
@@ -311,7 +311,7 @@ const getReturnRequests = async (req, res) => {
         const filteredItems = order.items.filter(
           (item) =>
             item.returnStatus === "Pending" &&
-            item.status === "Return Requested" && // Ensures it has a pending return request
+            item.status === "Return Requested" && 
             item.returnReason &&
             item.returnReason.trim() !== ""
         );

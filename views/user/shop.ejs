@@ -10,56 +10,11 @@
     <link rel="stylesheet" href="/assets/user-style/shop.css">
 </head>
 <style>
-    .toast-container {
-        position: fixed;
-        top: 110px;
-        right: 20px;
-        z-index: 1000;
-    }
 
-    .toast {
-        background: white;
-        color: #333;
-        padding: 12px 24px;
-        border-radius: 4px;
-        margin-bottom: 10px;
-        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-        display: flex;
-        align-items: center;
-        gap: 8px;
-        opacity: 0;
-        transform: translateX(100%);
-        transition: all 0.3s ease;
-    }
-
-    .toast.show {
-        opacity: 1;
-        transform: translateX(0);
-    }
-
-    .toast.success {
-        border-left: 4px solid #4CAF50;
-    }
-
-    .toast.error {
-        border-left: 4px solid #f44336;
-    }
-
-    .toast-icon {
-        font-size: 18px;
-    }
-
-    .toast.success .toast-icon {
-        color: #4CAF50;
-    }
-
-    .toast.error .toast-icon {
-        color: #f44336;
-    }
 </style>
 
 <body>
-    <%- include('../partials/user/header',{ searchQuery: locals.searchQuery, currentSort: locals.currentSort })%>
+    <%- include('../partials/user/shopheader',{ searchQuery: locals.searchQuery, currentSort: locals.currentSort })%>
 
         <main class="container">
             <nav aria-label="breadcrumb">
@@ -163,23 +118,27 @@
                                             <%= products[i].productName %>
                                         </h3>
 
-                                        <!-- Display Offer if Available -->
-                                        <% if (products[i].bestOffer) { %>
-                                            <span class="offer-label">
-                                                <%= products[i].bestOffer.discountPercentage %>% OFF
-                                            </span>
-                                            <% } %>
+                                        <div class="pricing-container">
+                                            <!-- Price Information -->
+                                            <div class="price-block">
+                                                <!-- Final Price After Discount -->
+                                                <span class="product-price final-price">₹<%=
+                                                        products[i].finalPrice.toFixed(2) %></span>
 
                                                 <!-- Show Original Price Only if Discount Exists -->
                                                 <% if (products[i].bestOffer) { %>
-                                                    <span class="product-price original-price">₹<s>
-                                                            <%= products[i].salePrice %>
-                                                        </s></span>
+                                                    <span class="product-price original-price">₹<%=
+                                                            products[i].salePrice %></span>
                                                     <% } %>
+                                            </div>
 
-                                                        <!-- Final Price After Discount -->
-                                                        <span class="product-price final-price">₹<%=
-                                                                products[i].finalPrice.toFixed(2) %></span>
+                                            <!-- Display Offer if Available -->
+                                            <% if (products[i].bestOffer) { %>
+                                                <span class="offer-label">
+                                                    -<%= products[i].bestOffer.discountPercentage %>%
+                                                </span>
+                                                <% } %>
+                                        </div>
                                     </div>
 
                                     <div class="product-actions">
@@ -253,13 +212,31 @@
             <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
             <script>
                 document.addEventListener("DOMContentLoaded", function () {
-                    // First, fetch initial wishlist state
+                    // Toast function
+                    const showToast = (message, type = 'success') => {
+                        const toastContainer = document.querySelector('.toast-container');
+                        const toast = document.createElement('div');
+                        toast.className = `toast ${type}`;
+                        const icon = type === 'success' ? 'check-circle' : 'exclamation-circle';
+                        toast.innerHTML = `
+                            <i class="fas fa-${icon} toast-icon"></i>
+                            <span>${message}</span>
+                        `;
+                        toastContainer.appendChild(toast);
+                        toast.offsetHeight; // Trigger reflow
+                        setTimeout(() => toast.classList.add('show'), 10);
+                        setTimeout(() => {
+                            toast.classList.remove('show');
+                            setTimeout(() => toast.remove(), 300);
+                        }, 3000);
+                    };
+
+                    // Fetch initial wishlist state
                     async function fetchWishlistState() {
                         try {
                             const response = await fetch("/wishlist/state");
                             const data = await response.json();
                             if (data.success) {
-                                // Update heart icons for items in wishlist
                                 data.wishlistItems.forEach(itemId => {
                                     const heartIcon = document.querySelector(
                                         `.wishlist-btn[data-product-id="${itemId}"] .heart-icon`
@@ -273,18 +250,13 @@
                             console.error("Error fetching wishlist state:", error);
                         }
                     }
-
-                    // Call this when page loads
                     fetchWishlistState();
 
-                    // Add click handlers for wishlist buttons
+                    // Wishlist toggle logic
                     const wishlistButtons = document.querySelectorAll(".wishlist-btn");
-
                     wishlistButtons.forEach(button => {
                         button.addEventListener("click", async function (e) {
                             e.preventDefault();
-
-                            // Get product ID from the button itself
                             const productId = this.getAttribute('data-product-id');
                             const heartIcon = this.querySelector('.heart-icon');
 
@@ -298,51 +270,30 @@
                                 });
 
                                 const data = await response.json();
+                                console.log("Wishlist toggle response:", data); // Debug log
 
+                                if (!response.ok) {
+                                    // Handle HTTP errors (e.g., 400, 404)
+                                    showToast(data.message || "Failed to update wishlist", "error");
+                                    return;
+                                }
+
+                                // Handle both success and failure cases from backend
                                 if (data.success) {
-                                    // Toggle heart fill based on response
                                     heartIcon.setAttribute('fill', data.isAdded ? 'red' : 'none');
-                                    showToast(data.message);
+                                    showToast(data.message, "success");
+                                } else {
+                                    showToast(data.message, "error");
                                 }
                             } catch (error) {
                                 console.error("Error toggling wishlist:", error);
-                                showToast("Failed to update wishlist", "error");
+                                showToast("Failed to update wishlist due to a network error", "error");
                             }
                         });
                     });
-                });
-            </script>
-            <script>
-                const showToast = (message, type = 'success') => {
-                    const toastContainer = document.querySelector('.toast-container');
 
-                    const toast = document.createElement('div');
-                    toast.className = `toast ${type}`;
-
-                    const icon = type === 'success' ? 'check-circle' : 'exclamation-circle';
-                    toast.innerHTML = `
-                <i class="fas fa-${icon} toast-icon"></i>
-                <span>${message}</span>
-            `;
-
-                    toastContainer.appendChild(toast);
-
-                    // Trigger reflow to enable transition
-                    toast.offsetHeight;
-
-                    // Show the toast
-                    setTimeout(() => toast.classList.add('show'), 10);
-
-                    // Remove the toast after 3 seconds
-                    setTimeout(() => {
-                        toast.classList.remove('show');
-                        setTimeout(() => toast.remove(), 300);
-                    }, 3000);
-                };
-
-                document.addEventListener("DOMContentLoaded", function () {
+                    // Add to cart logic
                     const addToCartButtons = document.querySelectorAll(".add-to-cart");
-
                     addToCartButtons.forEach((button) => {
                         button.addEventListener("click", async function (e) {
                             try {

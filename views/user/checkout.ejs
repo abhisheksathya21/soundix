@@ -5,224 +5,62 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Checkout</title>
     <link rel="stylesheet" href="/assets/user-style/checkout.css" />
-
-    <link
-      rel="shortcut icon"
-      type="image/x-icon"
-      s
-      href="assets/img/favicon.ico"
-    />
+    <link rel="shortcut icon" type="image/x-icon" href="assets/img/favicon.ico" />
     <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+      .form-group {
+        position: relative;
+        margin-bottom: 20px;
+      }
+      .error-message {
+        color: red;
+        font-size: 12px;
+        margin-top: 5px;
+        display: none;
+      }
+      .form-group.invalid .error-message {
+        display: block;
+      }
+      .form-group.invalid input {
+        border-color: red;
+      }
+      .unavailable-section {
+        padding: 15px;
+        background-color: #fff3f3;
+        border: 2px solid #f44336;
+        border-radius: 4px;
+        margin-bottom: 20px;
+        max-height: 200px;
+        overflow-y: auto;
+      }
+      .unavailable-section h3 {
+        margin-top: 0;
+        color: #f44336;
+      }
+      .unavailable-section p {
+        margin: 5px 0;
+        color: #f44336;
+      }
+      .back-to-cart {
+        display: inline-block;
+        margin-top: 10px;
+        padding: 8px 16px;
+        background-color: #f44336;
+        color: white;
+        text-decoration: none;
+        border-radius: 4px;
+        border: none;
+        cursor: pointer;
+      }
+      .back-to-cart:hover {
+        background-color: #d32f2f;
+      }
+    </style>
   </head>
-  <style>
-    /* Main section styling */
-    .section {
-      padding: 2rem;
-      margin: 1rem 0;
-      background: #ffffff;
-      border-radius: 8px;
-      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-    }
-
-    .section h2 {
-      color: #333;
-      margin-bottom: 1.5rem;
-      font-size: 1.5rem;
-      font-weight: 600;
-    }
-
-    /* Coupon input section */
-    .coupon-container {
-      display: flex;
-      gap: 1rem;
-      margin-bottom: 1rem;
-    }
-
-    #coupon-code {
-      flex: 1;
-      padding: 0.75rem 1rem;
-      border: 2px solid #e0e0e0;
-      border-radius: 4px;
-      font-size: 1rem;
-      transition: border-color 0.3s ease;
-    }
-
-    #coupon-code:focus {
-      outline: none;
-      border-color: #4a90e2;
-    }
-
-    .coupon-container button {
-      padding: 0.75rem 1.5rem;
-      background-color: #4a90e2;
-      color: white;
-      border: none;
-      border-radius: 4px;
-      cursor: pointer;
-      font-weight: 500;
-      transition: background-color 0.3s ease;
-    }
-
-    .coupon-container button:hover {
-      background-color: #357abd;
-    }
-
-    /* Available coupons section */
-    .coupons-container {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-      gap: 1.5rem;
-    }
-
-    .coupon-card {
-      border: 2px dashed #e0e0e0;
-      border-radius: 8px;
-      padding: 1.5rem;
-      background: #f8f9fa;
-      transition: transform 0.3s ease;
-    }
-
-    .coupon-card:hover {
-      transform: translateY(-2px);
-    }
-
-    .coupon-details {
-      margin-bottom: 1rem;
-    }
-
-    .coupon-code {
-      display: inline-block;
-      background: #4a90e2;
-      color: white;
-      padding: 0.25rem 0.75rem;
-      border-radius: 4px;
-      font-weight: 600;
-      margin-bottom: 0.5rem;
-    }
-
-    .coupon-discount {
-      display: block;
-      font-size: 1.5rem;
-      color: #2c3e50;
-      font-weight: 700;
-      margin: 0.5rem 0;
-    }
-
-    .coupon-details p {
-      color: #666;
-      margin: 0.25rem 0;
-      font-size: 0.9rem;
-    }
-
-    .coupon-card button {
-      width: 100%;
-      padding: 0.75rem;
-      background-color: white;
-      border: 2px solid #4a90e2;
-      color: #4a90e2;
-      border-radius: 4px;
-      cursor: pointer;
-      font-weight: 500;
-      transition: all 0.3s ease;
-    }
-
-    .coupon-card button:hover {
-      background-color: #4a90e2;
-      color: white;
-    }
-
-    #coupon-message {
-      margin-top: 0.5rem;
-      padding: 0.5rem;
-      border-radius: 4px;
-    }
-
-    #coupon-message.success {
-      background-color: #d4edda;
-      color: #155724;
-      border: 1px solid #c3e6cb;
-    }
-
-    #coupon-message.error {
-      background-color: #f8d7da;
-      color: #721c24;
-      border: 1px solid #f5c6cb;
-    }
-
-    /* Responsive adjustments */
-    @media (max-width: 768px) {
-      .section {
-        padding: 1rem;
-      }
-
-      .coupon-container {
-        flex-direction: column;
-      }
-
-      .coupon-container button {
-        width: 100%;
-      }
-    }
-    /* Keep all your existing CSS and add these additional styles */
-
-    .available-coupons {
-      max-height: 400px; /* Adjust this value based on your needs */
-      overflow: hidden;
-    }
-
-    .coupons-container {
-      max-height: 350px; /* Should be less than available-coupons max-height */
-      overflow-y: auto;
-      padding-right: 8px; /* Adds space for scrollbar */
-    }
-
-    /* Custom scrollbar styling */
-    .coupons-container::-webkit-scrollbar {
-      width: 6px;
-    }
-
-    .coupons-container::-webkit-scrollbar-track {
-      background: #f1f1f1;
-      border-radius: 3px;
-    }
-
-    .coupons-container::-webkit-scrollbar-thumb {
-      background: #c1c1c1;
-      border-radius: 3px;
-    }
-
-    .coupons-container::-webkit-scrollbar-thumb:hover {
-      background: #a8a8a8;
-    }
-
-    /* Adjust grid layout to show one coupon at a time */
-    .coupons-container {
-      display: block; /* Override the grid display */
-    }
-
-    .coupon-card {
-      margin-bottom: 1rem; /* Add space between cards */
-    }
-
-    /* Ensure the last card doesn't have bottom margin */
-    .coupon-card:last-child {
-      margin-bottom: 0;
-    }
-
-    /* Adjust responsive behavior */
-    @media (max-width: 768px) {
-      .available-coupons {
-        max-height: 350px; /* Slightly smaller on mobile */
-      }
-
-      .coupons-container {
-        max-height: 300px;
-      }
-    }
-  </style>
 
   <body>
-    <%- include('../partials/user/header')%>
+    <%- include('../partials/user/shopheader')%>
 
     <div class="content">
       <div class="container">
@@ -245,69 +83,63 @@
         <div class="checkout-grid">
           <!-- Checkout Details Section -->
           <div class="checkout-details">
-            <!-- Cart Section -->
-            <!-- Cart Section -->
+            <% if (typeof unavailableItems !== 'undefined' && unavailableItems && unavailableItems.length > 0) { %>
+              <div class="unavailable-section">
+                <h3>Unavailable Items</h3>
+                <% unavailableItems.forEach(item => { %>
+                  <p><%= item.reason %> (ID: <%= item.productId %>)</p>
+                <% }); %>
+                <a href="/cart" class="back-to-cart">Back to Cart</a>
+              </div>
+            <% } %>
+
             <div class="section cart-section">
               <h2>Your Cart</h2>
-              <% if (cart && cart.items.length > 0) { %>
-              <div class="cart-items-container">
-                <% cart.items.forEach(item => { %>
-                <div class="product-summary">
-                  <img
-                    src="<%= item.product.productImage[0] %>"
-                    alt="<%= item.product.productName %>"
-                    class="product-image"
-                  />
-                  <div class="product-details">
-                    <h3><%= item.product.productName %></h3>
-                    <p>Quantity: <%= item.quantity %></p>
-                    <p>Price: ₹<%= item.price %></p>
-                  </div>
+              <% if (cart && cart.items && cart.items.length > 0) { %>
+                <div class="cart-items-container">
+                  <% cart.items.forEach(item => { %>
+                    <div class="product-summary">
+                      <img src="<%= item.product.productImage[0] %>" alt="<%= item.product.productName %>" class="product-image" />
+                      <div class="product-details">
+                        <h3><%= item.product.productName %></h3>
+                        <p>Quantity: <%= item.quantity %></p>
+                        <p>Price: ₹<%= item.price.toFixed(2) %></p>
+                      </div>
+                    </div>
+                  <% }); %>
                 </div>
-                <% }); %>
-              </div>
-              <div class="cart-summary-footer">
-                <p>Total Items: <%= cart.items.length %></p>
-              </div>
+                <div class="cart-summary-footer">
+                  <p>Total Items: <%= cart.items.length %></p>
+                </div>
               <% } else { %>
-              <p>Your cart is empty.</p>
+                <p>Your cart is empty or all items are unavailable.</p>
               <% } %>
             </div>
 
-            <!-- Shipping Address Section -->
-            <!-- Shipping Address Section -->
             <div class="section">
               <h2>Shipping Address</h2>
               <form id="shipping-form">
-                <% if (Address && Address.address && Address.address.length > 0)
-                { %>
-                <div class="address-options-container">
-                  <% Address.address.forEach((address, index) => { %>
-                  <div class="address-option">
-                    <input type="radio" id="address<%= index %>" name="address"
-                    value="<%= address._id %>" <%= index === 0 ? 'checked' : ''
-                    %>>
-                    <label for="address<%= index %>">
-                      <b><%= address.addressType %></b><br />
-                      <%= address.city %>,<%= address.landmark %>, <%=
-                      address.district %><br />
-                      <%= address.pincode %>, <%= address.phone %>
-                    </label>
+                <% if (Address && Address.address && Address.address.length > 0) { %>
+                  <div class="address-options-container">
+                    <% Address.address.forEach((address, index) => { %>
+                      <div class="address-option">
+                        <input type="radio" id="address<%= index %>" name="address" value="<%= address._id %>" <%= index === 0 ? 'checked' : '' %>>
+                        <label for="address<%= index %>">
+                          <b><%= address.addressType %></b><br />
+                          <%= address.city %>, <%= address.landmark %>, <%= address.district %><br />
+                          <%= address.pincode %>, <%= address.phone %>
+                        </label>
+                      </div>
+                    <% }); %>
                   </div>
-                  <% }); %>
-                </div>
-           <!-- Replace your current add address container -->
-<div class="add-address-container">
-  <!-- Changed to type="button" to prevent form submission -->
-  <button type="button" onclick="openAddressModal()" class="continue-shopping">Add address</button>
-</div>
+                  <div class="add-address-container">
+                    <button type="button" onclick="openAddressModal()" class="continue-shopping">Add address</button>
+                  </div>
                 <% } else { %>
-                <p>No address found. Please add an address.</p>
-              <!-- Replace your current add address container -->
-<div class="add-address-container">
-  <!-- Changed to type="button" to prevent form submission -->
-  <button type="button" onclick="openAddressModal()" class="continue-shopping">Add address</button>
-</div>
+                  <p>No address found. Please add an address.</p>
+                  <div class="add-address-container">
+                    <button type="button" onclick="openAddressModal()" class="continue-shopping">Add address</button>
+                  </div>
                 <% } %>
               </form>
             </div>
@@ -315,29 +147,17 @@
 
           <!-- Payment Summary Section -->
           <div class="payment-summary">
-            <!-- Payment Method -->
             <div class="section">
               <h2>Payment Method</h2>
               <form id="payment-form">
                 <div class="form-group">
                   <label>Select a payment method:</label>
                   <div class="payment-option">
-                    <input
-                      type="radio"
-                      id="cod"
-                      name="payment"
-                      value="cod"
-                      checked
-                    />
+                    <input type="radio" id="cod" name="payment" value="cod" checked />
                     <label for="cod">Cash on Delivery</label>
                   </div>
                   <div class="payment-option">
-                    <input
-                      type="radio"
-                      id="razorpay"
-                      name="payment"
-                      value="razorpay"
-                    />
+                    <input type="radio" id="razorpay" name="payment" value="razorpay" />
                     <label for="razorpay">Razorpay</label>
                   </div>
                 </div>
@@ -347,11 +167,7 @@
             <div class="section">
               <h2>Apply Coupon</h2>
               <div class="coupon-container">
-                <input
-                  type="text"
-                  id="coupon-code"
-                  placeholder="Enter Coupon Code"
-                />
+                <input type="text" id="coupon-code" placeholder="Enter Coupon Code" />
                 <button onclick="applyCoupon()">Apply</button>
               </div>
               <div id="coupon-message"></div>
@@ -359,448 +175,465 @@
             <div class="section available-coupons">
               <h2>Available Coupons</h2>
               <% if (availableCoupons && availableCoupons.length > 0) { %>
-              <div class="coupons-container">
-                <% availableCoupons.forEach(coupon => { %>
-                <div class="coupon-card">
-                  <div class="coupon-details">
-                    <span class="coupon-code"><%= coupon.code %></span>
-                    <span class="coupon-discount"
-                      ><%= coupon.discountValue %>% OFF</span
-                    >
-                    <p>Min. Purchase: ₹<%= coupon.minPurchaseAmount %></p>
-                    <p>
-                      Expires: <%= coupon.expiryDate.toLocaleDateString() %>
-                    </p>
-                  </div>
-                  <button onclick="copyCouponCode('<%= coupon.code %>')">
-                    Copy Code
-                  </button>
+                <div class="coupons-container">
+                  <% availableCoupons.forEach(coupon => { %>
+                    <div class="coupon-card">
+                      <div class="coupon-details">
+                        <span class="coupon-code"><%= coupon.code %></span>
+                        <span class="coupon-discount"><%= coupon.discountValue %>% OFF</span>
+                        <p>Min. Purchase: ₹<%= coupon.minPurchaseAmount %></p>
+                        <p>Expires: <%= coupon.expiryDate.toLocaleDateString() %></p>
+                      </div>
+                      <button onclick="copyCouponCode('<%= coupon.code %>')">Copy Code</button>
+                    </div>
+                  <% }); %>
                 </div>
-                <% }); %>
-              </div>
               <% } else { %>
-              <p>No coupons available</p>
+                <p>No coupons available</p>
               <% } %>
             </div>
-            <!-- Order Summary -->
-            <!-- Order Summary -->
-<div class="section">
-  <h2>Order Summary</h2>
-  <% if (cart && cart.items.length > 0) { %>
-    <p>Subtotal: ₹<%= cart.totalAmount %></p>
-    <p>Shipping: ₹0.00</p>
-    <p>Tax: ₹0.00</p>
-    <p id="discount-amount" style="color: #2ecc71;">Discount: -₹0.00</p>
-    <div class="total">Total: ₹<%= cart.totalAmount %></div>
-  <% } else { %>
-    <p>No items to display.</p>
-  <% } %>
-  <button class="btn" onclick="submitOrder()">Place Order</button>
-</div>
+
+            <div class="section">
+              <h2>Order Summary</h2>
+              <% if (cart && cart.items && cart.items.length > 0) { %>
+                <p>Subtotal: ₹<%= cart.totalAmount ? cart.totalAmount.toFixed(2) : '0.00' %></p>
+                <p>Shipping: ₹0.00</p>
+                <p>Tax: ₹0.00</p>
+                <p id="discount-amount" style="color: #2ecc71;">Discount: -₹0.00</p>
+                <div class="total">Total: ₹<%= cart.totalAmount ? cart.totalAmount.toFixed(2) : '0.00' %></div>
+              <% } else { %>
+                <p>No items to display.</p>
+              <% } %>
+              <button class="btn" onclick="submitOrder()" <%= !cart || !cart.items || cart.items.length === 0 ? 'disabled' : '' %>>Place Order</button>
+            </div>
           </div>
         </div>
       </div>
     </div>
-   <div id="addressModal" style="display: none;" class="modal">
-  <div class="modal-content">
-    <div class="modal-header">
-      <h2>Add New Address</h2>
-      <span class="close-modal" onclick="closeAddressModal()">&times;</span>
+
+    <div id="addressModal" style="display: none;" class="modal">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h2>Add New Address</h2>
+          <span class="close-modal" onclick="closeAddressModal()">×</span>
+        </div>
+        <form id="add-address-form">
+          <div class="form-grid">
+            <div class="form-group">
+              <label for="address-type">Address Type:</label>
+              <input type="text" id="address-type" name="addressType" />
+              <div class="error-message">Please enter the address type</div>
+            </div>
+            <div class="form-group">
+              <label for="address-name">Name:</label>
+              <input type="text" id="address-name" name="name" />
+              <div class="error-message">Please enter your name</div>
+            </div>
+            <div class="form-group">
+              <label for="address-city">City:</label>
+              <input type="text" id="address-city" name="city" />
+              <div class="error-message">Please enter your city</div>
+            </div>
+            <div class="form-group">
+              <label for="address-landmark">Landmark:</label>
+              <input type="text" id="address-landmark" name="landmark" />
+              <div class="error-message"></div>
+            </div>
+            <div class="form-group">
+              <label for="address-district">District:</label>
+              <input type="text" id="address-district" name="district" />
+              <div class="error-message">Please enter your district</div>
+            </div>
+            <div class="form-group">
+              <label for="address-state">State:</label>
+              <input type="text" id="address-state" name="state" />
+              <div class="error-message">Please enter your state</div>
+            </div>
+            <div class="form-group">
+              <label for="address-pincode">Pincode:</label>
+              <input type="text" id="address-pincode" name="pincode" pattern="\d{6}" title="Pincode must be 6 digits" />
+              <div class="error-message">Please enter a valid 6-digit pincode</div>
+            </div>
+            <div class="form-group">
+              <label for="address-phone">Phone:</label>
+              <input type="tel" id="address-phone" name="phone" pattern="\d{10}" title="Phone number must be 10 digits" />
+              <div class="error-message">Please enter a valid 10-digit phone number</div>
+            </div>
+            <div class="form-group full-width">
+              <label for="address-alt-phone">Alternative Phone:</label>
+              <input type="tel" id="address-alt-phone" name="alternativePhone" pattern="\d{10}" title="Phone number must be 10 digits" />
+              <div class="error-message">Please enter a valid 10-digit phone number</div>
+            </div>
+          </div>
+          <div class="form-actions">
+            <button type="submit" class="submit-btn">Save Address</button>
+            <button type="button" onclick="closeAddressModal()" class="cancel-btn">Cancel</button>
+          </div>
+        </form>
+      </div>
     </div>
-    
-    <!-- Remove method="post" from form to prevent default submission -->
-    <form id="add-address-form">
-      <div class="form-grid">
-        <div class="form-group">
-          <label for="address-type">Address Type:</label>
-          <input type="text" id="address-type" name="addressType" required />
-        </div>
-        
-        <div class="form-group">
-          <label for="address-name">Name:</label>
-          <input type="text" id="address-name" name="name" required />
-        </div>
 
-        <div class="form-group">
-          <label for="address-city">City:</label>
-          <input type="text" id="address-city" name="city" required />
-        </div>
-
-        <div class="form-group">
-          <label for="address-landmark">Landmark:</label>
-          <input type="text" id="address-landmark" name="landmark" />
-        </div>
-
-        <div class="form-group">
-          <label for="address-district">District:</label>
-          <input type="text" id="address-district" name="district" required />
-        </div>
-
-        <div class="form-group">
-          <label for="address-state">State:</label>
-          <input type="text" id="address-state" name="state" required />
-        </div>
-
-        <div class="form-group">
-          <label for="address-pincode">Pincode:</label>
-          <input type="text" id="address-pincode" name="pincode" required pattern="\d{6}" title="Pincode must be 6 digits." />
-        </div>
-
-        <div class="form-group">
-          <label for="address-phone">Phone:</label>
-          <input type="tel" id="address-phone" name="phone" required pattern="\d{10}" title="Phone number must be 10 digits." />
-        </div>
-
-        <div class="form-group full-width">
-          <label for="address-alt-phone">Alternative Phone:</label>
-          <input type="tel" id="address-alt-phone" name="alternativePhone" pattern="\d{10}" title="Phone number must be 10 digits." />
-        </div>
-      </div>
-
-      <div class="form-actions">
-        <!-- Changed to type="submit" for form submission -->
-        <button type="submit" class="submit-btn">Save Address</button>
-        <!-- Changed to type="button" for closing modal -->
-        <button type="button" onclick="closeAddressModal()" class="cancel-btn">Cancel</button>
-      </div>
-    </form>
-  </div>
-</div>
-    <br />
-    <br />
-    <br />
+    <br /><br /><br />
 
     <%- include('../partials/user/footer')%>
     <div class="toast-container"></div>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
     <script>
-      function copyCouponCode(code) {
-          // Create a temporary input
-          const tempInput = document.createElement('input');
-          tempInput.value = code;
-          document.body.appendChild(tempInput);
+      console.log("Script started"); // Check if script begins
 
-          // Select the text
-          tempInput.select();
-          tempInput.setSelectionRange(0, 99999); // For mobile devices
+      // Define critical functions first
+      function submitOrder() {
+        console.log("submitOrder called");
+        const shippingForm = document.getElementById('shipping-form');
+        const selectedAddress = shippingForm.querySelector('input[name="address"]:checked');
+        const selectedPayment = document.querySelector('input[name="payment"]:checked');
 
-          // Copy the text
-          document.execCommand('copy');
+        if (!selectedAddress) {
+          showToast('Please select a shipping address', 'warning');
+          return;
+        }
 
-          // Remove the temporary input
-          document.body.removeChild(tempInput);
+        const addressId = selectedAddress.value;
+        const paymentMethod = selectedPayment.value === 'cod' ? 'COD' : 'RAZORPAY';
+        const discountAmount = window.discountAmount || 0;
 
-          // Show toast notification
-          showToast(`Coupon code ${code} copied!`, 'success');
+        Swal.fire({
+          title: 'Confirm Your Order',
+          html: `
+            <h3>Shipping Address</h3><p>${selectedAddress.nextElementSibling.innerHTML.trim()}</p>
+            <h3>Payment Method</h3><p>${paymentMethod === 'COD' ? 'Cash on Delivery' : 'Razorpay'}</p>
+          `,
+          icon: 'info',
+          showCancelButton: true,
+          confirmButtonText: 'Place Order',
+          cancelButtonText: 'Cancel',
+        }).then((result) => {
+          if (!result.isConfirmed) {
+            showToast('Order cancelled', 'warning');
+            return;
+          }
 
-          // Optional: Pre-fill the coupon code input
-          document.getElementById('coupon-code').value = code;
+          fetch('/place-order', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              addressId,
+              paymentMethod,
+              cartItems: cartItems,
+              appliedCoupon,
+              discountAmount,
+            }),
+          })
+            .then(response => response.json())
+            .then(data => {
+              console.log("Place order response:", data);
+              if (!data.success && data.error === "Some items in your cart are unavailable") {
+                let message = "The following items are unavailable:\n";
+                data.unavailableItems.forEach(item => {
+                  message += `- ${item.reason} (ID: ${item.productId})\n`;
+                });
+                Swal.fire({
+                  icon: 'error',
+                  title: 'Order Failed',
+                  text: message,
+                  confirmButtonText: 'Back to Cart',
+                }).then(() => {
+                  window.location.href = '/cart';
+                });
+              } else if (data.success && paymentMethod === 'COD') {
+                showToast('Order placed successfully!', 'success');
+                setTimeout(() => { window.location.href = '/order-success'; }, 1500);
+              } else if (paymentMethod === 'RAZORPAY') {
+                const options = {
+                  key: data.key_id,
+                  amount: data.amount,
+                  currency: data.currency,
+                  name: "Your Store Name",
+                  description: "Order Payment",
+                  order_id: data.orderId,
+                  handler: function (response) {
+                    console.log("Razorpay response:", response);
+                    fetch('/verify-payment', {
+                      method: 'POST',
+                      headers: { 'Content-Type': 'application/json' },
+                      body: JSON.stringify({
+                        razorpay_order_id: response.razorpay_order_id,
+                        razorpay_payment_id: response.razorpay_payment_id,
+                        razorpay_signature: response.razorpay_signature,
+                        addressId,
+                      }),
+                    })
+                      .then(verifyResponse => verifyResponse.json())
+                      .then(verifyData => {
+                        console.log("Verify payment response:", verifyData);
+                        if (verifyData.success) {
+                          showToast('Payment successful!', 'success');
+                          setTimeout(() => { window.location.href = '/order-success'; }, 1500);
+                        } else {
+                          showToast(verifyData.error || 'Payment verification failed', 'error');
+                        }
+                      })
+                      .catch(error => {
+                        console.error("Error in verifyPayment:", error);
+                        showToast('Payment verification failed', 'error');
+                      });
+                  },
+                  prefill: { name: "Customer Name", email: "customer@example.com", contact: "9999999999" },
+                  theme: { color: "#3399cc" },
+                };
+                const rzp = new Razorpay(options);
+                rzp.open();
+              } else {
+                showToast(data.error || 'Failed to place order', 'error');
+              }
+            })
+            .catch(error => {
+              console.error("Error in submitOrder:", error);
+              showToast(error.message || 'An unexpected error occurred', 'error');
+            });
+        });
       }
 
+      function applyCoupon() {
+        console.log("applyCoupon called");
+        const couponCodeInput = document.getElementById('coupon-code');
+        const couponMessage = document.getElementById('coupon-message');
+        const couponCode = couponCodeInput.value.trim().toUpperCase();
 
-              const showToast = (message, type = 'success') => {
-                  const toastContainer = document.querySelector('.toast-container');
+        if (!couponCode) {
+          showToast('Please enter a coupon code', 'warning');
+          return;
+        }
 
-                  const toast = document.createElement('div');
-                  toast.className = `toast ${type}`;
+        fetch('/validate-coupon', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ couponCode, totalAmount: cartTotal }),
+        })
+          .then(response => response.json())
+          .then(result => {
+            console.log("Coupon validation result:", result);
+            if (result.valid) {
+              appliedCoupon = result.coupon;
+              updateOrderSummary(result.discountAmount);
+              showToast(`Coupon applied! Discount: ₹${result.discountAmount}`, 'success');
+              couponMessage.innerHTML = `Coupon applied: -₹${result.discountAmount}`;
+            } else {
+              showToast(result.message, 'error');
+              couponCodeInput.value = '';
+            }
+          })
+          .catch(error => {
+            console.error("Error in applyCoupon:", error);
+            showToast('Error applying coupon', 'error');
+          });
+      }
 
-                  let icon;
-                  switch(type) {
-                      case 'success':
-                          icon = 'check-circle';
-                          break;
-                      case 'error':
-                          icon = 'exclamation-circle';
-                          break;
-                      case 'warning':
-                          icon = 'exclamation-triangle';
-                          break;
-                      default:
-                          icon = 'info-circle';
-                  }
+      // Other functions
+      function openAddressModal() {
+        const modal = document.getElementById('addressModal');
+        if (modal) {
+          modal.style.display = 'block';
+          document.body.style.overflow = 'hidden';
+          console.log("Modal opened");
+        } else {
+          console.error("Modal not found");
+        }
+      }
 
-                  toast.innerHTML = `
-                      <i class="fas fa-${icon} toast-icon"></i>
-                      <span>${message}</span>
-                  `;
+      function closeAddressModal() {
+        const modal = document.getElementById('addressModal');
+        if (modal) {
+          modal.style.display = 'none';
+          document.body.style.overflow = 'auto';
+          console.log("Modal closed");
+        }
+      }
 
-                  toastContainer.appendChild(toast);
+      function copyCouponCode(code) {
+        const tempInput = document.createElement('input');
+        tempInput.value = code;
+        document.body.appendChild(tempInput);
+        tempInput.select();
+        tempInput.setSelectionRange(0, 99999);
+        document.execCommand('copy');
+        document.body.removeChild(tempInput);
+        showToast(`Coupon code ${code} copied!`, 'success');
+        document.getElementById('coupon-code').value = code;
+      }
 
-                  // Trigger reflow
-                  toast.offsetHeight;
-
-                  // Show toast
-                  setTimeout(() => toast.classList.add('show'), 10);
-
-                  // Remove toast after 3 seconds
-                  setTimeout(() => {
-                      toast.classList.remove('show');
-                      setTimeout(() => toast.remove(), 300);
-                  }, 3000);
-              };
-
-
-              let appliedCoupon = null;
-      async function applyCoupon() {
-          const couponCodeInput = document.getElementById('coupon-code');
-          const couponMessage = document.getElementById('coupon-message');
-          const couponCode = couponCodeInput.value.trim().toUpperCase();
-
-          if (!couponCode) {
-              showToast('Please enter a coupon code', 'warning');
-              return;
-          }
-
-          try {
-              const response = await fetch('/validate-coupon', {
-                  method: 'POST',
-                  headers: {
-                      'Content-Type': 'application/json',
-                  },
-                  body: JSON.stringify({
-                      couponCode,
-                      totalAmount: <%= cart.totalAmount %>  // Pass total amount
-                  }),
-              });
-
-              const result = await response.json();
-
-              if (result.valid) {
-                  appliedCoupon = result.coupon;  // Store applied coupon
-                  updateOrderSummary(result.discountAmount); // Update UI with discount
-                  showToast(`Coupon applied! Discount: ₹${result.discountAmount}`, 'success');
-                  couponMessage.innerHTML = `Coupon applied: -₹${result.discountAmount}`;
-              } else {
-                  showToast(result.message, 'error');
-                  couponCodeInput.value = '';
-              }
-          } catch (error) {
-              showToast('Error applying coupon', 'error');
-          }
+      function showToast(message, type = 'success') {
+        console.log(`Toast: ${message}, Type: ${type}`);
+        const toastContainer = document.querySelector('.toast-container');
+        if (!toastContainer) {
+          console.error("Toast container not found");
+          return;
+        }
+        const toast = document.createElement('div');
+        toast.className = `toast ${type}`;
+        let icon;
+        switch (type) {
+          case 'success': icon = 'check-circle'; break;
+          case 'error': icon = 'exclamation-circle'; break;
+          case 'warning': icon = 'exclamation-triangle'; break;
+          default: icon = 'info-circle';
+        }
+        toast.innerHTML = `<i class="fas fa-${icon} toast-icon"></i><span>${message}</span>`;
+        toastContainer.appendChild(toast);
+        toast.offsetHeight;
+        setTimeout(() => toast.classList.add('show'), 10);
+        setTimeout(() => {
+          toast.classList.remove('show');
+          setTimeout(() => toast.remove(), 300);
+        }, 3000);
       }
 
       function updateOrderSummary(discountAmount) {
-    if (typeof discountAmount === "undefined") {
-        discountAmount = 0;
-    }
+        console.log("updateOrderSummary called with:", discountAmount);
+        if (typeof discountAmount === "undefined") discountAmount = 0;
+        const discountEl = document.getElementById('discount-amount');
+        const totalEl = document.querySelector('.section .total');
+        const originalTotal = cartTotal;
+        const newTotal = originalTotal - discountAmount;
 
-    const subtotalEl = document.querySelector('.section .total');
-    const discountEl = document.getElementById('discount-amount');
-    const originalTotal = <%= cart.totalAmount %>;
-    const newTotal = originalTotal - discountAmount;
-
-    // Update discount display
-    discountEl.innerHTML = `Discount: -₹${discountAmount.toFixed(2)}`;
-    
-    // Update total
-    subtotalEl.innerHTML = `Total: ₹${newTotal.toFixed(2)}`;
-
-    // Store discount amount globally to send it in order request
-    window.discountAmount = discountAmount;
-}
-
-      async function submitOrder() {
-          const shippingForm = document.getElementById('shipping-form');
-          const selectedAddress = shippingForm.querySelector('input[name="address"]:checked');
-          const selectedPayment = document.querySelector('input[name="payment"]:checked');
-
-          if (!selectedAddress) {
-              showToast('Please select a shipping address', 'warning');
-              return;
-          }
-
-          const addressId = selectedAddress.value;
-          const paymentMethod = selectedPayment.value === 'cod' ? 'COD' : 'RAZORPAY';
-          const cartItems = <%- JSON.stringify(cart.items || []) %>;
-          const addressLabel = selectedAddress.nextElementSibling.innerHTML.trim();
-           const discountAmount = window.discountAmount || 0; // Get stored discount
-          // Confirm order first
-          const result = await Swal.fire({
-              title: 'Confirm Your Order',
-              html: `
-                  <h3>Shipping Address</h3>
-                  <p>${addressLabel}</p>
-                  <h3>Payment Method</h3>
-                  <p>${paymentMethod === 'COD' ? 'Cash on Delivery' : 'Razorpay'}</p>
-              `,
-              icon: 'info',
-              showCancelButton: true,
-              confirmButtonText: 'Place Order',
-              cancelButtonText: 'Cancel',
-          });
-
-          if (!result.isConfirmed) {
-              showToast('Order cancelled', 'warning');
-              return;
-          }
-
-          try {
-
-              console.log('Request Body:', {
-                  addressId,
-                  paymentMethod,
-                  cartItems
-              });
-
-                 const response = await fetch('/place-order', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({
-                addressId: addressId,
-                paymentMethod: paymentMethod,
-                cartItems: cartItems,
-                appliedCoupon: appliedCoupon,
-                discountAmount: discountAmount // Send discount amount to backend
-            }),
-        });
-
-
-              const data = await response.json();
-
-
-              console.log('Server Response:', data);
-
-              if (!response.ok) {
-                  throw new Error(data.error || 'Failed to place order');
-              }
-
-              if (paymentMethod === 'COD') {
-                  showToast('Order placed successfully!', 'success');
-                  setTimeout(() => {
-                      window.location.href = '/order-success';
-                  }, 1500);
-              } else if (paymentMethod === 'RAZORPAY') {
-                
-                  const options = {
-                      key: data.key_id,
-                      amount: data.amount,
-                      currency: data.currency,
-                      name: "Your Store Name",
-                      description: "Order Payment",
-                      order_id: data.orderId,
-                      handler: async function (response) {
-                          try {
-                             
-                              const verifyResponse = await fetch('/verify-payment', {
-                                  method: 'POST',
-                                  headers: {
-                                      'Content-Type': 'application/json',
-                                  },
-                                  body: JSON.stringify({
-                                      razorpay_order_id: response.razorpay_order_id,
-                                      razorpay_payment_id: response.razorpay_payment_id,
-                                      razorpay_signature: response.razorpay_signature,
-                                      addressId: addressId
-                                  }),
-                              });
-
-                              const verifyData = await verifyResponse.json();
-
-                              if (verifyData.success) {
-                                  showToast('Payment successful!', 'success');
-                                  setTimeout(() => {
-                                      window.location.href = '/order-success';
-                                  }, 1500);
-                              } else {
-                                  throw new Error('Payment verification failed');
-                              }
-                          } catch (error) {
-                              showToast('Payment verification failed', 'error');
-                              console.error('Verification Error:', error);
-                          }
-                      },
-                      prefill: {
-                          name: "Customer Name",
-                          email: "customer@example.com",
-                          contact: "9999999999"
-                      },
-                      theme: {
-                          color: "#3399cc"
-                      }
-                  };
-
-                  const rzp = new Razorpay(options);
-                  rzp.open();
-              }
-          } catch (error) {
-              showToast(error.message || 'An unexpected error occurred', 'error');
-              console.error('Order Error:', error);
-          }
-      }
-    document.addEventListener('DOMContentLoaded', function() {
-    // Modal functions
-    window.openAddressModal = function() {
-        document.getElementById('addressModal').style.display = 'block';
-        document.body.style.overflow = 'hidden';
-    }
-
-    window.closeAddressModal = function() {
-        document.getElementById('addressModal').style.display = 'none';
-        document.body.style.overflow = 'auto';
-    }
-
-    // Close modal when clicking outside
-    window.onclick = function(event) {
-        const modal = document.getElementById('addressModal');
-        if (event.target === modal) {
-            closeAddressModal();
+        if (discountEl && totalEl) {
+          discountEl.innerHTML = `Discount: -₹${discountAmount.toFixed(2)}`;
+          totalEl.innerHTML = `Total: ₹${newTotal.toFixed(2)}`;
+          window.discountAmount = discountAmount;
+        } else {
+          console.error("Discount or total elements not found");
         }
-    }
+      }
 
-    // Form submission handler
-    const addressForm = document.getElementById('add-address-form');
-    if (addressForm) {
-        addressForm.addEventListener('submit', async function(e) {
-            e.preventDefault(); // Prevent form from submitting normally
+      // Safeguard EJS variables
+      const cartTotal = <%= cart && typeof cart.totalAmount === 'number' ? cart.totalAmount : 0 %>;
+      let cartItems;
+      try {
+        cartItems = <%- cart && cart.items && Array.isArray(cart.items) ? JSON.stringify(cart.items) : '[]' %>;
+      } catch (e) {
+        console.error("Error parsing cartItems:", e);
+        cartItems = [];
+      }
+
+      let appliedCoupon = null;
+
+      console.log("Functions defined, cartTotal:", cartTotal, "cartItems:", cartItems);
+
+      // DOMContentLoaded for initialization
+      document.addEventListener('DOMContentLoaded', function () {
+        console.log("DOM fully loaded");
+        <% if (typeof unavailableItems !== 'undefined' && unavailableItems && unavailableItems.length > 0) { %>
+          showToast("Some items in your cart are unavailable and have been removed", "warning");
+        <% } %>
+
+        window.onclick = function (event) {
+          const modal = document.getElementById('addressModal');
+          if (event.target === modal) closeAddressModal();
+        };
+
+        const addressForm = document.getElementById('add-address-form');
+        if (addressForm) {
+          addressForm.addEventListener('submit', async function (e) {
+            e.preventDefault();
+            console.log("Address form submitted");
+
+            document.querySelectorAll('.form-group').forEach(group => {
+              group.classList.remove('invalid');
+            });
+
+            let isValid = true;
+            const fields = [
+              { id: 'address-type', required: true, message: 'Please enter the address type' },
+              { id: 'address-name', required: true, message: 'Please enter your name' },
+              { id: 'address-city', required: true, message: 'Please enter your city' },
+              { id: 'address-landmark', required: false },
+              { id: 'address-district', required: true, message: 'Please enter your district' },
+              { id: 'address-state', required: true, message: 'Please enter your state' },
+              { id: 'address-pincode', required: true, pattern: /^\d{6}$/, message: 'Please enter a valid 6-digit pincode' },
+              { id: 'address-phone', required: true, pattern: /^\d{10}$/, message: 'Please enter a valid 10-digit phone number' },
+              { id: 'address-alt-phone', required: false, pattern: /^\d{10}$/, message: 'Please enter a valid 10-digit phone number' },
+            ];
 
             const formData = new FormData(e.target);
-            const data = {
-                addressType: formData.get('addressType'),
-                name: formData.get('name'),
-                city: formData.get('city'),
-                landmark: formData.get('landmark'),
-                district: formData.get('district'),
-                state: formData.get('state'),
-                pincode: formData.get('pincode'),
-                phone: formData.get('phone'),
-                alternativePhone: formData.get('alternativePhone'),
-            };
+            const data = {};
 
-            try {
-                const response = await fetch('/addAddress', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(data),
-                });
+            fields.forEach(field => {
+              const input = document.getElementById(field.id);
+              const value = formData.get(input.name)?.trim() || '';
+              const group = input.parentElement;
 
-                const result = await response.json();
-                if (response.ok) {
-                    Swal.fire({
-                        icon: 'success',
-                        title: 'Success!',
-                        text: result.message,
-                    }).then(() => {
-                        window.location.reload();
-                    });
-                } else {
-                    Swal.fire({
-                        icon: 'error',
-                        title: 'Error',
-                        text: result.message,
-                    });
+              if (field.required && !value) {
+                group.classList.add('invalid');
+                group.querySelector('.error-message').textContent = field.message;
+                isValid = false;
+              } else if (field.pattern && value && !field.pattern.test(value)) {
+                group.classList.add('invalid');
+                group.querySelector('.error-message').textContent = field.message;
+                isValid = false;
+              } else {
+                group.classList.remove('invalid');
+                data[input.name] = value;
+              }
+            });
+
+            if (!isValid) return;
+
+            fetch('/addAddress', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify(data),
+            })
+              .then(response => {
+                console.log("Response status:", response.status); // Log status
+                if (!response.ok) {
+                  return response.json().then(err => { throw new Error(err.message || `HTTP error ${response.status}`); });
                 }
-            } catch (error) {
-                Swal.fire({
-                    icon: 'error',
-                    title: 'Ooops...',
-                    text: 'Something went wrong please try again later',
-                });
-            }
-        });
-    }
-});
+                return response.json();
+              })
+              .then(result => {
+                console.log("Add address response:", result);
+                if (result.message === "Address added successfully") {
+                  showToast('Address added successfully!', 'success');
+                  const addressContainer = document.querySelector('.address-options-container') || 
+                                          document.createElement('div');
+                  if (!addressContainer.classList.contains('address-options-container')) {
+                    addressContainer.classList.add('address-options-container');
+                    document.getElementById('shipping-form').insertBefore(
+                      addressContainer,
+                      document.querySelector('.add-address-container')
+                    );
+                    document.querySelector('.section p')?.remove();
+                  }
+
+                  const addressCount = addressContainer.children.length;
+                  const newAddress = document.createElement('div');
+                  newAddress.className = 'address-option';
+                  // Use the last address ID from the response
+                  const newAddressId = result.address.address[result.address.address.length - 1]._id;
+                  newAddress.innerHTML = `
+                    <input type="radio" id="address${addressCount}" name="address" value="${newAddressId}" ${addressCount === 0 ? 'checked' : ''}>
+                    <label for="address${addressCount}">
+                      <b>${data.addressType}</b><br />
+                      ${data.city},${data.landmark || ''}, ${data.district}<br />
+                      ${data.pincode}, ${data.phone}
+                    </label>
+                  `;
+                  addressContainer.appendChild(newAddress);
+
+                  addressForm.reset();
+                  closeAddressModal();
+                } else {
+                  showToast(result.message || 'Failed to add address', 'error');
+                }
+              })
+              .catch(error => {
+                console.error("Error in addAddress:", error);
+                showToast(error.message || 'Something went wrong, please try again later', 'error');
+              });
+          });
+        }
+      });
     </script>
   </body>
 </html>

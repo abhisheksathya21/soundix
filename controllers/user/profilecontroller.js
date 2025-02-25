@@ -30,21 +30,18 @@ const userUpdate = async (req, res) => {
     const userId = req.session.user;
     const { name, phone } = req.body;
     const userData = await User.findOne({ _id: userId });
-    await User.updateOne(
-      { _id: userId },
-      { $set: { fullname: name, phone: phone } }
-    );
-    const updateUser = await User.findById(userId);
 
-    if (updateUser) {
-      return res.render("userProfile", {
-        user: updateUser,
-        isGoogleUser: !!userData.googleId,
-      });
+    const updateFields = { fullname: name };
+    if (!userData.googleId && phone) {
+      updateFields.phone = phone;
     }
+
+    await User.updateOne({ _id: userId }, { $set: updateFields });
+
+    res.status(200).json({ success: true });
   } catch (error) {
     console.error("Error in updating the user profile", error);
-    res.status(500).send("An error occurred while updating the profile.");
+    res.status(500).json({ success: false, message: "An error occurred while updating the profile." });
   }
 };
 
@@ -192,29 +189,26 @@ const addAddress = async (req, res) => {
 };
 
 const editAddress = async (req, res) => {
-  try{
+  try {
     const addressId = req.query.id;
-  
-    const user=req.session.user;
+    const user = req.session.user;
     const userData = await User.findOne({ _id: user });
     const currentAddress = await Address.findOne({ "address._id": addressId });
-  
-    if(!currentAddress){
-      return res.status(404).json({message:"Address not found"});
-    }
-    const addressData=currentAddress.address.find((addr)=>addr._id.toString()===addressId);
-   
-    if(!addressData){
-      return res.status(404).json({message:"Address not found"});
-    }
-    res.render("editAddress",{address:addressData ,user:user,  isGoogleUser: !!userData.googleId, });
 
+    if (!currentAddress) {
+      return res.status(404).json({ message: "Address not found" });
+    }
+    const addressData = currentAddress.address.find((addr) => addr._id.toString() === addressId);
+
+    if (!addressData) {
+      return res.status(404).json({ message: "Address not found" });
+    }
+    res.render("editAddress", { address: addressData, user: user, isGoogleUser: !!userData.googleId });
+  } catch (error) {
+    console.error("Error in loading editAddress page", error); 
+    res.redirect('/pageNotFound');
   }
-  catch(error){
-    console.error("Error in loading addressManagement page", error);
-    res.redirect('/pageNotFound')
-  }
-}
+};
 
 
 const updateAddress = async (req, res) => {
@@ -223,13 +217,11 @@ const updateAddress = async (req, res) => {
     const addressId = req.query.id;
     const userId = req.session.user;
 
-  
     const findAddress = await Address.findOne({ "address._id": addressId });
     if (!findAddress) {
-      return res.status(404).json({ message: "Address not found" });
+      return res.status(404).json({ success: false, message: "Address not found" });
     }
 
-   
     const result = await Address.updateOne(
       { "address._id": addressId },
       {
@@ -238,28 +230,30 @@ const updateAddress = async (req, res) => {
             addressType: data.addressType,
             name: data.name,
             city: data.city,
-            landmark: data.landmark,
+            landmark: data.landmark || "", 
             district: data.district,
             state: data.state,
             pincode: data.pincode,
             phone: data.phone,
-            alternativePhone: data.alternativePhone,
-            _id: addressId, // Preserve the original _id
+            alternativePhone: data.alternativePhone || "", 
+            _id: addressId,
           },
         },
       }
     );
 
     if (result.matchedCount === 0) {
-      return res.redirect(302, "/pageNotFound");
+      return res.status(404).json({ success: false, message: "Address not found or not updated" });
     }
 
-    res.redirect(302, "/addressManagement");
+    
+    res.status(200).json({ success: true, message: "Address updated successfully" });
   } catch (error) {
     console.error("Error in updating address", error);
-    res.redirect(302, "/pageNotFound");
+    res.status(500).json({ success: false, message: "Server error while updating address" });
   }
 };
+
 
 
 
@@ -271,7 +265,7 @@ const deleteAddress = async (req, res) => {
 
     const findAddress = await Address.findOne({ "address._id": addressId });
     if (!findAddress) {
-      return res.status(404).json({ message: "Address not found" });
+      return res.status(404).json({ success: false, message: "Address not found" });
     }
 
     await Address.updateOne(
@@ -279,10 +273,11 @@ const deleteAddress = async (req, res) => {
       { $pull: { address: { _id: addressId } } }
     );
 
-    res.redirect(302, "/addressManagement");
+   
+    res.status(200).json({ success: true, message: "Address deleted successfully" });
   } catch (error) {
     console.error("Error in deleting address", error);
-    res.redirect(302, "/pageNotFound");
+    res.status(500).json({ success: false, message: "Server error while deleting address" });
   }
 };
 

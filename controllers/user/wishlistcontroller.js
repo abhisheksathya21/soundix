@@ -6,18 +6,19 @@ const Address = require("../../models/addressSchema");
 const Order = require("../../models/orderSchema");
 const Wishlist = require("../../models/wishlistSchema");
 
-
-
-
 const loadWishlist = async (req, res) => {
   try {
     const userId = req.session.user;
-    const userData = await User.findOne({ _id: userId });
 
-   
-    const wishlist = await Wishlist.findOne({ user: userId }).populate(
-      "items.product"
-    );
+    const userData = await User.findOne({ _id: userId });
+    if (!userId || !userData) {
+      return res.status(401).json({ error: "User not authenticated" });
+    }
+
+    const wishlist = await Wishlist.findOne({ user: userId }).populate({
+      path: "items.product",
+      populate: { path: "category" },
+    });
 
     if (!wishlist || wishlist.items.length === 0) {
       return res.render("wishlist", {
@@ -28,41 +29,25 @@ const loadWishlist = async (req, res) => {
       });
     }
 
-   
-    wishlist.items = wishlist.items.map((item) => {
+    wishlist.items = wishlist.items.filter((item) => {
       const product = item.product;
-      let finalPrice = product.salePrice || product.regularPrice; 
-
-      
-      const categoryOffer = product.category?.offer || null;
-      const productOffer = product.offer || null;
-
-      
-      let bestDiscount = 0;
-      if (
-        categoryOffer?.discountPercentage &&
-        productOffer?.discountPercentage
-      ) {
-        bestDiscount = Math.max(
-          categoryOffer.discountPercentage,
-          productOffer.discountPercentage
-        );
-      } else if (categoryOffer?.discountPercentage) {
-        bestDiscount = categoryOffer.discountPercentage;
-      } else if (productOffer?.discountPercentage) {
-        bestDiscount = productOffer.discountPercentage;
+      if (!product || product.isBlocked === true) {
+        return false;
       }
-
-      
-      if (bestDiscount > 0) {
-        finalPrice = finalPrice - (finalPrice * bestDiscount) / 100;
+      if (product.category && product.category.isListed === false) {
+        return false;
       }
-
-      return {
-        ...item.toObject(),
-        finalPrice, 
-      };
+      return true;
     });
+
+    if (wishlist.items.length === 0) {
+      return res.render("wishlist", {
+        user: userData,
+        wishlist: null,
+        isGoogleUser: !!userData.googleId,
+        message: "Your wishlist is empty or contains only unavailable items",
+      });
+    }
 
     res.render("wishlist", {
       user: userData,
@@ -80,14 +65,81 @@ const toggleWishlist = async (req, res) => {
     const userId = req.session.user;
     const { productId } = req.body;
 
-   
-    if (!userId || !productId) {
+    if (!userId) {
+      return res.status(401).json({
+        success: false,
+        message: "User not authenticated",
+      });
+    }
+    if (!productId) {
       return res.status(400).json({
         success: false,
-        message: "Missing required information",
+        message: "Product ID is required",
       });
     }
 
+    const product = await Product.findById(productId).populate("category");
+    if (!product) {
+      return res.status(404).json({
+        success: false,
+        message: "Product not found",
+      });
+    }
+
+    if (product.isBlocked === true) {
+      return res.status(400).json({
+        success: false,
+        message: "This product is currently unavailable",
+      });
+    }
+
+    if (product.category && product.category.isListed === false) {
+      return res.status(400).json({
+        success: false,
+        message: "This product's category is currently unavailable",
+      });
+    }
+
+    if (product.quantity <= 0) {
+      return res.status(400).json({
+        success: false,
+        message: "This product is out of stock",
+      });
+    }
+
+    let finalPrice = product.salePrice || product.regularPrice;
+    const categoryOffer =
+      product.category?.offer &&
+      typeof product.category.offer.discountPercentage === "number"
+        ? product.category.offer
+        : { discountPercentage: 0 };
+    const productOffer =
+      product.offer && typeof product.offer.discountPercentage === "number"
+        ? product.offer
+        : { discountPercentage: 0 };
+
+    let bestOffer = null;
+    if (
+      categoryOffer.discountPercentage > 0 &&
+      productOffer.discountPercentage > 0
+    ) {
+      bestOffer =
+        categoryOffer.discountPercentage > productOffer.discountPercentage
+          ? categoryOffer
+          : productOffer;
+    } else {
+      bestOffer =
+        categoryOffer.discountPercentage > 0
+          ? categoryOffer
+          : productOffer.discountPercentage > 0
+          ? productOffer
+          : null;
+    }
+
+    if (bestOffer) {
+      finalPrice =
+        finalPrice - (finalPrice * bestOffer.discountPercentage) / 100;
+    }
 
     let wishlist = await Wishlist.findOne({ user: userId });
     if (!wishlist) {
@@ -97,7 +149,6 @@ const toggleWishlist = async (req, res) => {
       });
     }
 
-  
     const existingItem = wishlist.items.find(
       (item) => item.product.toString() === productId
     );
@@ -108,24 +159,24 @@ const toggleWishlist = async (req, res) => {
         (item) => item.product.toString() !== productId
       );
       await wishlist.save();
-
       return res.json({
         success: true,
         message: "Product removed from wishlist",
         isAdded: false,
+        wishlist: wishlist.items,
       });
     } else {
-      // Add item
       wishlist.items.push({
         product: productId,
+        finalPrice,
         addedOn: new Date(),
       });
       await wishlist.save();
-
       return res.json({
         success: true,
         message: "Product added to wishlist",
         isAdded: true,
+        wishlist: wishlist.items,
       });
     }
   } catch (error) {
@@ -142,7 +193,6 @@ const removeFromWishlist = async (req, res) => {
     const userId = req.session.user;
     const { productId } = req.body;
 
-    
     const wishlist = await Wishlist.findOneAndUpdate(
       { user: userId },
       { $pull: { items: { product: productId } } },
@@ -190,7 +240,6 @@ const getWishlistState = async (req, res) => {
     });
   }
 };
-
 
 module.exports = {
   loadWishlist,

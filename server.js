@@ -9,6 +9,8 @@ const session=require('express-session');
 const nocache = require('nocache');
 const passport=require('./config/passport');
 const cartCountMiddleware=require('./middlewares/cartcount');
+const wishlistCountMiddleware=require('./middlewares/wislistcount')
+
 
 
 
@@ -32,6 +34,7 @@ app.use(session({
 }))
 
 app.use(cartCountMiddleware);
+app.use(wishlistCountMiddleware);
 app.use('/',userRouter);
 
 app.use('/admin',adminRouter);
@@ -39,6 +42,6 @@ app.use('/admin',adminRouter);
 app.use(passport.initialize());
 app.use(passport.session());
 app.listen(process.env.PORT,()=>{
-    console.log("server running");
+    console.log("server running on 3002");
 });  
 module.exports=app;

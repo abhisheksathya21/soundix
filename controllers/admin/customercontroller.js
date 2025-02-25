@@ -1,11 +1,8 @@
-const User=require('../../models/userSchema');
-
-
+const User = require('../../models/userSchema');
 
 const customerInfo = async (req, res) => {
     try {
         const search = req.query.search || "";
-        console.log(search);
         const page = parseInt(req.query.page) || 1;
         const limit = 6;
 
@@ -17,16 +14,14 @@ const customerInfo = async (req, res) => {
                 { phone: { $regex: search, $options: 'i' } }
             ]
         };
-        console.log("searchQuery", searchQuery);
+
         const UserData = await User.find(searchQuery)
             .sort({_id: -1})
             .limit(limit)
             .skip((page - 1) * limit)
-            .exec()
-           
+            .exec();
 
         const count = await User.countDocuments(searchQuery);
-
         const totalPages = Math.ceil(count / limit);
        
         res.render('customers', {
@@ -41,32 +36,66 @@ const customerInfo = async (req, res) => {
     }
 };
 
-const blockCustomer=async (req,res)=>{
-    try{
-        let id=req.query.id;
+const blockCustomer = async (req, res) => {
+    try {
+        const id = req.query.id;
+        const customer = await User.findById(id);
         
-        await User.updateOne({_id:id},{$set:{isBlocked:true}});
-        res.redirect('/admin/customers')
-    }
-    catch(error){
-        res.redirect('/pageError')
-    }
-}
-const UnblockCustomer=async (req,res)=>{
-    try{
-        let id=req.query.id;
-        await User.updateOne({_id:id},{$set:{isBlocked:false}});
-        res.redirect('/admin/customers')
+        if (!customer) {
+            return res.status(404).json({
+                success: false,
+                message: 'Customer not found'
+            });
+        }
 
+        await User.updateOne({ _id: id }, { $set: { isBlocked: true } });
+        
+        res.json({
+            success: true,
+            message: `Customer ${customer.fullname} blocked successfully`,
+            customerId: id,
+            type: 'block' // Added type
+        });
+    } catch (error) {
+        console.error("Error blocking customer:", error);
+        res.status(500).json({
+            success: false,
+            message: 'Error blocking customer'
+        });
     }
-   
-    catch(error){
-        res.redirect('/pageError')
-    }
-}
+};
 
-module.exports={
+const UnblockCustomer = async (req, res) => {
+    try {
+        const id = req.query.id;
+        const customer = await User.findById(id);
+        
+        if (!customer) {
+            return res.status(404).json({
+                success: false,
+                message: 'Customer not found'
+            });
+        }
+
+        await User.updateOne({ _id: id }, { $set: { isBlocked: false } });
+        
+        res.json({
+            success: true,
+            message: `Customer ${customer.fullname} unblocked successfully`,
+            customerId: id,
+            type: 'unblock' // Added type
+        });
+    } catch (error) {
+        console.error("Error unblocking customer:", error);
+        res.status(500).json({
+            success: false,
+            message: 'Error unblocking customer'
+        });
+    }
+};
+
+module.exports = {
     customerInfo,
     blockCustomer,
     UnblockCustomer,
-}
+};
