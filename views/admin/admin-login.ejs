@@ -11,138 +11,171 @@
     />
   </head>
   <body>
-    <div class="login-container">
-      <div class="split-container">
-        <!-- Left side -->
-        <div class="left-side">
-          <div class="welcome-content">
-            <h2 class="welcome-heading">
-              Already part of our audiophile community?
-            </h2>
-            <p class="welcome-message">
-              Dive into an immersive sound experience with our premium
-              collection of headphones.
-            </p>
-          </div>
+    <div class="page-wrapper">
+      <!-- Left Side: Image Background -->
+      <div class="image-side">
+        <div class="welcome-content">
+          <h2 class="welcome-heading">
+            Already part of our audiophile community?
+          </h2>
+          <p class="welcome-message">
+            Dive into an immersive sound experience with our premium collection
+            of headphones.
+          </p>
         </div>
-        <!-- Right side -->
-        <div class="right-side">
-          <form
-           id="loginForm"  class="login-form" method="post" action="/admin/login"
-            novalidate
-          >
-            <div class="form-header">
-              <h1>Welcome!</h1>
-              <h3>Please Login Now</h3>
-            </div>
-            <!-- Email -->
-            <div class="form-group">
-              <input
-                type="email"
-                class="form-control"
-                id="email"
-                name="email"
-                placeholder="Email Address"
-                required
-              />
-              <div class="error-message" id="email-error"></div>
-            </div>
-            <!-- Password -->
-            <div class="form-group">
-              <input
-                type="password"
-                class="form-control"
-                id="password"
-                name="password"
-                placeholder="Password"
-                required
-              />
-              <div class="error-message" id="password-error"></div>
-            </div>
-            <!-- Server-side error messages -->
+      </div>
 
-            <!-- Submit Button -->
-            <button type="submit" class="btn btn-primary">Log In</button>
-          
-            <!-- Sign Up with Google Button -->
-           
-          </form>
-        </div>
+      <!-- Right Side: Form -->
+      <div class="form-side">
+        <!-- Theme Toggle Button -->
+        <button id="theme-toggle" class="theme-toggle-btn">
+          <span class="toggle-icon">
+            <svg class="dark-icon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path></svg>
+            <svg class="light-icon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display: none;"><circle cx="12" cy="12" r="5"></circle><line x1="12" y1="1" x2="12" y2="3"></line><line x1="12" y1="21" x2="12" y2="23"></line><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line><line x1="1" y1="12" x2="3" y2="12"></line><line x1="21" y1="12" x2="23" y2="12"></line><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line></svg>
+          </span>
+        </button>
+        <form
+          id="loginForm"
+          class="login-form"
+          method="post"
+          action="/admin/login"
+          novalidate
+        >
+          <div class="form-header">
+            <h1>Welcome!</h1>
+            <h3>Please Login Now</h3>
+          </div>
+          <!-- Email -->
+          <div class="form-group">
+            <input
+              type="email"
+              class="form-control"
+              id="email"
+              name="email"
+              placeholder="Email Address"
+              required
+            />
+            <div class="error-message" id="email-error"></div>
+          </div>
+          <!-- Password -->
+          <div class="form-group">
+            <input
+              type="password"
+              class="form-control"
+              id="password"
+              name="password"
+              placeholder="Password"
+              required
+            />
+            <div class="error-message" id="password-error"></div>
+          </div>
+          <!-- Submit Button -->
+          <button type="submit" class="btn btn-primary">Log In</button>
+        </form>
       </div>
     </div>
 
     <script src="/user-scripts/login-validation.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+    <% if (locals.message && message.length > 0) { %>
+    <script>
+      document.addEventListener("DOMContentLoaded", function () {
+        Swal.fire({
+          toast: true,
+          position: "top",
+          icon: "warning",
+          title: "<%= locals.message %>",
+          showConfirmButton: false,
+          timer: 5000,
+          timerProgressBar: true,
+          customClass: {
+            popup: "custom-toast",
+          },
+        });
+      });
+    </script>
+    <%}%>
+
+    <script>
+      document.addEventListener("DOMContentLoaded", function () {
+        const signForm = document.getElementById("loginForm");
+        const emailInput = document.getElementById("email");
+        const passwordInput = document.getElementById("password");
+        const emailError = document.getElementById("email-error");
+        const passwordError = document.getElementById("password-error");
+        const themeToggleBtn = document.getElementById("theme-toggle");
+        const body = document.body;
+        const darkIcon = themeToggleBtn.querySelector(".dark-icon");
+        const lightIcon = themeToggleBtn.querySelector(".light-icon");
+
+        signForm.addEventListener("submit", function (e) {
+          let isValid = true;
+
+          // Validate Email
+          const emailValue = emailInput.value.trim();
+          const emailPattern = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+          if (!emailPattern.test(emailValue)) {
+            emailError.textContent = "Invalid email format.";
+            isValid = false;
+          } else {
+            emailError.textContent = "";
+          }
+
+          // Validate Password
+          const passwordValue = passwordInput.value.trim();
+          const passwordPattern =
+            /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
+          if (!passwordPattern.test(passwordValue)) {
+            passwordError.textContent =
+              "Password must contain at least 8 characters, including uppercase, lowercase, numbers, and special characters.";
+            isValid = false;
+          } else {
+            passwordError.textContent = "";
+          }
+
+          if (!isValid) {
+            e.preventDefault();
+          }
+        });
+
+        // Real-time input validation
+        emailInput.addEventListener("input", function () {
+          if (emailPattern.test(emailInput.value.trim())) {
+            emailError.textContent = "";
+          }
+        });
+
+        passwordInput.addEventListener("input", function () {
+          if (passwordPattern.test(passwordInput.value.trim())) {
+            passwordError.textContent = "";
+          }
+        });
+
+        // Theme Toggle Logic
+        const savedTheme = localStorage.getItem("theme");
+        if (savedTheme === "light") {
+          body.classList.add("light-mode");
+          darkIcon.style.display = "none";
+          lightIcon.style.display = "block";
+        } else {
+          darkIcon.style.display = "block";
+          lightIcon.style.display = "none";
+        }
+
+        themeToggleBtn.addEventListener("click", function () {
+          body.classList.toggle("light-mode");
+          const isLightMode = body.classList.contains("light-mode");
+          if (isLightMode) {
+            darkIcon.style.display = "none";
+            lightIcon.style.display = "block";
+          } else {
+            darkIcon.style.display = "block";
+            lightIcon.style.display = "none";
+          }
+          localStorage.setItem("theme", isLightMode ? "light" : "dark");
+        });
+      });
+    </script>
   </body>
 </html>
-<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-<% if (locals.message && message.length > 0) { %>
-<script>
-  document.addEventListener("DOMContentLoaded", function () {
-    Swal.fire({
-      toast: true,
-      position: "top", // Display at the top of the screen
-      icon: "warning", // Icon type: 'warning', 'success', 'info', etc.
-      title: "<%= locals.message %>", // Message from the server
-      showConfirmButton: false, // No confirm button for a toast
-      timer: 5000, // Auto-close after 5 seconds
-      timerProgressBar: true, // Show a progress bar
-      customClass: {
-        popup: "custom-toast", // Custom class for styling
-      },
-    });
-  });
-</script>
-<%}%>
-
-<script>
-  document.addEventListener("DOMContentLoaded", function () {
-    const signForm = document.getElementById("loginForm");
-    const emailInput = document.getElementById("email");
-    const passwordInput = document.getElementById("password");
-    const emailError = document.getElementById("email-error");
-    const passwordError = document.getElementById("password-error");
-
-    signForm.addEventListener("submit", function (e) {
-      let isValid = true;
-
-      // Validate Email
-      const emailValue = emailInput.value.trim();
-      const emailPattern = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
-      if (!emailPattern.test(emailValue)) {
-        emailError.textContent = "Invalid email format.";
-        isValid = false;
-      } else {
-        emailError.textContent = "";
-      }
-
-      // Validate Password
-      const passwordValue = passwordInput.value.trim();
-      const passwordPattern =
-        /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
-      if (!passwordPattern.test(passwordValue)) {
-        passwordError.textContent =
-          "Password must contain at least 8 characters, including uppercase, lowercase, numbers, and special characters.";
-        isValid = false;
-      } else {
-        passwordError.textContent = "";
-      }
-
-      if (!isValid) {
-        e.preventDefault();
-      }
-    });
-
-    // Optional: Real-time input validation
-    emailInput.addEventListener("input", function () {
-      if (emailPattern.test(emailInput.value.trim())) {
-        emailError.textContent = "";
-      }
-    });
-
-    passwordInput.addEventListener("input", function () {
-      if (passwordPattern.test(passwordInput.value.trim())) {
-        passwordError.textContent = "";
-      }
-    });
-  });
-</script>

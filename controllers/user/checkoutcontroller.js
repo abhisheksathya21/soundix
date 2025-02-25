@@ -253,7 +253,6 @@ const placeOrder = async (req, res) => {
         continue;
       }
 
-      
       const categoryOffer = product.category?.offer || null;
       const productOffer = product.offer || null;
       let bestOffer = null;
@@ -272,7 +271,7 @@ const placeOrder = async (req, res) => {
           product.salePrice - (product.salePrice * bestOffer.discountPercentage) / 100;
       }
 
-      item.price = finalPrice; 
+      item.price = finalPrice;
       totalAmount += finalPrice * item.quantity;
     }
 
@@ -283,7 +282,6 @@ const placeOrder = async (req, res) => {
       });
     }
 
-    
     if (appliedCoupon) {
       await Coupon.findByIdAndUpdate(appliedCoupon._id, {
         $inc: { usedCount: 1 },
@@ -304,10 +302,17 @@ const placeOrder = async (req, res) => {
       phoneNumber: addressData.phone,
     };
 
-    const subTotal = totalAmount; 
+    const subTotal = totalAmount;
     const taxAmount = 0;
     const shippingCost = 0;
     const finalTotal = subTotal - (discountAmount || 0) + shippingCost;
+
+    // Check COD restriction
+    if (paymentMethod === "COD" && finalTotal >= 5000) {
+      return res.status(400).json({
+        error: "Cash on Delivery is not available for orders above ₹5000. Please choose another payment method.",
+      });
+    }
 
     const orderItems = cartData.items.map((item) => ({
       productId: item.product._id,
@@ -382,7 +387,6 @@ const placeOrder = async (req, res) => {
     }
 
     if (paymentMethod === "COD") {
-      // Update stock
       for (const cartItem of cartData.items) {
         const product = cartItem.product;
         const newStock = product.quantity - cartItem.quantity;
