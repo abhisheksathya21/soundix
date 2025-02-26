@@ -604,3 +604,14 @@ body {
         .toast.error .toast-icon {
           color: #f44336;
         }
+        .swal2-icon.swal2-warning {
+          color: #ff0000 !important;
+          border-color: #ff0000 !important;
+        }
+        .swal2-icon.swal2-success {
+          color: #00ff00 !important;
+          border-color: #00ff00 !important;
+        }
+        .swal2-success-ring {
+          border-color: rgba(0, 255, 0, 0.2) !important;
+        }

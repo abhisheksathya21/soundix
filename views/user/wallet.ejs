@@ -24,7 +24,7 @@
                     <li><a href="/wishlist">Wishlist</a></li>
                 </ul>
             </nav>
-            <button class="logout-btn">Logout</button>
+            <button class="logout-btn" onclick="logout()">Logout</button>
         </aside>
 
         <main class="container">
@@ -213,12 +213,7 @@
                 confirmButtonText: 'Yes, log out!'
             }).then((result) => {
                 if (result.isConfirmed) {
-                    Swal.fire(
-                        'Logged Out!',
-                        'You have been successfully logged out.',
-                        'success'
-                    );
-                    setTimeout(() => { window.location.href = '/logout'; }, 1500);
+                    window.location.href = '/logout'; 
                 }
             });
         }

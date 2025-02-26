@@ -9,8 +9,8 @@ const pageNotFound = async (req, res) => {
   try {
     res.render("pageNotFound", {
       user: req.user || null,
-      message:
-        "Oops! The page you're looking for doesn't exist. Please check the URL or return to the homepage.",
+      message: "Oops! The page you're looking for doesn't exist. Please check the URL or return to the homepage.",
+      icon: "warning",
     });
   } catch (error) {
     console.error("Error loading 404 page", error);
@@ -27,21 +27,25 @@ const googleAuth = async (req, res) => {
     }
 
     if (user.isBlocked) {
-      return res.render("login", { message: "User is blocked by the admin" });
+      return res.render("login", {
+        message: "User is blocked by the admin",
+        icon: "warning",
+      });
     }
 
     req.session.user = user._id;
-
-    res.redirect("/");
+    res.redirect("/?message=Logged in with Google successfully&icon=success");
   } catch (error) {
     console.error("Google Authentication Error:", error);
-    res.redirect("/login");
+    res.redirect("/login?message=Google login failed&icon=warning");
   }
 };
 
 const loadhomepage = async (req, res) => {
   try {
     const userId = req.session.user;
+    const message = req.query.message;
+    const icon = req.query.icon || "warning"; 
     const categories = await Category.find({ isListed: true });
 
     let productData = await Product.find({
@@ -50,25 +54,20 @@ const loadhomepage = async (req, res) => {
       quantity: { $gt: 0 },
     }).populate("category");
 
-   
     const updatedProducts = productData.map((product) => {
       const categoryOffer = product.category?.offer || null;
       const productOffer = product.offer || null;
-
-      
       const bestOffer =
         [categoryOffer, productOffer]
           .filter((offer) => offer?.discountPercentage)
-          .sort((a, b) => b.discountPercentage - a.discountPercentage)[0] ||
-        null;
+          .sort((a, b) => b.discountPercentage - a.discountPercentage)[0] || null;
 
-     
       let basePrice = product.salePrice ?? product.regularPrice ?? 0;
       let finalPrice = basePrice;
 
       if (bestOffer) {
         let discountAmount = (basePrice * bestOffer.discountPercentage) / 100;
-        discountAmount = Math.min(discountAmount, basePrice); 
+        discountAmount = Math.min(discountAmount, basePrice);
         finalPrice = basePrice - discountAmount;
       }
 
@@ -81,32 +80,35 @@ const loadhomepage = async (req, res) => {
 
     const userData = userId ? await User.findOne({ _id: userId }) : null;
 
-    return res.render("home", { user: userData, products: updatedProducts });
+    return res.render("home", { user: userData, products: updatedProducts, message, icon });
   } catch (error) {
     console.log("Home page not found", error);
-    res.redirect("/pageNotFound");
+    res.redirect("/pageNotFound?message=Home page failed to load&icon=warning");
   }
 };
-
 
 const loadSignup = async (req, res) => {
   try {
-    return res.render("Signup", { user: null });
+    const message = req.query.message;
+    const icon = req.query.icon || "warning";
+    return res.render("Signup", { user: null, message, icon });
   } catch (error) {
-    console.log("login page not found", error);
-    res.status(500).send("server error");
+    console.log("Signup page not found", error);
+    res.redirect("/pageNotFound?message=Signup page failed to load&icon=warning");
   }
 };
+
 const loadlogin = async (req, res) => {
   try {
-    const message = req.query.message; 
+    const message = req.query.message;
+    const icon = req.query.icon || "warning";
     if (!req.session.user) {
-      return res.render("login", { user: null, message }); 
+      return res.render("login", { user: null, message, icon });
     } else {
       res.redirect("/");
     }
   } catch (error) {
-    res.redirect("/pageNotFound");
+    res.redirect("/pageNotFound?message=Login page failed to load&icon=warning");
   }
 };
 
@@ -117,27 +119,33 @@ const login = async (req, res) => {
 
     if (!findUser) {
       return res.render("login", {
-        message:
-          "We couldn't find an account with this email. Please try again or sign up.",
+        message: "We couldn't find an account with this email. Please try again or sign up.",
+        icon: "warning",
       });
     }
     if (findUser.isBlocked) {
       return res.render("login", {
-        message:
-          "Your account has been disabled. Please contact support for assistance.",
+        message: "Your account has been disabled. Please contact support for assistance.",
+        icon: "warning",
       });
     }
 
     const passwordMatch = await bcrypt.compare(password, findUser.password);
     if (!passwordMatch) {
-      return res.render("login", { message: "Password doesn't match" });
+      return res.render("login", {
+        message: "Password doesn't match",
+        icon: "warning",
+      });
     }
 
     req.session.user = findUser._id;
-    res.redirect("/");
+    res.redirect("/?message=Login successful&icon=success");
   } catch (error) {
     console.log("Login error", error);
-    res.render("login", { message: "Please try again later" });
+    res.render("login", {
+      message: "Please try again later",
+      icon: "warning",
+    });
   }
 };
 
@@ -145,26 +153,24 @@ const logout = async (req, res) => {
   try {
     req.session.destroy((error) => {
       if (error) {
-        return res.redirect("/pageNotFound");
+        return res.redirect("/pageNotFound?message=Logout failed&icon=warning");
       }
 
-      console.log("the session destroyed succesfully");
+      console.log("the session destroyed successfully");
       return res.redirect(
-        "/login?message=You have been logged out successfully"
+        "/login?message=You have been logged out successfully&icon=success"
       );
     });
   } catch (error) {
     console.log("logout error", error);
-    res.redirect("/pageNotFound");
+    res.redirect("/pageNotFound?message=Logout failed&icon=warning");
   }
 };
 
-//otp generator
 function generateOtp() {
   return Math.floor(100000 + Math.random() * 900000).toString();
 }
 
-//Signup verification email
 async function sendVerificationEmail(email, otp) {
   try {
     const transporter = nodemailer.createTransport({
@@ -224,9 +230,11 @@ async function resetPasswordEmail(email, otp) {
 const loadforgot = async (req, res) => {
   try {
     const message = req.query.message;
-    return res.render("forgot-password", { message });
+    const icon = req.query.icon || "warning"; 
+    return res.render("forgot-password", { message, icon });
   } catch (error) {
-    console.log("error occured while loading forgot password");
+    console.log("Error occurred while loading forgot password", error);
+    res.redirect("/pageNotFound?message=Forgot password page failed to load&icon=warning");
   }
 };
 
@@ -244,22 +252,24 @@ const emailvalid = async (req, res) => {
         req.session.userPassOtp = otp;
         res.render("forgot-PassOtp", {
           message: "OTP sent successfully to your email",
+          icon: "success",
         });
-        console.log("Reset Password Otp :", otp);
+        console.log("Reset Password OTP:", otp);
       } else {
         res.redirect(
-          "/forgot-password?message=Failed to send otp please try again"
+          "/forgot-password?message=Failed to send OTP. Please try again&icon=warning"
         );
-        console.log("failed to sent otp");
+        console.log("Failed to send OTP");
       }
     } else {
       res.render("forgot-password", {
         message: "User with this email does not exist",
+        icon: "warning",
       });
     }
   } catch (error) {
-    console.error("forgot pasword otp sent error:", error);
-    res.redirect("/pageNotFound");
+    console.error("Forgot password OTP send error:", error);
+    res.redirect("/pageNotFound?message=Error sending OTP&icon=warning");
   }
 };
 
@@ -271,6 +281,7 @@ const PassresendOtp = async (req, res) => {
       return res.status(400).json({
         success: false,
         message: "Email not found in session. Please restart the process.",
+        icon: "warning",
       });
     }
 
@@ -283,11 +294,13 @@ const PassresendOtp = async (req, res) => {
       return res.status(200).json({
         success: true,
         message: "OTP resent successfully. Please check your email.",
+        icon: "success",
       });
     } else {
       return res.status(500).json({
         success: false,
         message: "Failed to resend OTP. Please try again.",
+        icon: "warning",
       });
     }
   } catch (error) {
@@ -295,6 +308,7 @@ const PassresendOtp = async (req, res) => {
     res.status(500).json({
       success: false,
       message: "Internal Server Error. Please try again.",
+      icon: "warning",
     });
   }
 };
@@ -307,6 +321,7 @@ const verifyPassOtp = async (req, res) => {
       return res.status(400).json({
         success: false,
         message: "Session expired. Please request a new OTP.",
+        icon: "warning",
       });
     }
 
@@ -316,12 +331,14 @@ const verifyPassOtp = async (req, res) => {
       return res.status(200).json({
         success: true,
         message: "OTP verified successfully. You may proceed.",
+        icon: "success",
       });
     } else {
       console.log("Invalid OTP");
       return res.status(400).json({
         success: false,
         message: "Invalid OTP. Please try again.",
+        icon: "warning",
       });
     }
   } catch (error) {
@@ -329,6 +346,7 @@ const verifyPassOtp = async (req, res) => {
     res.status(500).json({
       success: false,
       message: "Internal Server Error. Please try again.",
+      icon: "warning",
     });
   }
 };
@@ -337,7 +355,8 @@ const loadresetPassword = async (req, res) => {
   try {
     return res.render("reset-Password");
   } catch (error) {
-    console.log("reset password page load errorr ");
+    console.log("Reset password page load error", error);
+    res.redirect("/pageNotFound?message=Reset password page failed to load&icon=warning");
   }
 };
 
@@ -347,12 +366,18 @@ const signup = async (req, res) => {
 
     if (!fullname || !email || !phone || !password || !confirm_password) {
       console.log("All fields are required");
-      return res.render("signup", { message: "All fields are required" });
+      return res.render("signup", {
+        message: "All fields are required",
+        icon: "warning",
+      });
     }
 
     if (password !== confirm_password) {
       console.log("Passwords do not match");
-      return res.render("signup", { message: "Passwords do not match" });
+      return res.render("signup", {
+        message: "Passwords do not match",
+        icon: "warning",
+      });
     }
 
     console.log("Signup attempt with email:", email);
@@ -363,12 +388,14 @@ const signup = async (req, res) => {
       return res.render("signup", {
         user: finduser,
         message: "User with this email already exists",
+        icon: "warning",
       });
     }
     const findphone = await User.findOne({ phone });
     if (findphone) {
       return res.render("signup", {
-        message: "user with this phone number exists",
+        message: "User with this phone number already exists",
+        icon: "warning",
       });
     }
 
@@ -378,7 +405,10 @@ const signup = async (req, res) => {
     const emailsent = await sendVerificationEmail(email, otp);
     if (!emailsent) {
       console.log("Email sending failed");
-      return res.json({ error: "Email sending failed" });
+      return res.render("signup", {
+        message: "Failed to send OTP. Please try again.",
+        icon: "warning",
+      });
     }
 
     req.session.userOtp = otp;
@@ -387,10 +417,11 @@ const signup = async (req, res) => {
 
     res.render("verify-otp", {
       message: "OTP sent successfully to your email.",
+      icon: "success",
     });
   } catch (error) {
     console.error("Signup error:", error);
-    res.redirect("/pageNotFound");
+    res.redirect("/pageNotFound?message=Signup failed&icon=warning");
   }
 };
 
@@ -422,15 +453,21 @@ const verifyOtp = async (req, res) => {
       await saveUserData.save();
       req.session.user = saveUserData._id;
       console.log("User data saved successfully");
-      res.json({ success: true, redirectUrl: "/" });
+      res.json({ success: true, redirectUrl: "/?message=Signup successful&icon=success" });
     } else {
-      res
-        .status(400)
-        .json({ success: false, message: "Invalid OTP, please try again" });
+      res.status(400).json({
+        success: false,
+        message: "Invalid OTP, please try again",
+        icon: "warning",
+      });
     }
   } catch (error) {
     console.error("Error verifying OTP", error);
-    res.status(500).json({ success: false, message: "An error occurred" });
+    res.status(500).json({
+      success: false,
+      message: "An error occurred",
+      icon: "warning",
+    });
   }
 };
 
@@ -438,36 +475,42 @@ const resendOtp = async (req, res) => {
   try {
     const { email } = req.session.userData;
     if (!email) {
-      return res
-        .status(400)
-        .json({ success: false, message: "Email not found  in session" });
+      return res.status(400).json({
+        success: false,
+        message: "Email not found in session",
+        icon: "warning",
+      });
     }
     const otp = generateOtp();
     req.session.userOtp = otp;
     const emailSent = await sendVerificationEmail(email, otp);
     if (emailSent) {
-      console.log("resend OTP:", otp);
-      res
-        .status(200)
-        .json({ success: true, message: "OTP resend Successfully" });
+      console.log("Resend OTP:", otp);
+      res.status(200).json({
+        success: true,
+        message: "OTP resent successfully",
+        icon: "success",
+      });
     } else {
       res.status(500).json({
         success: false,
-        message: "Failed to Resend OTP. Please try again ",
+        message: "Failed to resend OTP. Please try again",
+        icon: "warning",
       });
     }
   } catch (error) {
     console.log("Error resending OTP", error);
     res.status(500).json({
       success: false,
-      message: "Internal Server Erorr.Please try again",
+      message: "Internal Server Error. Please try again",
+      icon: "warning",
     });
   }
 };
 
 const resetPassword = async (req, res) => {
   try {
-    console.log("reset password");
+    console.log("Reset password");
     const email = req.session.email;
     console.log(email);
     const { newPassword } = req.body;
@@ -477,14 +520,16 @@ const resetPassword = async (req, res) => {
       return res.status(400).json({
         success: false,
         message: "Email not found in session",
+        icon: "warning",
       });
     }
 
     const user = await User.findOne({ email: email });
     if (!user) {
-      return res.status(404).json({
+      return res.status(400).json({
         success: false,
         message: "User not found",
+        icon: "warning",
       });
     }
 
@@ -497,15 +542,17 @@ const resetPassword = async (req, res) => {
     delete req.session.email;
     delete req.session.userOtp;
 
-    return res.redirect("/login?message=Password updated Successfully");
+    return res.redirect("/login?message=Password updated successfully&icon=success");
   } catch (error) {
     console.error("Error in password reset:", error);
     return res.status(500).json({
       success: false,
       message: "Internal server error. Please try again later",
+      icon: "warning",
     });
   }
 };
+
 const loadShopPage = async (req, res) => {
   try {
     const userId = req.session.user;
@@ -516,17 +563,14 @@ const loadShopPage = async (req, res) => {
     const categoryId = req.query.category || null;
     const searchQuery = req.query.search || null;
 
-    
     const categories = await Category.find({ isListed: true });
 
-    
     const productFilter = {
       isBlocked: false,
       category: { $in: categories.map((category) => category._id) },
       quantity: { $gt: 0 },
     };
 
-    
     if (searchQuery) {
       productFilter.$or = [
         { productName: { $regex: searchQuery, $options: "i" } },
@@ -534,12 +578,10 @@ const loadShopPage = async (req, res) => {
       ];
     }
 
-   
     if (categoryId) {
       productFilter.category = categoryId;
     }
 
-   
     let sortCriteria;
     switch (sortParam) {
       case "priceLowHigh":
@@ -555,39 +597,33 @@ const loadShopPage = async (req, res) => {
         sortCriteria = { productName: -1 };
         break;
       default:
-        sortCriteria = { createdOn: -1 }; 
+        sortCriteria = { createdOn: -1 };
     }
 
-   
     const totalProducts = await Product.countDocuments(productFilter);
     const totalPages = Math.ceil(totalProducts / limit);
 
-    
     const products = await Product.find(productFilter)
       .sort(sortCriteria)
       .skip(skip)
       .limit(limit)
       .populate("category");
 
-   
     const updatedProducts = products.map((product) => {
       const categoryOffer = product.category?.offer || null;
       const productOffer = product.offer || null;
 
-     
       const bestOffer =
         [categoryOffer, productOffer]
           .filter((offer) => offer?.discountPercentage)
-          .sort((a, b) => b.discountPercentage - a.discountPercentage)[0] ||
-        null;
+          .sort((a, b) => b.discountPercentage - a.discountPercentage)[0] || null;
 
-     
       let basePrice = product.salePrice ?? product.regularPrice ?? 0;
       let finalPrice = basePrice;
 
       if (bestOffer) {
         let discountAmount = (basePrice * bestOffer.discountPercentage) / 100;
-        discountAmount = Math.min(discountAmount, basePrice); 
+        discountAmount = Math.min(discountAmount, basePrice);
         finalPrice = basePrice - discountAmount;
       }
 
@@ -598,7 +634,6 @@ const loadShopPage = async (req, res) => {
       };
     });
 
- 
     const generatePageUrl = (pageNum) => {
       const baseUrl = "/shop?";
       const params = new URLSearchParams();
@@ -609,7 +644,6 @@ const loadShopPage = async (req, res) => {
       return baseUrl + params.toString();
     };
 
-   
     const paginationLinks = [];
     for (let i = 1; i <= totalPages; i++) {
       paginationLinks.push({
@@ -619,7 +653,6 @@ const loadShopPage = async (req, res) => {
       });
     }
 
-   
     const breadcrumbs = [
       { name: "Home", url: "/" },
       { name: "Shop", url: "/shop" },
@@ -638,7 +671,6 @@ const loadShopPage = async (req, res) => {
       breadcrumbs.push({ name: `Search: ${searchQuery}`, url: "" });
     }
 
-   
     res.render("shop", {
       user: userId ? await User.findOne({ _id: userId }) : null,
       products: updatedProducts,
@@ -659,18 +691,14 @@ const loadShopPage = async (req, res) => {
     });
   } catch (error) {
     console.error("Error loading shop page:", error);
-    res.redirect("/pageNotFound");
+    res.redirect("/pageNotFound?message=Shop page failed to load&icon=warning");
   }
 };
 
 const generatePageUrl = (req, pageNum) => {
   const url = new URL(req.protocol + "://" + req.get("host") + req.originalUrl);
   const params = new URLSearchParams(url.searchParams);
-
-  
   params.set("page", pageNum);
-
-  
   return `/shop?${params.toString()}`;
 };
 

@@ -339,8 +339,8 @@ body.light-mode .toggle-icon svg {
 
 /* SweetAlert2 Custom Toast */
 .custom-toast {
-  background-color: #007bff !important;
-  color: #ffffff !important;
+  background-color: #ffffff !important;
+  color: #000000 !important;
   font-weight: 600;
   font-size: 12px;
   text-align: center;
@@ -352,4 +352,17 @@ body.light-mode .toggle-icon svg {
 
 .swal2-container {
   margin-top: 20px !important;
+}
+
+/* Customize Warning Icon to Red */
+.swal2-icon.swal2-warning {
+  color: #ff0000 !important;
+  border-color: #ff0000 !important;
+}
+.swal2-icon.swal2-success {
+  color: #00ff00 !important;
+  border-color: #00ff00 !important;
+}
+.swal2-success-ring {
+  border-color: rgba(0, 255, 0, 0.2) !important;
 }

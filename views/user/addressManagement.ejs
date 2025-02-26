@@ -330,8 +330,7 @@
                 confirmButtonText: 'Yes, log out!'
             }).then((result) => {
                 if (result.isConfirmed) {
-                    Swal.fire('Logged Out!', 'You have been successfully logged out.', 'success');
-                    setTimeout(() => { window.location.href = '/logout'; }, 1500);
+                     window.location.href = '/logout'; 
                 }
             });
         }

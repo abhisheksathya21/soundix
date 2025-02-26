@@ -228,10 +228,9 @@
             });
 
             if (result.isConfirmed) {
-                showToast('success', 'Logged Out!', 'You have been successfully logged out.');
-                setTimeout(() => {
+                
                     window.location.href = '/logout'; // Use GET redirect
-                }, 1500);
+               
             }
         }
 

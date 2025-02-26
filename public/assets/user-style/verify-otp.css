@@ -239,23 +239,14 @@ body {
 @keyframes spin {
   to { transform: translate(-50%, -50%) rotate(360deg); }
 }
-.swal2-toast {
-    border-radius: 15px;
-  }
-
-  .custom-toast {
-    background-color: #007bff !important; 
-    color: #ffffff !important; 
-    font-weight: 600;
-    font-size: 12px;
-    text-align: center;
-  }
-
-  .swal2-icon.swal2-warning {
-    color: #ffffff !important; /* Change icon color if needed */
-  }
-
-  /* Optional: Adjust the toast position more accurately */
-  .swal2-container {
-    margin-top: 20px !important; /* Add a margin from the top of the screen */
-  }
+.swal2-icon.swal2-warning {
+  color: #ff0000 !important;
+  border-color: #ff0000 !important;
+}
+.swal2-icon.swal2-success {
+  color: #00ff00 !important;
+  border-color: #00ff00 !important;
+}
+.swal2-success-ring {
+  border-color: rgba(0, 255, 0, 0.2) !important;
+}
