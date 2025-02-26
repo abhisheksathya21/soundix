@@ -36,7 +36,7 @@ const userSchema = new mongoose.Schema({
   },
 });
 
-// Drop any existing indexes and create new ones
+
 userSchema.index({ phone: 1 }, { unique: true, sparse: true });
 userSchema.index({ googleId: 1 }, { unique: true, sparse: true });
 

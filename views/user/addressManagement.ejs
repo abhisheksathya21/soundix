@@ -45,9 +45,9 @@
                     <div class="overview-card" id="address-details">
                         <h2>Address Details</h2>
                         <% if (userAddress && userAddress.address && userAddress.address.length > 0) { %>
-                        <div class="address-grid">
+                        <div class="address-grid" id="address-grid">
                             <% userAddress.address.forEach((address, index) => { %>
-                            <div class="address-card">
+                            <div class="address-card" data-address-id="<%= address._id %>">
                                 <div class="address-info">
                                     <p><strong>Type:</strong> <%= address.addressType %></p>
                                     <p><strong>Name:</strong> <%= address.name %></p>
@@ -67,7 +67,8 @@
                             <% }); %>
                         </div>
                         <% } else { %>
-                        <p class="no-address-message">No addresses available.</p>
+                        <p class="no-address-message" id="no-address-message">No addresses available.</p>
+                        <div class="address-grid" id="address-grid" style="display: none;"></div>
                         <% } %>
                         <button id="add-address-btn" class="add-btn">Add Address</button>
                     </div>
@@ -134,8 +135,40 @@
     </div>
 
     <%- include('../partials/user/footer')%>
+    <div class="toast-container"></div>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script>
+        class ToastNotification {
+            constructor() {
+                this.container = document.querySelector('.toast-container');
+                if (!this.container) {
+                    this.container = document.createElement('div');
+                    this.container.className = 'toast-container';
+                    document.body.appendChild(this.container);
+                }
+            }
+
+            show(message, type = 'success') {
+                const toast = document.createElement('div');
+                toast.className = `toast ${type}`;
+                const icon = document.createElement('i');
+                icon.className = `toast-icon fas ${type === 'success' ? 'fa-check-circle' : type === 'error' ? 'fa-exclamation-circle' : 'fa-exclamation-triangle'}`;
+                const textDiv = document.createElement('div');
+                textDiv.textContent = message;
+                toast.appendChild(icon);
+                toast.appendChild(textDiv);
+                this.container.appendChild(toast);
+                toast.offsetHeight;
+                setTimeout(() => toast.classList.add('show'), 10);
+                setTimeout(() => {
+                    toast.classList.remove('show');
+                    setTimeout(() => this.container.removeChild(toast), 300);
+                }, 3000);
+            }
+        }
+
+        const toast = new ToastNotification();
+
         document.addEventListener("DOMContentLoaded", () => {
             const addAddressBtn = document.getElementById("add-address-btn");
             const addressDetails = document.getElementById("address-details");
@@ -150,6 +183,8 @@
             cancelAddressBtn.addEventListener("click", () => {
                 addAddressFormContainer.classList.add("hidden");
                 addressDetails.classList.remove("hidden");
+                document.getElementById("add-address-form").reset();
+                document.querySelectorAll('.error-message').forEach(error => error.textContent = '');
             });
         });
 
@@ -249,29 +284,51 @@
 
                     const result = await response.json();
                     if (response.ok) {
-                        Swal.fire({
-                            icon: "success",
-                            title: "Success!",
-                            text: result.message,
-                        }).then(() => {
-                            window.location.reload();
-                        });
+                        addAddressToGrid(result.address.address[result.address.address.length - 1]);
+                        document.getElementById("add-address-form").reset();
+                        document.getElementById("add-address-form-container").classList.add("hidden");
+                        document.getElementById("address-details").classList.remove("hidden");
+                        toast.show(result.message, "success");
                     } else {
-                        Swal.fire({
-                            icon: "error",
-                            title: "Error",
-                            text: result.message,
-                        });
+                        toast.show(result.message, "error");
                     }
                 } catch (error) {
-                    Swal.fire({
-                        icon: "error",
-                        title: "Oops...",
-                        text: "Something went wrong, please try again later",
-                    });
+                    toast.show("Something went wrong, please try again later", "error");
                 }
             }
         });
+
+        function addAddressToGrid(address) {
+            const addressGrid = document.getElementById("address-grid");
+            const noAddressMessage = document.getElementById("no-address-message");
+
+            if (noAddressMessage) {
+                noAddressMessage.style.display = "none";
+                addressGrid.style.display = "block";
+            }
+
+            const addressCard = document.createElement("div");
+            addressCard.className = "address-card";
+            addressCard.dataset.addressId = address._id;
+            addressCard.innerHTML = `
+                <div class="address-info">
+                    <p><strong>Type:</strong> ${address.addressType}</p>
+                    <p><strong>Name:</strong> ${address.name}</p>
+                    <p><strong>City:</strong> ${address.city}</p>
+                    <p><strong>Landmark:</strong> ${address.landmark || 'N/A'}</p>
+                    <p><strong>District:</strong> ${address.district}</p>
+                    <p><strong>State:</strong> ${address.state}</p>
+                    <p><strong>Pincode:</strong> ${address.pincode}</p>
+                    <p><strong>Phone:</strong> ${address.phone}</p>
+                    <p><strong>Alternate Phone:</strong> ${address.alternativePhone || 'N/A'}</p>
+                </div>
+                <div class="address-actions">
+                    <a href="/editAddress?id=${address._id}" class="edit-btn">Edit</a>
+                    <button class="delete-btn" onclick="confirmDelete('${address._id}')">Delete</button>
+                </div>
+            `;
+            addressGrid.appendChild(addressCard);
+        }
 
         async function confirmDelete(addressId) {
             Swal.fire({
@@ -290,30 +347,30 @@
                             method: 'GET',
                         });
 
-                        if (!response.ok) {
-                            throw new Error(`HTTP error! status: ${response.status}`);
-                        }
-
                         const result = await response.json();
-
-                        if (result.success) {
-                            Swal.fire({
-                                icon: 'success',
-                                title: 'Deleted!',
-                                text: result.message || 'Address has been deleted successfully.',
-                            }).then(() => {
-                                window.location.reload();
-                            });
+                        if (response.ok) {
+                            const addressCard = document.querySelector(`.address-card[data-address-id="${addressId}"]`);
+                            if (addressCard) {
+                                addressCard.remove();
+                                const remainingAddresses = document.querySelectorAll(".address-card").length;
+                                if (remainingAddresses === 0) {
+                                    const noAddressMessage = document.getElementById("no-address-message");
+                                    if (noAddressMessage) {
+                                        noAddressMessage.style.display = "block";
+                                    } else {
+                                        const addressGrid = document.getElementById("address-grid");
+                                        addressGrid.insertAdjacentHTML('beforebegin', '<p class="no-address-message" id="no-address-message">No addresses available.</p>');
+                                    }
+                                    document.getElementById("address-grid").style.display = "none";
+                                }
+                                toast.show(result.message || "Address deleted successfully", "success");
+                            }
                         } else {
-                            throw new Error(result.message || 'Failed to delete address');
+                            toast.show(result.message || "Failed to delete address", "error");
                         }
                     } catch (error) {
                         console.error('Delete Error:', error);
-                        Swal.fire({
-                            icon: 'error',
-                            title: 'Oops...',
-                            text: error.message || 'Something went wrong, please try again later',
-                        });
+                        toast.show("Something went wrong, please try again later", "error");
                     }
                 }
             });
@@ -330,10 +387,11 @@
                 confirmButtonText: 'Yes, log out!'
             }).then((result) => {
                 if (result.isConfirmed) {
-                     window.location.href = '/logout'; 
+                    window.location.href = '/logout';
                 }
             });
         }
+
     </script>
 </body>
 </html>

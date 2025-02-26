@@ -307,13 +307,6 @@ const placeOrder = async (req, res) => {
     const shippingCost = 0;
     const finalTotal = subTotal - (discountAmount || 0) + shippingCost;
 
-    // Check COD restriction
-    if (paymentMethod === "COD" && finalTotal >= 5000) {
-      return res.status(400).json({
-        error: "Cash on Delivery is not available for orders above ₹5000. Please choose another payment method.",
-      });
-    }
-
     const orderItems = cartData.items.map((item) => ({
       productId: item.product._id,
       quantity: item.quantity,
@@ -322,19 +315,12 @@ const placeOrder = async (req, res) => {
 
     const orderId = `ORD-${Date.now()}-${Math.floor(Math.random() * 1000)}`;
 
-    // Handle payment methods
-    if (paymentMethod === "WALLET") {
-      const wallet = await Wallet.findOne({ userId });
-      if (!wallet || wallet.balance < finalTotal) {
-        return res.status(400).json({ error: "Insufficient wallet balance" });
-      }
-
-      await wallet.addTransaction({
-        type: "Purchase",
-        amount: finalTotal,
-        orderId,
-        description: `Payment for order ${orderId}`,
-        status: "Completed",
+    if (paymentMethod === "RAZORPAY") {
+      const razorpayOrder = await razorpay.orders.create({
+        amount: Math.round(finalTotal * 100),
+        currency: "INR",
+        receipt: `receipt_${Date.now()}`,
+        payment_capture: 1,
       });
 
       const newOrder = new Order({
@@ -346,47 +332,31 @@ const placeOrder = async (req, res) => {
         taxAmount,
         totalAmount: finalTotal,
         discountAmount,
-        paymentMethod: "WALLET",
+        paymentMethod: "Razorpay",
+        paymentStatus: "Pending",
         orderStatus: "Pending",
-        paymentStatus: "Paid",
+        paymentDetails: { razorpayOrderId: razorpayOrder.id },
       });
 
       await newOrder.save();
-      await Cart.updateOne({ user: userId }, { $set: { items: [] } });
-
+      console.log("Order saved with ID:", newOrder.orderId);
       return res.status(200).json({
         success: true,
-        message: "Order placed successfully using wallet",
-        orderId: newOrder.orderId,
-      });
-    }
-
-    if (paymentMethod === "RAZORPAY") {
-      const razorpayOrder = await razorpay.orders.create({
-        amount: Math.round(finalTotal * 100),
-        currency: "INR",
-        receipt: `receipt_${Date.now()}`,
-        payment_capture: 1,
-      });
-
-      return res.status(200).json({
         orderId: razorpayOrder.id,
         amount: Math.round(finalTotal * 100),
         currency: "INR",
         key_id: process.env.RAZORPAY_KEY_ID,
-        orderData: {
-          items: orderItems,
-          shippingAddress,
-          subTotal,
-          shippingCost,
-          totalAmount: finalTotal,
-          discountAmount,
-          userId,
-        },
+        internalOrderId: newOrder.orderId,
       });
     }
 
     if (paymentMethod === "COD") {
+      if (finalTotal >= 5000) {
+        return res.status(400).json({
+          error: "Cash on Delivery is not available for orders above ₹5000. Please choose another payment method.",
+        });
+      }
+
       for (const cartItem of cartData.items) {
         const product = cartItem.product;
         const newStock = product.quantity - cartItem.quantity;
@@ -417,20 +387,109 @@ const placeOrder = async (req, res) => {
       });
     }
 
+    if (paymentMethod === "WALLET") {
+      let wallet = await Wallet.findOne({ userId });
+      if (!wallet) {
+        wallet = await new Wallet({ userId }).save();
+      }
+
+      if (wallet.balance < finalTotal) {
+        return res.status(400).json({ error: "Insufficient wallet balance" });
+      }
+
+      const newOrder = new Order({
+        orderId,
+        userId,
+        items: orderItems,
+        shippingAddress,
+        subTotal,
+        taxAmount,
+        totalAmount: finalTotal,
+        discountAmount,
+        paymentMethod: "WALLET",
+        orderStatus: "Pending",
+        paymentStatus: "Paid",
+      });
+
+      await newOrder.save();
+
+      // Use the Order's _id (ObjectId) instead of the custom orderId string
+      await wallet.addTransaction({
+        type: "Purchase",
+        amount: finalTotal,
+        orderId: newOrder._id, // Pass the ObjectId here
+        description: `Payment for order ${orderId}`,
+        status: "Completed",
+      });
+
+      for (const cartItem of cartData.items) {
+        const product = cartItem.product;
+        const newStock = product.quantity - cartItem.quantity;
+        await Product.updateOne({ _id: product._id }, { $set: { quantity: newStock } });
+      }
+
+      await Cart.updateOne({ user: userId }, { $set: { items: [] } });
+
+      return res.status(200).json({
+        success: true,
+        message: "Order placed successfully using wallet",
+        orderId: newOrder.orderId,
+      });
+    }
+
     return res.status(400).json({ error: "Invalid payment method" });
+
   } catch (error) {
     console.error("Error placing order:", error);
     res.status(500).json({ error: error.message || "Internal server error" });
   }
 };
 
+const retryPayment = async (req, res) => {
+  try {
+    const { orderId } = req.body; // Internal orderId
+    const order = await Order.findOne({ orderId });
 
+    if (!order) {
+      return res.status(404).json({ error: "Order not found" });
+    }
 
+    if (order.paymentStatus === "Paid") {
+      return res.status(400).json({ error: "Payment already completed" });
+    }
 
+    if (order.paymentMethod !== "Razorpay") {
+      return res.status(400).json({ error: "Retry only applicable for Razorpay payments" });
+    }
+
+    const razorpayOrder = await razorpay.orders.create({
+      amount: Math.round(order.totalAmount * 100),
+      currency: "INR",
+      receipt: `receipt_${Date.now()}`,
+      payment_capture: 1,
+    });
+
+    order.paymentDetails.razorpayOrderId = razorpayOrder.id;
+    order.paymentStatus = "Pending"; // Reset to Pending for retry
+    await order.save();
+
+    res.status(200).json({
+      orderId: razorpayOrder.id,
+      amount: Math.round(order.totalAmount * 100),
+      currency: "INR",
+      key_id: process.env.RAZORPAY_KEY_ID,
+      internalOrderId: order.orderId,
+    });
+  } catch (error) {
+    console.error("Error retrying payment:", error);
+    res.status(500).json({ error: "Failed to initiate payment retry" });
+  }
+};
 
 
 module.exports = {
   loadCheckout,
   placeOrder,
   validateCoupon,
+  retryPayment
 };

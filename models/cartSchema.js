@@ -11,7 +11,7 @@ const cartSchema = new mongoose.Schema(
       {
         product: {
           type: mongoose.Schema.Types.ObjectId,
-          ref: "Product", // Reference to the Product model
+          ref: "Product", 
           required: true,
         },
         quantity: {
@@ -28,18 +28,18 @@ const cartSchema = new mongoose.Schema(
     totalAmount: {
       type: Number,
       required: true,
-      default: 0, // Total cost of all items in the cart
+      default: 0, 
     },
   },
   {
-    timestamps: true, // Automatically add `createdAt` and `updatedAt` fields
+    timestamps: true, 
   }
 );
 
-// Add index for querying by user
+
 cartSchema.index({ user: 1 });
 
-// Pre-save middleware to calculate the total amount
+
 cartSchema.pre("save", function (next) {
   this.totalAmount = this.items.reduce((sum, item) => {
     return sum + item.discountedPrice * item.quantity;
@@ -47,5 +47,5 @@ cartSchema.pre("save", function (next) {
   next();
 });
 
-// Export the model
+
 module.exports = mongoose.model("Cart", cartSchema);

@@ -317,6 +317,7 @@ const orders = async (req, res) => {
       status: order.orderStatus,
       total: order.totalAmount,
       paymentMethod: order.paymentMethod,
+      paymentStatus: order.paymentStatus, // Add this
       shippingMethod: "Standard Shipping",
       products: order.items.map((item) => ({
         productId: item.productId?._id, // Add this line

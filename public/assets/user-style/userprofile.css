@@ -57,10 +57,11 @@ body {
 }
 
 
+
 .logout-btn {
     width: 100%;
     padding: 10px;
-    background: #ff4444;
+    background:linear-gradient(135deg, #ff0000, #b30000);
     color: white;
     border: none;
     border-radius: 5px;
@@ -69,7 +70,8 @@ body {
 }
 
 .logout-btn:hover {
-    background: #cc0000;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(255, 0, 0, 0.4);
 }
 
 /* Main content styling */
@@ -316,8 +318,8 @@ box-shadow: 0 4px 12px rgba(0, 123, 255, 0.4);
     top: 110px;
     right: 20px;
     z-index: 1000;
-}
-.toast {
+  }
+  .toast {
     background: white;
     color: #333;
     padding: 12px 24px;
@@ -330,23 +332,23 @@ box-shadow: 0 4px 12px rgba(0, 123, 255, 0.4);
     opacity: 0;
     transform: translateX(100%);
     transition: all 0.3s ease;
-}
-.toast.show {
+  }
+  .toast.show {
     opacity: 1;
     transform: translateX(0);
-}
-.toast.success {
+  }
+  .toast.success {
     border-left: 4px solid #4CAF50;
-}
-.toast.error {
+  }
+  .toast.error {
     border-left: 4px solid #f44336;
-}
-.toast-icon {
+  }
+  .toast-icon {
     font-size: 18px;
-}
-.toast.success .toast-icon {
+  }
+  .toast.success .toast-icon {
     color: #4CAF50;
-}
-.toast.error .toast-icon {
+  }
+  .toast.error .toast-icon {
     color: #f44336;
-}
+  }

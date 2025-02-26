@@ -75,7 +75,21 @@ function getDefaultDescription(type) {
       return "Wallet transaction";
   }
 }
+const getWalletBalance = async (req, res) => {
+  try {
+    const userId = req.session.user;
+    let wallet = await Wallet.findOne({ userId });
 
+    if (!wallet) {
+      wallet = await new Wallet({ userId }).save();
+    }
+
+    res.status(200).json({ success: true, balance: wallet.balance });
+  } catch (error) {
+    console.error("Error fetching wallet balance:", error);
+    res.status(500).json({ success: false, error: "Failed to fetch wallet balance" });
+  }
+};
 const addMoney = async (req, res) => {
   try {
     const { amount } = req.body;
@@ -149,4 +163,5 @@ module.exports = {
   addMoney,
   verifyRecharge,
   wallet,
+  getWalletBalance,
 };

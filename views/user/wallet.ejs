@@ -12,8 +12,6 @@
 <body>
     <%- include('../partials/user/header')%>
     <div class="page-container">
-       
-
         <aside class="sidebar">
             <nav>
                 <ul class="sidebar-menu">
@@ -33,7 +31,7 @@
                     <h1>Wallet</h1>
                     <div class="wallet-card">
                         <div class="wallet-label">Available Balance</div>
-                        <div class="wallet-balance">₹<%= walletBalance %></div>
+                        <div class="wallet-balance" id="wallet-balance">₹<%= walletBalance %></div>
                     </div>
 
                     <div class="add-money-form">
@@ -69,7 +67,7 @@
                                             <th>Status</th>
                                         </tr>
                                     </thead>
-                                    <tbody>
+                                    <tbody id="transaction-body">
                                         <% transactions.forEach(function(transaction) { %>
                                         <tr>
                                             <td><%= transaction.type %></td>
@@ -105,19 +103,46 @@
     </div>
 
     <%- include('../partials/user/footer')%>
+    <div class="toast-container"></div>
     <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script>
+        class ToastNotification {
+            constructor() {
+                this.container = document.querySelector('.toast-container');
+                if (!this.container) {
+                    this.container = document.createElement('div');
+                    this.container.className = 'toast-container';
+                    document.body.appendChild(this.container);
+                }
+            }
+
+            show(message, type = 'success') {
+                const toast = document.createElement('div');
+                toast.className = `toast ${type}`;
+                const icon = document.createElement('i');
+                icon.className = `toast-icon fas ${type === 'success' ? 'fa-check-circle' : type === 'error' ? 'fa-exclamation-circle' : 'fa-exclamation-triangle'}`;
+                const textDiv = document.createElement('div');
+                textDiv.textContent = message;
+                toast.appendChild(icon);
+                toast.appendChild(textDiv);
+                this.container.appendChild(toast);
+                toast.offsetHeight;
+                setTimeout(() => toast.classList.add('show'), 10);
+                setTimeout(() => {
+                    toast.classList.remove('show');
+                    setTimeout(() => this.container.removeChild(toast), 300);
+                }, 3000);
+            }
+        }
+
+        const toast = new ToastNotification();
+
         document.getElementById("addMoneyForm").addEventListener("submit", async (e) => {
             e.preventDefault();
-            const amount = document.getElementById("amount").value;
+            const amount = parseFloat(document.getElementById("amount").value);
 
-            if (amount <= 0) {
-                Swal.fire({
-                    icon: "error",
-                    title: "Invalid Amount",
-                    text: "Please enter a valid amount greater than 0.",
-                });
+            if (amount <= 0 || isNaN(amount)) {
+                toast.show("Please enter a valid amount greater than 0.", "error");
                 return;
             }
 
@@ -149,34 +174,47 @@
                                     razorpay_order_id: response.razorpay_order_id,
                                     razorpay_payment_id: response.razorpay_payment_id,
                                     razorpay_signature: response.razorpay_signature,
-                                    amount: data.amount,
+                                    amount: data.amount / 100, // Convert paise to rupees
                                 }),
                             });
 
                             const verifyData = await verifyResponse.json();
                             if (verifyData.success) {
-                                Swal.fire({
-                                    icon: "success",
-                                    title: "Success",
-                                    text: "Money added to wallet successfully!",
-                                }).then(() => {
-                                    location.reload();
+                                // Update wallet balance dynamically
+                                const balanceResponse = await fetch('/get-wallet-balance', {
+                                    method: 'GET',
+                                    headers: { 'Content-Type': 'application/json' },
                                 });
+                                const balanceData = await balanceResponse.json();
+                                if (balanceData.success) {
+                                    document.getElementById('wallet-balance').textContent = `₹${balanceData.balance.toFixed(2)}`;
+                                    addTransactionToTable({
+                                        type: 'Deposit',
+                                        description: 'Wallet recharge',
+                                        date: new Date().toLocaleDateString('en-IN', {
+                                            day: 'numeric',
+                                            month: 'short',
+                                            year: 'numeric',
+                                        }),
+                                        amount: amount,
+                                        status: 'Completed',
+                                        isDebit: false
+                                    });
+                                    toast.show("Money added to wallet successfully!", "success");
+                                } else {
+                                    throw new Error("Failed to fetch updated balance");
+                                }
                             } else {
                                 throw new Error("Payment verification failed");
                             }
                         } catch (error) {
-                            Swal.fire({
-                                icon: "error",
-                                title: "Error",
-                                text: "Failed to verify payment. Please contact support.",
-                            });
+                            toast.show("Failed to verify payment. Please contact support.", "error");
                         }
                     },
                     prefill: {
-                        name: "User",
-                        email: "user@example.com",
-                        contact: "",
+                        name: "<%= user.name %>",
+                        email: "<%= user.email %>",
+                        contact: "<%= user.phone || '' %>",
                     },
                     theme: {
                         color: "#4A90E2",
@@ -187,35 +225,37 @@
                 rzp.open();
 
                 rzp.on("payment.failed", function (response) {
-                    Swal.fire({
-                        icon: "error",
-                        title: "Payment Failed",
-                        text: "The payment was unsuccessful. Please try again.",
-                    });
+                    toast.show("The payment was unsuccessful. Please try again.", "error");
                 });
             } catch (error) {
-                Swal.fire({
-                    icon: "error",
-                    title: "Error",
-                    text: error.message,
-                });
+                toast.show(error.message, "error");
             }
         });
 
+        function addTransactionToTable(transaction) {
+            const tbody = document.getElementById('transaction-body');
+            if (!tbody) return; // No transaction table exists
+
+            const tr = document.createElement('tr');
+            tr.innerHTML = `
+                <td>${transaction.type}</td>
+                <td>${transaction.description}</td>
+                <td>${transaction.date}</td>
+                <td class="${transaction.isDebit ? 'amount-debit' : 'amount-credit'}">
+                    ${transaction.isDebit ? '-' : '+'}₹${transaction.amount}
+                </td>
+                <td>
+                    <span class="status-badge status-${transaction.status.toLowerCase()}">${transaction.status}</span>
+                </td>
+            `;
+            tbody.insertBefore(tr, tbody.firstChild); // Add to top of table
+        }
+
         function logout() {
-            Swal.fire({
-                title: 'Are you sure?',
-                text: "You will be logged out of your account!",
-                icon: 'warning',
-                showCancelButton: true,
-                confirmButtonColor: '#4A90E2',
-                cancelButtonColor: '#ff4444',
-                confirmButtonText: 'Yes, log out!'
-            }).then((result) => {
-                if (result.isConfirmed) {
-                    window.location.href = '/logout'; 
-                }
-            });
+            toast.show("Logging out...", "warning");
+            setTimeout(() => {
+                window.location.href = '/logout';
+            }, 1000);
         }
     </script>
 </body>

@@ -109,8 +109,40 @@
     </div>
 
     <%- include('../partials/user/footer')%>
+    <div class="toast-container"></div>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script>
+        class ToastNotification {
+            constructor() {
+                this.container = document.querySelector('.toast-container');
+                if (!this.container) {
+                    this.container = document.createElement('div');
+                    this.container.className = 'toast-container';
+                    document.body.appendChild(this.container);
+                }
+            }
+
+            show(message, type = 'success') {
+                const toast = document.createElement('div');
+                toast.className = `toast ${type}`;
+                const icon = document.createElement('i');
+                icon.className = `toast-icon fas ${type === 'success' ? 'fa-check-circle' : type === 'error' ? 'fa-exclamation-circle' : 'fa-exclamation-triangle'}`;
+                const textDiv = document.createElement('div');
+                textDiv.textContent = message;
+                toast.appendChild(icon);
+                toast.appendChild(textDiv);
+                this.container.appendChild(toast);
+                toast.offsetHeight;
+                setTimeout(() => toast.classList.add('show'), 10);
+                setTimeout(() => {
+                    toast.classList.remove('show');
+                    setTimeout(() => this.container.removeChild(toast), 300);
+                }, 3000);
+            }
+        }
+
+        const toast = new ToastNotification();
+
         document.getElementById("edit-address-form").addEventListener("submit", async (e) => {
             e.preventDefault();
 
@@ -212,27 +244,16 @@
 
                     const result = await response.json();
                     if (response.ok) {
-                        Swal.fire({
-                            icon: "success",
-                            title: "Success!",
-                            text: result.message || "Address updated successfully!",
-                        }).then(() => {
+                        toast.show(result.message || "Address updated successfully!", "success");
+                        setTimeout(() => {
                             window.location.href = "/addressManagement";
-                        });
+                        }, 1500);
                     } else {
-                        Swal.fire({
-                            icon: "error",
-                            title: "Error",
-                            text: result.message || "Failed to update address.",
-                        });
+                        toast.show(result.message || "Failed to update address.", "error");
                     }
                 } catch (error) {
                     console.error("Fetch error:", error);
-                    Swal.fire({
-                        icon: "error",
-                        title: "Oops...",
-                        text: error.message || "Something went wrong, please try again later.",
-                    });
+                    toast.show(error.message || "Something went wrong, please try again later.", "error");
                 }
             }
         });
@@ -248,7 +269,7 @@
                 confirmButtonText: 'Yes, log out!'
             }).then((result) => {
                 if (result.isConfirmed) {
-                    window.location.href = '/logout';
+                     window.location.href = '/logout';
                 }
             });
         }

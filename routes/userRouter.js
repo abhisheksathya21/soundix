@@ -68,7 +68,11 @@ router.get("/checkout", UserAuth,checkoutcontroller.loadCheckout);
 router.post("/validate-coupon", UserAuth, checkoutcontroller.validateCoupon);
 //place-Order
 router.post("/place-order", UserAuth, checkoutcontroller.placeOrder);
+router.post("/retry-payment", UserAuth, checkoutcontroller.retryPayment);
 router.post("/verify-payment", UserAuth, ordercontroller.verifyPayment);
+router.post("/payment-dismissed", UserAuth, ordercontroller.paymentDismissed);
+router.get("/get-wallet-balance", UserAuth, walletcontroller.getWalletBalance);
+
 //Order Success
 router.get("/order-success", UserAuth, ordercontroller.orderSuccess);
 
