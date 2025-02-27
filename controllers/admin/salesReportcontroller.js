@@ -144,7 +144,12 @@ const getSalesReportData = async (req, res) => {
 const exportSalesReportPDF = async (req, res) => {
   try {
     const { startDate, endDate, dateRange } = req.query;
-    const filter = buildDateFilter(startDate, endDate, dateRange);
+    const dateFilter = buildDateFilter(startDate, endDate, dateRange);
+    
+    const filter = {
+      ...dateFilter,
+      orderStatus: "Delivered",
+    };
 
     const orders = await Order.find(filter)
       .select(
@@ -168,7 +173,12 @@ const exportSalesReportPDF = async (req, res) => {
 const exportSalesReportExcel = async (req, res) => {
   try {
     const { startDate, endDate, dateRange } = req.query;
-    const filter = buildDateFilter(startDate, endDate, dateRange);
+    const dateFilter = buildDateFilter(startDate, endDate, dateRange);
+    
+    const filter = {
+      ...dateFilter,
+      orderStatus: "Delivered",
+    };
 
     const orders = await Order.find(filter)
       .select(

@@ -339,7 +339,6 @@ const placeOrder = async (req, res) => {
       });
 
       await newOrder.save();
-      console.log("Order saved with ID:", newOrder.orderId);
       return res.status(200).json({
         success: true,
         orderId: razorpayOrder.id,

@@ -6,13 +6,15 @@ const Address = require("../../models/addressSchema");
 const Order = require("../../models/orderSchema");
 const Wallet = require("../../models/walletSchema");
 const crypto = require("crypto");
+const PDFDocument = require("pdfkit");
+const path = require("path");
+const fs = require("fs");
 
 const Razorpay = require("razorpay");
 const razorpay = new Razorpay({
   key_id: process.env.RAZORPAY_KEY_ID,
   key_secret: process.env.RAZORPAY_KEY_SECRET,
 });
-
 const orderSuccess = async (req, res) => {
   try {
     const userId = req.session.user;
@@ -25,7 +27,6 @@ const orderSuccess = async (req, res) => {
       .populate('items.productId'); 
       
     const userData = await User.findById(userId);
-    console.log("latestOrder", latestOrder);
     res.render("order-success", { 
       orderData: latestOrder, 
       userData: userData 
@@ -67,7 +68,7 @@ const verifyPayment = async (req, res) => {
       return res.status(400).json({ success: false, error: "Invalid payment signature", orderId: order.orderId });
     }
 
-    // Successful payment
+    
     order.paymentStatus = "Paid";
     order.paymentDetails = {
       razorpayOrderId: razorpay_order_id,
@@ -120,6 +121,7 @@ const paymentDismissed = async (req, res) => {
     res.status(500).json({ success: false, error: "Failed to update payment status", details: error.message });
   }
 };
+
 const createReturnRequest = async (req, res) => {
   try {
     const { orderId, productId, reason } = req.body;
@@ -133,7 +135,6 @@ const createReturnRequest = async (req, res) => {
       });
     }
 
-   
     if (order.orderStatus !== "Delivered") {
       return res.status(400).json({
         success: false,
@@ -152,7 +153,6 @@ const createReturnRequest = async (req, res) => {
       });
     }
 
-  
     if (
       productItem.status === "Returned" ||
       productItem.returnStatus === "Approved"
@@ -163,7 +163,6 @@ const createReturnRequest = async (req, res) => {
       });
     }
 
-  
     order.returnRequests.push({
       productId: productItem.productId,
       reason: reason,
@@ -171,11 +170,9 @@ const createReturnRequest = async (req, res) => {
       requestDate: new Date(),
     });
 
-   
     productItem.status = "Return Requested";
     productItem.returnReason = reason;
     productItem.returnStatus = "Pending";
-
 
     order.statusHistory.push({
       status: "Return Requested",
@@ -207,7 +204,7 @@ const createReturnRequest = async (req, res) => {
 const processReturnRequest = async (req, res) => {
   try {
     const { orderId, productId, status } = req.body;
-    const adminId = req.session.admin; 
+    const adminId = req.session.admin;
 
     const order = await Order.findOne({ orderId });
     if (!order) {
@@ -233,7 +230,6 @@ const processReturnRequest = async (req, res) => {
     );
 
     if (status === "Approved") {
-      // Process refund
       const refundAmount = productItem.price * productItem.quantity;
 
       let wallet = await Wallet.findOne({ userId: order.userId });
@@ -249,14 +245,12 @@ const processReturnRequest = async (req, res) => {
         status: "Completed",
       });
 
-      
       const product = await Product.findById(productId);
       if (product) {
         product.quantity += productItem.quantity;
         await product.save();
       }
 
-      
       productItem.status = "Returned";
       productItem.returnStatus = "Approved";
       productItem.refundAmount = refundAmount;
@@ -269,12 +263,10 @@ const processReturnRequest = async (req, res) => {
         date: new Date(),
       });
     } else {
-     
       productItem.status = "Delivered";
       productItem.returnStatus = "Rejected";
       returnRequest.status = "Rejected";
 
-    
       order.statusHistory.push({
         status: "Return Rejected",
         comment: `Product ${productId} return request rejected`,
@@ -302,11 +294,10 @@ const processReturnRequest = async (req, res) => {
   }
 };
 
-
 const cancelOrder = async (req, res) => {
   try {
     const orderId = req.params.orderId;
-    const { reason } = req.body; 
+    const { reason } = req.body;
     const userId = req.session.user;
 
     const order = await Order.findOne({ orderId: orderId, userId: userId });
@@ -324,7 +315,6 @@ const cancelOrder = async (req, res) => {
         .json({ success: false, message: "Order cannot be cancelled" });
     }
 
-    
     if (["WALLET", "Razorpay"].includes(order.paymentMethod)) {
       let wallet = await Wallet.findOne({ userId });
 
@@ -341,7 +331,6 @@ const cancelOrder = async (req, res) => {
       });
     }
 
-   
     for (const item of order.items) {
       const product = await Product.findById(item.productId);
       if (product) {
@@ -351,15 +340,13 @@ const cancelOrder = async (req, res) => {
 
       item.status = "Cancelled";
       item.cancelledAt = new Date();
-      item.cancellationReason = reason; 
+      item.cancellationReason = reason;
     }
 
-    
     order.orderStatus = "Cancelled";
     order.cancelledAt = new Date();
     order.cancellationReason = reason;
 
-   
     order.statusHistory.push({
       status: "Cancelled",
       comment: `Order cancelled by user. Reason: ${reason}`,
@@ -393,7 +380,7 @@ const cancelOrder = async (req, res) => {
 
 const cancelProductOrder = async (req, res) => {
   try {
-    const { orderId, productId, reason } = req.body; 
+    const { orderId, productId, reason } = req.body;
     const userId = req.session.user;
 
     const order = await Order.findOne({ orderId, userId });
@@ -429,7 +416,6 @@ const cancelProductOrder = async (req, res) => {
 
     const refundAmount = productItem.price * productItem.quantity;
 
-   
     if (["WALLET", "Razorpay"].includes(order.paymentMethod)) {
       let wallet = await Wallet.findOne({ userId });
 
@@ -446,28 +432,22 @@ const cancelProductOrder = async (req, res) => {
       });
     }
 
-   
     const product = await Product.findById(productId);
     if (product) {
       product.quantity += productItem.quantity;
       await product.save();
     }
 
-    
     productItem.status = "Cancelled";
     productItem.cancelledAt = new Date();
     productItem.cancellationReason = reason;
 
-    
     order.statusHistory.push({
       status: "Product Cancelled",
-      comment: `Product ${
-        product.name || productId
-      } cancelled. Reason: ${reason}`,
+      comment: `Product ${product.name || productId} cancelled. Reason: ${reason}`,
       date: new Date(),
     });
 
-   
     const activeItems = order.items.filter(
       (item) => item.status !== "Cancelled"
     );
@@ -476,7 +456,6 @@ const cancelProductOrder = async (req, res) => {
       order.cancelledAt = new Date();
       order.cancellationReason = "All products cancelled";
     } else {
-      
       order.totalAmount = activeItems.reduce(
         (total, item) => total + item.price * item.quantity,
         0
@@ -506,10 +485,215 @@ const cancelProductOrder = async (req, res) => {
       message: "Error cancelling product",
     });
   }
-};  
+};
 
+const getOrderForInvoice = async (req, res) => {
+  try {
+    const { orderId } = req.params;
+    const userId = req.session.user;
 
+    const order = await Order.findOne({ orderId, userId })
+      .populate('items.productId')
+      .lean();
 
+    if (!order) {
+      return res.status(404).json({ success: false, message: "Order not found" });
+    }
+
+    res.status(200).json({
+      success: true,
+      data: {
+        id: order.orderId,
+        date: new Date(order.orderDate).toLocaleDateString(),
+        paymentMethod: order.paymentMethod,
+        paymentStatus: order.paymentStatus,
+        shippingAddress: order.shippingAddress,
+        shippingMethod: order.shippingMethod,
+        total: order.totalAmount,
+        products: order.items.map(item => ({
+          productId: item.productId._id,
+          name: item.productId.name,
+          quantity: item.quantity,
+          price: item.price,
+          image: item.productId.images[0],
+          status: item.status
+        }))
+      }
+    });
+  } catch (error) {
+    console.error("Error fetching order for invoice:", error);
+    res.status(500).json({ success: false, message: "Error fetching order data" });
+  }
+};
+const generateInvoicePDF = async (req, res) => {
+  try {
+    const { orderId } = req.params;
+    const userId = req.session.user;
+
+    // Fetch order with populated productId, category, and user
+    const order = await Order.findOne({ orderId, userId })
+      .populate({
+        path: 'items.productId',
+        populate: { path: 'category' }
+      })
+      .populate('userId') // Populate user for customer details
+      .lean();
+
+    if (!order) {
+      return res.status(404).json({ success: false, message: "Order not found" });
+    }
+  
+
+    const doc = new PDFDocument({ margin: 50 });
+    res.setHeader('Content-Type', 'application/pdf');
+    res.setHeader('Content-Disposition', `attachment; filename=invoice_${order.orderId}.pdf`);
+    doc.pipe(res);
+
+    // 1. Header with Logo and Company Name
+    const logoPath = path.join(__dirname, '../../public/assets/img/beat-logo-161616.png');
+    if (fs.existsSync(logoPath)) {
+      doc.image(logoPath, 50, 40, { width: 50 }); // Logo size as per your current setting
+    } else {
+      doc.fontSize(20).font('Helvetica-Bold').text('Beats Zone', 50, 40);
+    }
+    doc.fontSize(20)
+       .font('Helvetica-Bold')
+       .text('Beats Zone', 160, 50)
+       .fontSize(16)
+       .text('Invoice', 160, 75);
+
+    // 2. Customer Details
+    doc.fontSize(14)
+       .font('Helvetica-Bold')
+       .text('Customer Details', 50, 110);
+    doc.fontSize(10)
+       .font('Helvetica')
+       .text(`Customer Name: ${order.userId.fullname || 'N/A'}`, 50, 130)
+       .text(`Email: ${order.userId.email || 'N/A'}`, 50, 145)
+       .text(`Phone: ${order.userId.phone || order.shippingAddress.phoneNumber || 'N/A'}`, 50, 160);
+
+    // Shipping Address
+    doc.fontSize(14)
+       .font('Helvetica-Bold')
+       .text('Shipping Address', 300, 110);
+    doc.fontSize(10)
+       .font('Helvetica')
+       .text(order.shippingAddress.name || 'N/A', 300, 130)
+       .text(order.shippingAddress.street || 'N/A', 300, 145)
+       .text(`${order.shippingAddress.city || 'N/A'}, ${order.shippingAddress.state || 'N/A'}`, 300, 160)
+       .text(`${order.shippingAddress.pinCode || 'N/A'}, ${order.shippingAddress.country || 'N/A'}`, 300, 175);
+
+    // Line separator
+    doc.moveTo(50, 200).lineTo(550, 200).stroke(); // Adjusted position for more space
+
+    // 3. Invoice Details
+    doc.fontSize(14)
+       .font('Helvetica-Bold')
+       .text('Invoice Details', 50, 220);
+    doc.fontSize(10)
+       .font('Helvetica')
+       .text(`Invoice Number: ${order.orderId}`, 50, 240)
+       .text(`Invoice Date: ${new Date(order.orderDate).toLocaleDateString()}`, 50, 255)
+       .text(`Order Number: ${order.orderId}`, 50, 270) // Assuming orderId is the order number
+       .text(`Payment Method: ${order.paymentMethod || 'N/A'}`, 50, 285);
+
+    // 4. Product Details Table (Improved alignment)
+    const tableTop = 310; // Adjusted to provide more space
+    doc.font('Helvetica-Bold')
+       .fontSize(11)
+       .text('Item Name', 50, tableTop, { width: 150 })
+       .text('Category', 200, tableTop, { width: 100 })
+       .text('Qty', 300, tableTop, { width: 50, align: 'center' })
+       .text('Unit Price', 350, tableTop, { width: 80, align: 'right' })
+       .text('Subtotal', 430, tableTop, { width: 60, align: 'right' });
+
+    doc.moveTo(50, tableTop + 15).lineTo(550, tableTop + 15).stroke();
+
+    let yPos = tableTop + 25;
+    order.items.forEach(item => {
+      if (item.status !== 'Cancelled') {
+        const productName = item.productId?.productName || 'N/A';
+        const categoryName = item.productId?.category?.name || 'N/A';
+        const subtotal = (item.price || 0) * (item.quantity || 0);
+        doc.font('Helvetica')
+           .fontSize(10)
+           .text(productName, 50, yPos, { width: 150 })
+           .text(categoryName, 200, yPos, { width: 100 })
+           .text(item.quantity || 0, 300, yPos, { width: 50, align: 'center' })
+           .text(`${(item.price || 0).toFixed(2)}`, 350, yPos, { width: 80, align: 'right' })
+           .text(`${subtotal.toFixed(2)}`, 430, yPos, { width: 60, align: 'right' });
+        yPos += 20;
+      }
+    });
+
+    // Line separator after items
+    doc.moveTo(50, yPos + 15).lineTo(550, yPos + 15).stroke(); // Increased spacing
+
+    // 5. Taxes & Discounts
+    doc.fontSize(14)
+       .font('Helvetica-Bold')
+       .text('Taxes & Discounts', 50, yPos + 30); // Increased spacing
+    yPos += 50; // More space before details
+    doc.fontSize(10)
+       .font('Helvetica')
+       .text(`Subtotal (Before Tax & Discount): ₹${(order.subTotal || 0).toFixed(2)}`, 50, yPos, { align: 'left' });
+    yPos += 15;
+    doc.text(`Tax Amount: ${(order.taxAmount || 0).toFixed(2)}`, 50, yPos, { align: 'left' });
+    yPos += 15;
+    doc.text(`Discount Applied: ${(order.discountAmount || 0).toFixed(2)}`, 50, yPos, { align: 'left' });
+    yPos += 15;
+    if (order.coupon?.code) {
+      doc.text(`Coupon Code: ${order.coupon.code} (${order.coupon.discountType === 'percentage' ? `${order.coupon.discountAmount}%` : `₹${order.coupon.discountAmount}`})`, 50, yPos, { align: 'left' });
+      yPos += 15;
+    }
+    doc.text(`Offer Discount: ${(order.offerDiscount || 0).toFixed(2)}`, 50, yPos, { align: 'left' });
+
+    // 6. Shipping Details
+    doc.fontSize(14)
+       .font('Helvetica-Bold')
+       .text('Shipping Details', 300, yPos - 60); // Adjusted position for alignment
+    doc.fontSize(10)
+       .font('Helvetica')
+       .text(`Shipping Method: ${order.shippingAddress.addressType || 'N/A'}`, 300, yPos - 45, { align: 'left' })
+       .text(`Shipping Charges: ₹0.00`, 300, yPos - 30, { align: 'left' }) // No explicit field; adjust if available
+       .text(`Tracking Number: N/A`, 300, yPos - 15, { align: 'left' }); // Add field if needed
+
+    // 7. Total Amount (Moved below Shipping Details and Payment Status)
+    yPos += 50; // Increased spacing to avoid overlap with previous sections
+    doc.moveTo(400, yPos - 10).lineTo(550, yPos - 10).stroke();
+    const grandTotal = order.totalAmount || 0;
+    doc.font('Helvetica-Bold')
+       .fontSize(14) // Increased for emphasis
+       .text('Grand Total:', 300, yPos, { align: 'right' });
+    doc.text(`${grandTotal.toFixed(2)}`, 500, yPos + 30, { align: 'right' }); // Added 10 points of vertical space
+    // 8. Payment Status
+    yPos += 30; // Increased spacing
+    doc.fontSize(14)
+       .font('Helvetica-Bold')
+       .text('Payment Status', 50, yPos);
+    doc.fontSize(10)
+       .font('Helvetica')
+       .text(`Status: ${order.paymentStatus || 'N/A'}`, 50, yPos + 15, { align: 'left' });
+    if (order.paymentDetails?.razorpayPaymentId) {
+      doc.text(`Transaction ID: ${order.paymentDetails.razorpayPaymentId}`, 50, yPos + 30, { align: 'left' });
+      yPos += 15;
+    }
+
+    // Footer
+    yPos += 50; // More spacing before footer
+    doc.fontSize(10)
+       .font('Helvetica')
+       .text('Thank you for shopping with Beats Zone!', 300, yPos, { align: 'center' })
+       .text('Contact us: support@beats_zone.com | +91-920-779-3404', 300, yPos + 15, { align: 'center' });
+
+    doc.end();
+  } catch (error) {
+    console.error('Error generating invoice PDF:', error);
+    res.status(500).send(`Failed to generate invoice: ${error.message}`);
+  }
+};
+
+// Include with your existing exports
 module.exports = {
   orderSuccess,
   cancelOrder,
@@ -517,5 +701,7 @@ module.exports = {
   verifyPayment,
   createReturnRequest,
   processReturnRequest,
-  paymentDismissed
+  paymentDismissed,
+  getOrderForInvoice,
+  generateInvoicePDF
 };

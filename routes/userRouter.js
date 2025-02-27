@@ -13,86 +13,77 @@ const walletcontroller = require("../controllers/user/walletcontroller");
 const { UserAuth, AdminAuth } = require("../middlewares/auth");
 const Product = require("../models/productSchema");
 
-//page error
+// Page error
 router.get("/pageNotFound", usercontroller.pageNotFound);
 
-//signup login section
+// Signup login section
 router.get("/signup", usercontroller.loadSignup);
 router.post("/signup", usercontroller.signup);
 router.get("/login", usercontroller.loadlogin);
 router.post("/login", usercontroller.login);
 
-//otp verification
+// OTP verification
 router.post("/verify-otp", usercontroller.verifyOtp);
 router.post("/resend-otp", usercontroller.resendOtp);
 
-//forgot-password
-
+// Forgot password
 router.get("/forgot-password", usercontroller.loadforgot);
 router.post("/resetPassword", usercontroller.emailvalid);
 
-//forgot password otp verficatoon
+// Forgot password OTP verification
 router.post("/forgot-password/verify-otp", usercontroller.verifyPassOtp);
 router.post("/forgot-password/resend-otp", usercontroller.PassresendOtp);
 router.get("/reset-Password", usercontroller.loadresetPassword);
-//forgot password reset
-
+// Forgot password reset
 router.post("/reset-Password", usercontroller.resetPassword);
 
-//home page and logout
+// Home page and logout
 router.get("/", UserAuth, usercontroller.loadhomepage);
 router.get("/logout", usercontroller.logout);
 
-//shop page && products
+// Shop page && products
 router.get("/shop", UserAuth, usercontroller.loadShopPage);
 router.get("/productdetails", UserAuth, productcontroller.productDetails);
 
-//cart
+// Cart
 router.get("/cart", UserAuth, cartcontroller.loadCart);
 router.post("/cart-add", UserAuth, cartcontroller.addtoCart);
 router.post("/cart-add-from-wishlist", UserAuth, cartcontroller.addToCartFromWishlist);
 router.post("/removeCart", UserAuth, cartcontroller.removeCart);
 router.post("/updateQuantity", UserAuth, cartcontroller.updateQuantity);
-router.get("/validate-cart", UserAuth, cartcontroller.validateCart); 
+router.get("/validate-cart", UserAuth, cartcontroller.validateCart);
 
-
-//wishlist
+// Wishlist
 router.get("/wishlist", UserAuth, wishlistcontroller.loadWishlist);
 router.post("/wishlist/toggle", UserAuth, wishlistcontroller.toggleWishlist);
 router.post("/wishlist/remove", UserAuth, wishlistcontroller.removeFromWishlist);
 router.get("/wishlist/state", UserAuth, wishlistcontroller.getWishlistState);
 
-
-//checkout
-router.get("/checkout", UserAuth,checkoutcontroller.loadCheckout);
+// Checkout
+router.get("/checkout", UserAuth, checkoutcontroller.loadCheckout);
 router.post("/validate-coupon", UserAuth, checkoutcontroller.validateCoupon);
-//place-Order
+// Place Order
 router.post("/place-order", UserAuth, checkoutcontroller.placeOrder);
 router.post("/retry-payment", UserAuth, checkoutcontroller.retryPayment);
 router.post("/verify-payment", UserAuth, ordercontroller.verifyPayment);
 router.post("/payment-dismissed", UserAuth, ordercontroller.paymentDismissed);
 router.get("/get-wallet-balance", UserAuth, walletcontroller.getWalletBalance);
 
-//Order Success
+// Order Success
 router.get("/order-success", UserAuth, ordercontroller.orderSuccess);
 
-//order cancel
-// Cancel order route
-router.post("/api/orders/:orderId/cancel",UserAuth,ordercontroller.cancelOrder);
+// Order cancel
+router.post("/api/orders/:orderId/cancel", UserAuth, ordercontroller.cancelOrder);
 
-router.post("/admin/cancel-order-product",UserAuth,ordercontroller.cancelProductOrder);
-// In your routes file
-router.post(
-  "/api/orders/return-product",
-  UserAuth,
-  ordercontroller.createReturnRequest
-);
-router.post(
-  "/admin/process-return",
-  UserAuth,
-  ordercontroller.processReturnRequest
-);
-//userProfile
+router.post("/admin/cancel-order-product", UserAuth, ordercontroller.cancelProductOrder);
+router.get('/api/orders/:orderId/invoice', UserAuth, ordercontroller.getOrderForInvoice);
+router.get('/api/orders/:orderId/invoice-pdf', UserAuth, ordercontroller.generateInvoicePDF); // New route
+
+// Return requests
+router.post("/api/orders/return-product", UserAuth, ordercontroller.createReturnRequest);
+router.post("/admin/process-return", UserAuth, ordercontroller.processReturnRequest);
+
+// User Profile
 router.get("/userProfile", UserAuth, profilecontroller.userProfile);
 router.post("/userProfile", UserAuth, profilecontroller.userUpdate);
 
@@ -105,17 +96,14 @@ router.get("/editAddress", UserAuth, profilecontroller.editAddress);
 router.post("/updateAddress", UserAuth, profilecontroller.updateAddress);
 router.get("/deleteAddress", UserAuth, profilecontroller.deleteAddress);
 router.get("/orders", UserAuth, profilecontroller.orders);
-//wallet
 
+// Wallet
 router.get("/wallet", UserAuth, walletcontroller.wallet);
 router.post("/add-money", UserAuth, walletcontroller.addMoney);
 router.post("/verify-recharge", UserAuth, walletcontroller.verifyRecharge);
 
-
 // Google authentication route
-router.get("/auth/google", passport.authenticate("google", { scope: ["profile", "email"],prompt:"select_account" }));
-
-router.get("/auth/google/callback",passport.authenticate("google", { failureRedirect: "/login" }),usercontroller.googleAuth );
-
+router.get("/auth/google", passport.authenticate("google", { scope: ["profile", "email"], prompt: "select_account" }));
+router.get("/auth/google/callback", passport.authenticate("google", { failureRedirect: "/login" }), usercontroller.googleAuth);
 
 module.exports = router;

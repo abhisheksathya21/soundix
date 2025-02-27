@@ -37,7 +37,7 @@ const loadCart = async (req, res) => {
       (sum, item) => sum + item.price * item.quantity,
       0
     );
-    console.log("totalAmount", totalAmount);
+    
     cart.totalAmount = Math.round(totalAmount);
 
     

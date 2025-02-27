@@ -156,13 +156,15 @@ const updateOrderStatus = async (req, res) => {
       }
     }
 
-   
     if (status === "Delivered") {
       order.items.forEach((item) => {
         if (item.status !== "Cancelled") {
           item.status = "Delivered";
         }
       });
+
+      // Update payment status to Paid
+      order.paymentStatus = "Paid";
     }
 
     order.orderStatus = status;
@@ -188,6 +190,7 @@ const updateOrderStatus = async (req, res) => {
     });
   }
 };
+
 
 const cancelProductOrder = async (req, res) => {
   try {

@@ -10,7 +10,19 @@
     <link rel="stylesheet" href="/assets/user-style/orders.css">
     <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
     <style>
-       
+        .download-invoice-btn {
+            background-color: #28a745;
+            color: white;
+            padding: 8px 16px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            margin: 5px 0;
+            transition: background-color 0.3s;
+        }
+        .download-invoice-btn:hover {
+            background-color: #218838;
+        }
     </style>
 </head>
 <body>
@@ -67,7 +79,6 @@
         const orders = <%- JSON.stringify(orders) %>;
         const user = <%- JSON.stringify(user) %>;
 
-        // ToastNotification class from home.ejs
         class ToastNotification {
             constructor() {
                 this.container = document.querySelector('.toast-container');
@@ -615,7 +626,7 @@
             const isDelivered = order.status === 'Delivered';
             const canCancel = order.status === 'Pending' || order.status === 'Processing';
             const canRetryPayment = order.paymentMethod === 'Razorpay' && 
-                                  (order.paymentStatus === 'Pending' || order.paymentStatus === 'Failed');
+                                    (order.paymentStatus === 'Pending' || order.paymentStatus === 'Failed');
 
             orderCard.innerHTML = `
                 <div class="order-header">
@@ -643,6 +654,7 @@
                     `<button class="cancel-order-btn" onclick="cancelOrder('${order.id}')">Cancel Order</button>` : ''}
                 ${canRetryPayment ? 
                     `<button class="retry-payment-btn" onclick="retryPayment('${order.id}')">Retry Payment</button>` : ''}
+                <button class="download-invoice-btn" onclick="downloadInvoice('${order.id}')">Download Invoice</button>
                 <button class="view-products">View Products</button>
                 <div class="product-list">
                     ${order.products.map(product => `
@@ -677,6 +689,30 @@
             });
 
             return orderCard;
+        }
+
+        async function downloadInvoice(orderId) {
+            try {
+                const confirmation = await Swal.fire({
+                    title: 'Download Invoice',
+                    text: `Do you want to download the invoice for order ${orderId}?`,
+                    icon: 'question',
+                    showCancelButton: true,
+                    confirmButtonText: 'Yes, Download',
+                    cancelButtonText: 'No',
+                    confirmButtonColor: '#28a745',
+                    cancelButtonColor: '#d33'
+                });
+
+                if (!confirmation.isConfirmed) return;
+
+                // Redirect to the backend endpoint to download the PDF
+                window.location.href = `/api/orders/${orderId}/invoice-pdf`;
+                toast.show('Invoice downloaded successfully!', 'success');
+            } catch (error) {
+                console.error('Error downloading invoice:', error);
+                toast.show('Failed to download invoice', 'error');
+            }
         }
 
         function logout() {

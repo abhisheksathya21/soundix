@@ -252,10 +252,19 @@
         }
 
         function logout() {
-            toast.show("Logging out...", "warning");
-            setTimeout(() => {
-                window.location.href = '/logout';
-            }, 1000);
+            Swal.fire({
+                title: 'Are you sure?',
+                text: "You will be logged out of your account!",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#4A90E2',
+                cancelButtonColor: '#ff4444',
+                confirmButtonText: 'Yes, log out!'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                     window.location.href = '/logout'; 
+                }
+            });
         }
     </script>
 </body>

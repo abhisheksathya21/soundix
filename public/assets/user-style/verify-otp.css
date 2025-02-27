@@ -239,14 +239,60 @@ body {
 @keyframes spin {
   to { transform: translate(-50%, -50%) rotate(360deg); }
 }
-.swal2-icon.swal2-warning {
-  color: #ff0000 !important;
-  border-color: #ff0000 !important;
+/* Toast Styles */
+.toast-container {
+  position: fixed;
+  top: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 1000;
 }
-.swal2-icon.swal2-success {
-  color: #00ff00 !important;
-  border-color: #00ff00 !important;
+
+.toast {
+  background: white !important;
+  color: #333;
+  padding: 12px 24px;
+  border-radius: 4px;
+  margin-bottom: 10px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  opacity: 0;
+  transform: translateY(-100%);
+  transition: all 0.3s ease;
 }
-.swal2-success-ring {
-  border-color: rgba(0, 255, 0, 0.2) !important;
+
+.toast.show {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.toast.success {
+  border-left: 4px solid #4CAF50;
+  background: white !important;
+}
+
+.toast.error {
+  border-left: 4px solid #f44336;
+  background: white !important;
+}
+
+.toast-icon {
+  font-size: 18px;
+}
+
+.toast.success .toast-icon {
+  color: #4CAF50;
+}
+
+.toast.error .toast-icon {
+  color: #f44336;
+}
+
+body.light-mode .toast,
+body.light-mode .toast.success,
+body.light-mode .toast.error {
+  background: white !important;
+  color: #333;
 }
