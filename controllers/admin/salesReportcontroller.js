@@ -84,7 +84,7 @@ const buildDateFilter = (startDate, endDate, dateRange) => {
 
 const getSalesReportData = async (req, res) => {
   try {
-    console.log("Query parameters received:", req.query);
+    
     const { startDate, endDate, dateRange } = req.query;
 
     
@@ -94,7 +94,7 @@ const getSalesReportData = async (req, res) => {
       orderStatus: "Delivered", 
     };
 
-    console.log("Final MongoDB filter:", filter);
+    
 
     const orders = await Order.find(filter)
       .select(
@@ -102,7 +102,7 @@ const getSalesReportData = async (req, res) => {
       )
       .lean();
 
-    console.log(`Found ${orders.length} delivered orders`);
+  
 
     const totalOrders = orders.length;
     const grossSales = orders.reduce(
@@ -186,7 +186,7 @@ const exportSalesReportExcel = async (req, res) => {
       )
       .lean();
 
-    console.log("Exporting orders to Excel:", orders.length);
+   
     const excelBuffer = await generateExcel(orders);
 
     res.set({

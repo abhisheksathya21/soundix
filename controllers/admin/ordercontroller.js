@@ -194,12 +194,12 @@ const updateOrderStatus = async (req, res) => {
 
 const cancelProductOrder = async (req, res) => {
   try {
-    console.log("cancelproductOrder");
+    
     const { orderId, productId } = req.body;
-    console.log("orderid,productid", orderId, productId);
+    
 
     const order = await Order.findOne({ _id: orderId });
-    console.log("order", order);
+   
 
     if (!order) {
       return res.status(404).json({
@@ -282,7 +282,7 @@ const cancelProductOrder = async (req, res) => {
       success: true,
       message: "Product cancelled and refund processed successfully",
     });
-    console.log("product cancelled successfully");
+    
   } catch (error) {
     console.error("Cancel product error:", error);
     res.status(500).json({

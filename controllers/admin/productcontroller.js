@@ -17,8 +17,8 @@ const addProducts = async (req, res) => {
     }
 
     const processedImages = [];
-    console.log('req.files.length:', req.files.length);
-    console.log('req.files:', req.files.map(f => ({ filename: f.filename, originalname: f.originalname })));
+    
+   
     if (req.files && req.files.length > 0) {
       const uploadDirectory = path.join('public', 'uploads', 'product-images');
       if (!fs.existsSync(uploadDirectory)) {

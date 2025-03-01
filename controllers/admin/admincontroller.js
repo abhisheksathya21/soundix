@@ -49,7 +49,7 @@ const loadDashboard = async (req, res) => {
  
   if (req.session.admin) {
     try {
-      console.log("The dashboard page loaded successfully");
+      
       return res.render("dashboard");
     } catch (error) {
       console.error("Error loading dashboard:", error);

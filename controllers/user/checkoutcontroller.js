@@ -120,7 +120,7 @@ const loadCheckout = async (req, res) => {
         continue;
       }
 
-      // Recalculate price with offers
+      
       const categoryOffer = product.category?.offer || null;
       const productOffer = product.offer || null;
       let bestOffer = null;

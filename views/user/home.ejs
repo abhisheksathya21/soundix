@@ -22,13 +22,27 @@
         <h2 class="section-title">New Arrivals</h2>
         <div class="product-grid">
           <% for (let i = Math.max(products.length - 4, 0); i < products.length; i++) { %>
-            <div class="product-card">
+            <div class="product-card"><a href="/productDetails?id=<%= products[i]._id %>">
               <img src="<%= products[i].productImage[0] %>" alt="<%= products[i].productName %>">
               <div class="product-info">
-                <h3><a href="/productDetails?id=<%= products[i]._id %>"><%= products[i].productName %></a></h3>
-                <span class="price">₹<%= products[i].salePrice %></span>
+                <h3><%= products[i].productName %></h3>
+                <div class="pricing-container">
+                  <div class="price-block">
+                    <span class="product-price final-price">₹<%= products[i].finalPrice.toFixed(2) %></span>
+                    <% if (products[i].bestOffer) { %>
+                      <span class="product-price original-price">₹<%= products[i].salePrice %></span>
+                    <% } %>
+                  </div>
+                  <% if (products[i].bestOffer) { %>
+                    <span class="offer-label">
+                      -<%= products[i].bestOffer.discountPercentage %>%
+                    </span>
+                  <% } %>
+                </div>
               </div>
+            </a>
             </div>
+            
           <% } %>
         </div>
       </div>

@@ -9,7 +9,12 @@ const ordercontroller=require('../controllers/admin/ordercontroller');
 const couponcontroller=require('../controllers/admin/couponcontroller');
 const salesReportcontroller =require('../controllers/admin/salesReportcontroller');
 const {UserAuth,AdminAuth}=require('../middlewares/auth');
+const dashboardController = require("../controllers/admin/dashboardController");
 
+router.get("/dashboard", (req, res) => {
+  res.render("dashboard");
+});
+router.get("/dashboard/data", dashboardController.getDashboardData);
 
 const { v4: uuidv4 } = require('uuid');
 
