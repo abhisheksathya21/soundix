@@ -203,13 +203,23 @@ const editAddress = async (req, res) => {
     if (!addressData) {
       return res.status(404).json({ message: "Address not found" });
     }
-    res.render("editAddress", { address: addressData, user: user, isGoogleUser: !!userData.googleId });
+
+    // Check if the request expects JSON (e.g., from fetch/AJAX)
+    if (req.headers['accept'] === 'application/json') {
+      return res.status(200).json({ success: true, address: addressData });
+    }
+
+    // Otherwise, render the page as before
+    res.render("editAddress", { 
+      address: addressData, 
+      user: user, 
+      isGoogleUser: !!userData.googleId 
+    });
   } catch (error) {
     console.error("Error in loading editAddress page", error); 
     res.redirect('/pageNotFound');
   }
 };
-
 
 const updateAddress = async (req, res) => {
   try {
@@ -326,6 +336,7 @@ const orders = async (req, res) => {
         quantity: item.quantity || 0,
         image: item.productId?.productImage?.[0],
         status: item.status || "Pending",
+        returnRequest: order.returnRequests.find(req => req.productId.toString() === item.productId?.toString()) || null,
       })),
       shippingAddress: {
         name: order.shippingAddress.name,

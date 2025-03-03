@@ -48,7 +48,11 @@ router.get("/productdetails", UserAuth, productcontroller.productDetails);
 // Cart
 router.get("/cart", UserAuth, cartcontroller.loadCart);
 router.post("/cart-add", UserAuth, cartcontroller.addtoCart);
-router.post("/cart-add-from-wishlist", UserAuth, cartcontroller.addToCartFromWishlist);
+router.post(
+  "/cart-add-from-wishlist",
+  UserAuth,
+  cartcontroller.addToCartFromWishlist
+);
 router.post("/removeCart", UserAuth, cartcontroller.removeCart);
 router.post("/updateQuantity", UserAuth, cartcontroller.updateQuantity);
 router.get("/validate-cart", UserAuth, cartcontroller.validateCart);
@@ -56,7 +60,11 @@ router.get("/validate-cart", UserAuth, cartcontroller.validateCart);
 // Wishlist
 router.get("/wishlist", UserAuth, wishlistcontroller.loadWishlist);
 router.post("/wishlist/toggle", UserAuth, wishlistcontroller.toggleWishlist);
-router.post("/wishlist/remove", UserAuth, wishlistcontroller.removeFromWishlist);
+router.post(
+  "/wishlist/remove",
+  UserAuth,
+  wishlistcontroller.removeFromWishlist
+);
 router.get("/wishlist/state", UserAuth, wishlistcontroller.getWishlistState);
 
 // Checkout
@@ -73,15 +81,39 @@ router.get("/get-wallet-balance", UserAuth, walletcontroller.getWalletBalance);
 router.get("/order-success", UserAuth, ordercontroller.orderSuccess);
 
 // Order cancel
-router.post("/api/orders/:orderId/cancel", UserAuth, ordercontroller.cancelOrder);
+router.post(
+  "/api/orders/:orderId/cancel",
+  UserAuth,
+  ordercontroller.cancelOrder
+);
 
-router.post("/admin/cancel-order-product", UserAuth, ordercontroller.cancelProductOrder);
-router.get('/api/orders/:orderId/invoice', UserAuth, ordercontroller.getOrderForInvoice);
-router.get('/api/orders/:orderId/invoice-pdf', UserAuth, ordercontroller.generateInvoicePDF); // New route
+router.post(
+  "/admin/cancel-order-product",
+  UserAuth,
+  ordercontroller.cancelProductOrder
+);
+router.get(
+  "/api/orders/:orderId/invoice",
+  UserAuth,
+  ordercontroller.getOrderForInvoice
+);
+router.get(
+  "/api/orders/:orderId/invoice-pdf",
+  UserAuth,
+  ordercontroller.generateInvoicePDF
+); // New route
 
 // Return requests
-router.post("/api/orders/return-product", UserAuth, ordercontroller.createReturnRequest);
-router.post("/admin/process-return", UserAuth, ordercontroller.processReturnRequest);
+router.post(
+  "/api/orders/return-product",
+  UserAuth,
+  ordercontroller.createReturnRequest
+);
+router.post(
+  "/admin/process-return",
+  UserAuth,
+  ordercontroller.processReturnRequest
+);
 
 // User Profile
 router.get("/userProfile", UserAuth, profilecontroller.userProfile);
@@ -103,7 +135,17 @@ router.post("/add-money", UserAuth, walletcontroller.addMoney);
 router.post("/verify-recharge", UserAuth, walletcontroller.verifyRecharge);
 
 // Google authentication route
-router.get("/auth/google", passport.authenticate("google", { scope: ["profile", "email"], prompt: "select_account" }));
-router.get("/auth/google/callback", passport.authenticate("google", { failureRedirect: "/login" }), usercontroller.googleAuth);
+router.get(
+  "/auth/google",
+  passport.authenticate("google", {
+    scope: ["profile", "email"],
+    prompt: "select_account",
+  })
+);
+router.get(
+  "/auth/google/callback",
+  passport.authenticate("google", { failureRedirect: "/login" }),
+  usercontroller.googleAuth
+);
 
 module.exports = router;

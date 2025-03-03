@@ -89,7 +89,6 @@ const loadCheckout = async (req, res) => {
       });
     }
 
-    
     const unavailableItems = [];
     let totalAmount = 0;
 
@@ -98,17 +97,26 @@ const loadCheckout = async (req, res) => {
       const product = item.product;
 
       if (!product) {
-        unavailableItems.push({ productId: item.product._id, reason: "Product not found" });
+        unavailableItems.push({
+          productId: item.product._id,
+          reason: "Product not found",
+        });
         continue;
       }
 
       if (product.isBlocked) {
-        unavailableItems.push({ productId: item.product._id, reason: "Product is unavailable" });
+        unavailableItems.push({
+          productId: item.product._id,
+          reason: "Product is unavailable",
+        });
         continue;
       }
 
       if (product.category && !product.category.isListed) {
-        unavailableItems.push({ productId: item.product._id, reason: "Category is unavailable" });
+        unavailableItems.push({
+          productId: item.product._id,
+          reason: "Category is unavailable",
+        });
         continue;
       }
 
@@ -120,12 +128,14 @@ const loadCheckout = async (req, res) => {
         continue;
       }
 
-      
       const categoryOffer = product.category?.offer || null;
       const productOffer = product.offer || null;
       let bestOffer = null;
 
-      if (categoryOffer?.discountPercentage && productOffer?.discountPercentage) {
+      if (
+        categoryOffer?.discountPercentage &&
+        productOffer?.discountPercentage
+      ) {
         bestOffer =
           categoryOffer.discountPercentage > productOffer.discountPercentage
             ? categoryOffer
@@ -137,23 +147,24 @@ const loadCheckout = async (req, res) => {
       let finalPrice = product.salePrice;
       if (bestOffer) {
         finalPrice =
-          product.salePrice - (product.salePrice * bestOffer.discountPercentage) / 100;
+          product.salePrice -
+          (product.salePrice * bestOffer.discountPercentage) / 100;
       }
 
       item.price = finalPrice;
       totalAmount += finalPrice * item.quantity;
     }
 
-    
     if (unavailableItems.length > 0) {
       cartData.items = cartData.items.filter(
         (item) =>
-          !unavailableItems.some((u) => u.productId.toString() === item.product._id.toString())
+          !unavailableItems.some(
+            (u) => u.productId.toString() === item.product._id.toString()
+          )
       );
       await cartData.save();
     }
 
-    
     cartData.totalAmount = totalAmount;
     await cartData.save();
 
@@ -193,7 +204,13 @@ const loadCheckout = async (req, res) => {
 const placeOrder = async (req, res) => {
   try {
     const userId = req.session.user;
-    const { addressId, paymentMethod, cartItems, appliedCoupon, discountAmount } = req.body;
+    const {
+      addressId,
+      paymentMethod,
+      cartItems,
+      appliedCoupon,
+      discountAmount,
+    } = req.body;
 
     if (!userId) {
       return res.status(400).json({ error: "User is not logged in" });
@@ -231,17 +248,26 @@ const placeOrder = async (req, res) => {
       const product = item.product;
 
       if (!product) {
-        unavailableItems.push({ productId: item.product._id, reason: "Product not found" });
+        unavailableItems.push({
+          productId: item.product._id,
+          reason: "Product not found",
+        });
         continue;
       }
 
       if (product.isBlocked) {
-        unavailableItems.push({ productId: item.product._id, reason: "Product is unavailable" });
+        unavailableItems.push({
+          productId: item.product._id,
+          reason: "Product is unavailable",
+        });
         continue;
       }
 
       if (product.category && !product.category.isListed) {
-        unavailableItems.push({ productId: item.product._id, reason: "Category is unavailable" });
+        unavailableItems.push({
+          productId: item.product._id,
+          reason: "Category is unavailable",
+        });
         continue;
       }
 
@@ -256,7 +282,10 @@ const placeOrder = async (req, res) => {
       const categoryOffer = product.category?.offer || null;
       const productOffer = product.offer || null;
       let bestOffer = null;
-      if (categoryOffer?.discountPercentage && productOffer?.discountPercentage) {
+      if (
+        categoryOffer?.discountPercentage &&
+        productOffer?.discountPercentage
+      ) {
         bestOffer =
           categoryOffer.discountPercentage > productOffer.discountPercentage
             ? categoryOffer
@@ -268,7 +297,8 @@ const placeOrder = async (req, res) => {
       let finalPrice = product.salePrice;
       if (bestOffer) {
         finalPrice =
-          product.salePrice - (product.salePrice * bestOffer.discountPercentage) / 100;
+          product.salePrice -
+          (product.salePrice * bestOffer.discountPercentage) / 100;
       }
 
       item.price = finalPrice;
@@ -352,14 +382,18 @@ const placeOrder = async (req, res) => {
     if (paymentMethod === "COD") {
       if (finalTotal >= 5000) {
         return res.status(400).json({
-          error: "Cash on Delivery is not available for orders above ₹5000. Please choose another payment method.",
+          error:
+            "Cash on Delivery is not available for orders above ₹5000. Please choose another payment method.",
         });
       }
 
       for (const cartItem of cartData.items) {
         const product = cartItem.product;
         const newStock = product.quantity - cartItem.quantity;
-        await Product.updateOne({ _id: product._id }, { $set: { quantity: newStock } });
+        await Product.updateOne(
+          { _id: product._id },
+          { $set: { quantity: newStock } }
+        );
       }
 
       const newOrder = new Order({
@@ -424,7 +458,10 @@ const placeOrder = async (req, res) => {
       for (const cartItem of cartData.items) {
         const product = cartItem.product;
         const newStock = product.quantity - cartItem.quantity;
-        await Product.updateOne({ _id: product._id }, { $set: { quantity: newStock } });
+        await Product.updateOne(
+          { _id: product._id },
+          { $set: { quantity: newStock } }
+        );
       }
 
       await Cart.updateOne({ user: userId }, { $set: { items: [] } });
@@ -437,7 +474,6 @@ const placeOrder = async (req, res) => {
     }
 
     return res.status(400).json({ error: "Invalid payment method" });
-
   } catch (error) {
     console.error("Error placing order:", error);
     res.status(500).json({ error: error.message || "Internal server error" });
@@ -458,7 +494,9 @@ const retryPayment = async (req, res) => {
     }
 
     if (order.paymentMethod !== "Razorpay") {
-      return res.status(400).json({ error: "Retry only applicable for Razorpay payments" });
+      return res
+        .status(400)
+        .json({ error: "Retry only applicable for Razorpay payments" });
     }
 
     const razorpayOrder = await razorpay.orders.create({
@@ -485,10 +523,9 @@ const retryPayment = async (req, res) => {
   }
 };
 
-
 module.exports = {
   loadCheckout,
   placeOrder,
   validateCoupon,
-  retryPayment
+  retryPayment,
 };

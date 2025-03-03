@@ -23,7 +23,7 @@ body {
 /* Left Side: Image Background */
 .image-side {
     flex: 1;
-    background: url('/') no-repeat center center/cover;
+    background: url('/assets/img/_\ \(1\).jpeg') no-repeat center center/cover;
     position: relative;
     display: flex;
     align-items: center;
@@ -79,7 +79,7 @@ body.light-mode .image-side:hover {
 /* Right Side: Form */
 .form-side {
     flex: 1;
-    background: #262626; /* Default: Dark mode */
+    background: #000000; /* Default: Dark mode */
     display: flex;
     flex-direction: column;
     align-items: center;

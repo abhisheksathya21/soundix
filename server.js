@@ -9,10 +9,7 @@ const session=require('express-session');
 const nocache = require('nocache');
 const passport=require('./config/passport');
 const cartCountMiddleware=require('./middlewares/cartcount');
-const wishlistCountMiddleware=require('./middlewares/wislistcount')
-
-
-
+const wishlistCountMiddleware=require('./middlewares/wislistcount');
 
 db();
 app.use(nocache());
@@ -31,7 +28,7 @@ app.use(session({
         httpOnly:true,
         maxAge:1000*60*60*24
     }
-}))
+}));
 
 app.use(cartCountMiddleware);
 app.use(wishlistCountMiddleware);

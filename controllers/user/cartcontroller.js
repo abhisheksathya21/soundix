@@ -9,15 +9,13 @@ const loadCart = async (req, res) => {
     const userId = req.session.user;
     const userData = await User.findOne({ _id: userId });
 
-   
-    const cart = await Cart.findOne({ user: userId })
-      .populate({
-        path: "items.product",
-        populate: {
-          path: "category",
-          model: "Category", 
-        },
-      });
+    const cart = await Cart.findOne({ user: userId }).populate({
+      path: "items.product",
+      populate: {
+        path: "category",
+        model: "Category",
+      },
+    });
 
     if (!cart) {
       return res.render("cart", {
@@ -26,21 +24,18 @@ const loadCart = async (req, res) => {
       });
     }
 
-    
     const validItems = cart.items.filter(
       (item) => !item.product.isBlocked && item.product.category.isListed
     );
     cart.items = validItems;
 
-    
     const totalAmount = cart.items.reduce(
       (sum, item) => sum + item.price * item.quantity,
       0
     );
-    
+
     cart.totalAmount = Math.round(totalAmount);
 
-    
     if (validItems.length !== cart.items.length) {
       await cart.save();
     }
@@ -54,8 +49,6 @@ const loadCart = async (req, res) => {
     res.status(500).render("error", { error: "Failed to load cart" });
   }
 };
-
-
 
 const addtoCart = async (req, res) => {
   try {
@@ -180,8 +173,10 @@ const addToCartFromWishlist = async (req, res) => {
     if (product.isBlocked) {
       return res.status(400).json({ error: "Product is blocked" });
     }
-    if(product.category && !product.category.isListed){
-      return res.status(404).json({error:"This product's category is currently unavailable."});
+    if (product.category && !product.category.isListed) {
+      return res
+        .status(404)
+        .json({ error: "This product's category is currently unavailable." });
     }
 
     if (quantity > product.quantity) {
@@ -240,7 +235,7 @@ const addToCartFromWishlist = async (req, res) => {
       }
 
       existingItem.quantity = newQuantity;
-      existingItem.price = finalPrice; 
+      existingItem.price = finalPrice;
     } else {
       cart.items.push({
         product: productId,

@@ -9,53 +9,7 @@
     <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <style>
-      .form-group {
-        position: relative;
-        margin-bottom: 20px;
-      }
-      .error-message {
-        color: red;
-        font-size: 12px;
-        margin-top: 5px;
-        display: none;
-      }
-      .form-group.invalid .error-message {
-        display: block;
-      }
-      .form-group.invalid input {
-        border-color: red;
-      }
-      .unavailable-section {
-        padding: 15px;
-        background-color: #fff3f3;
-        border: 2px solid #f44336;
-        border-radius: 4px;
-        margin-bottom: 20px;
-        max-height: 200px;
-        overflow-y: auto;
-      }
-      .unavailable-section h3 {
-        margin-top: 0;
-        color: #f44336;
-      }
-      .unavailable-section p {
-        margin: 5px 0;
-        color: #f44336;
-      }
-      .back-to-cart {
-        display: inline-block;
-        margin-top: 10px;
-        padding: 8px 16px;
-        background-color: #f44336;
-        color: white;
-        text-decoration: none;
-        border-radius: 4px;
-        border: none;
-        cursor: pointer;
-      }
-      .back-to-cart:hover {
-        background-color: #d32f2f;
-      }
+      
     </style>
   </head>
 
@@ -129,6 +83,7 @@
                           <%= address.city %>, <%= address.landmark %>, <%= address.district %><br />
                           <%= address.pincode %>, <%= address.phone %>
                         </label>
+                        <button type="button" onclick="openEditAddressModal('<%= address._id %>')" class="edit-address-btn">Edit</button>
                       </div>
                     <% }); %>
                   </div>
@@ -276,6 +231,68 @@
         </form>
       </div>
     </div>
+    <div id="editAddressModal" style="display: none;" class="modal">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h2>Edit Address</h2>
+          <span class="close-modal" onclick="closeEditAddressModal()">×</span>
+        </div>
+        <form id="edit-address-form">
+          <input type="hidden" id="edit-address-id" name="addressId" />
+          <div class="form-grid">
+            <div class="form-group">
+              <label for="edit-address-type">Address Type:</label>
+              <input type="text" id="edit-address-type" name="addressType" />
+              <div class="error-message">Please enter the address type</div>
+            </div>
+            <div class="form-group">
+              <label for="edit-address-name">Name:</label>
+              <input type="text" id="edit-address-name" name="name" />
+              <div class="error-message">Please enter your name</div>
+            </div>
+            <div class="form-group">
+              <label for="edit-address-city">City:</label>
+              <input type="text" id="edit-address-city" name="city" />
+              <div class="error-message">Please enter your city</div>
+            </div>
+            <div class="form-group">
+              <label for="edit-address-landmark">Landmark:</label>
+              <input type="text" id="edit-address-landmark" name="landmark" />
+              <div class="error-message"></div>
+            </div>
+            <div class="form-group">
+              <label for="edit-address-district">District:</label>
+              <input type="text" id="edit-address-district" name="district" />
+              <div class="error-message">Please enter your district</div>
+            </div>
+            <div class="form-group">
+              <label for="edit-address-state">State:</label>
+              <input type="text" id="edit-address-state" name="state" />
+              <div class="error-message">Please enter your state</div>
+            </div>
+            <div class="form-group">
+              <label for="edit-address-pincode">Pincode:</label>
+              <input type="text" id="edit-address-pincode" name="pincode" pattern="\d{6}" title="Pincode must be 6 digits" />
+              <div class="error-message">Please enter a valid 6-digit pincode</div>
+            </div>
+            <div class="form-group">
+              <label for="edit-address-phone">Phone:</label>
+              <input type="tel" id="edit-address-phone" name="phone" pattern="\d{10}" title="Phone number must be 10 digits" />
+              <div class="error-message">Please enter a valid 10-digit phone number</div>
+            </div>
+            <div class="form-group full-width">
+              <label for="edit-address-alt-phone">Alternative Phone:</label>
+              <input type="tel" id="edit-address-alt-phone" name="alternativePhone" pattern="\d{10}" title="Phone number must be 10 digits" />
+              <div class="error-message">Please enter a valid 10-digit phone number</div>
+            </div>
+          </div>
+          <div class="form-actions">
+            <button type="submit" class="submit-btn">Update Address</button>
+            <button type="button" onclick="closeEditAddressModal()" class="cancel-btn">Cancel</button>
+          </div>
+        </form>
+      </div>
+    </div>
 
     <br /><br /><br />
 
@@ -284,6 +301,140 @@
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
     <script>
+      // Open Edit Address Modal and Fetch Address Data
+      function openEditAddressModal(addressId) {
+  console.log("Opening edit address modal for ID:", addressId);
+  fetch(`/editAddress?id=${addressId}`, {
+    method: 'GET',
+    headers: { 
+      'Content-Type': 'application/json',
+      'Accept': 'application/json' // Ensure JSON response
+    },
+  })
+    .then(response => {
+      if (!response.ok) throw new Error('Network response was not ok');
+      return response.json();
+    })
+    .then(data => {
+      console.log("Response from edit address:", data);
+      if (data.success && data.address) {
+        const address = data.address;
+        document.getElementById('edit-address-id').value = address._id;
+        document.getElementById('edit-address-type').value = address.addressType || '';
+        document.getElementById('edit-address-name').value = address.name || '';
+        document.getElementById('edit-address-city').value = address.city || '';
+        document.getElementById('edit-address-landmark').value = address.landmark || '';
+        document.getElementById('edit-address-district').value = address.district || '';
+        document.getElementById('edit-address-state').value = address.state || '';
+        document.getElementById('edit-address-pincode').value = address.pincode || '';
+        document.getElementById('edit-address-phone').value = address.phone || '';
+        document.getElementById('edit-address-alt-phone').value = address.alternativePhone || '';
+
+        const modal = document.getElementById('editAddressModal');
+        modal.style.display = 'block';
+        document.body.style.overflow = 'hidden';
+      } else {
+        showToast('Failed to load address details', 'error');
+      }
+    })
+    .catch(error => {
+      console.error("Error fetching address:", error);
+      showToast('Error loading address', 'error');
+    });
+}
+
+// Close Edit Address Modal
+function closeEditAddressModal() {
+  const modal = document.getElementById('editAddressModal');
+  if (modal) {
+    modal.style.display = 'none';
+    document.body.style.overflow = 'auto';
+    console.log("Edit modal closed");
+  }
+}
+
+// Handle Edit Address Form Submission
+document.getElementById('edit-address-form').addEventListener('submit', async function (e) {
+  e.preventDefault();
+  console.log("Edit address form submitted");
+
+  document.querySelectorAll('#edit-address-form .form-group').forEach(group => {
+    group.classList.remove('invalid');
+  });
+
+  let isValid = true;
+  const fields = [
+    { id: 'edit-address-type', required: true, message: 'Please enter the address type' },
+    { id: 'edit-address-name', required: true, message: 'Please enter your name' },
+    { id: 'edit-address-city', required: true, message: 'Please enter your city' },
+    { id: 'edit-address-landmark', required: false },
+    { id: 'edit-address-district', required: true, message: 'Please enter your district' },
+    { id: 'edit-address-state', required: true, message: 'Please enter your state' },
+    { id: 'edit-address-pincode', required: true, pattern: /^\d{6}$/, message: 'Please enter a valid 6-digit pincode' },
+    { id: 'edit-address-phone', required: true, pattern: /^\d{10}$/, message: 'Please enter a valid 10-digit phone number' },
+    { id: 'edit-address-alt-phone', required: false, pattern: /^\d{10}$/, message: 'Please enter a valid 10-digit phone number' },
+  ];
+
+  const formData = new FormData(e.target);
+  const data = {};
+
+  fields.forEach(field => {
+    const input = document.getElementById(field.id);
+    const value = formData.get(input.name)?.trim() || '';
+    const group = input.parentElement;
+
+    if (field.required && !value) {
+      group.classList.add('invalid');
+      group.querySelector('.error-message').textContent = field.message;
+      isValid = false;
+    } else if (field.pattern && value && !field.pattern.test(value)) {
+      group.classList.add('invalid');
+      group.querySelector('.error-message').textContent = field.message;
+      isValid = false;
+    } else {
+      group.classList.remove('invalid');
+      data[input.name] = value;
+    }
+  });
+
+  data.addressId = document.getElementById('edit-address-id').value;
+
+  if (!isValid) return;
+
+  fetch(`/updateAddress?id=${data.addressId}`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(data),
+  })
+    .then(response => response.json())
+    .then(result => {
+      console.log("Update address response:", result);
+      if (result.success) {
+        showToast('Address updated successfully!', 'success');
+        const addressOption = document.querySelector(`input[value="${data.addressId}"]`).parentElement;
+        addressOption.querySelector('label').innerHTML = `
+          <b>${data.addressType}</b><br />
+          ${data.city}, ${data.landmark || ''}, ${data.district}<br />
+          ${data.pincode}, ${data.phone}
+        `;
+        closeEditAddressModal();
+      } else {
+        showToast(result.message || 'Failed to update address', 'error');
+      }
+    })
+    .catch(error => {
+      console.error("Error updating address:", error);
+      showToast('Error updating address', 'error');
+    });
+});
+
+// Add event listener for modal click outside
+window.onclick = function (event) {
+  const addModal = document.getElementById('addressModal');
+  const editModal = document.getElementById('editAddressModal');
+  if (event.target === addModal) closeAddressModal();
+  if (event.target === editModal) closeEditAddressModal();
+};
       console.log("Script started");
     
       // Fetch wallet balance on page load
@@ -316,11 +467,7 @@
           showToast("Some items in your cart are unavailable and have been removed", "warning");
         <% } %>
     
-        window.onclick = function (event) {
-          const modal = document.getElementById('addressModal');
-          if (event.target === modal) closeAddressModal();
-        };
-    
+       
         const addressForm = document.getElementById('add-address-form');
         if (addressForm) {
           addressForm.addEventListener('submit', async function (e) {
@@ -399,13 +546,14 @@
                   newAddress.className = 'address-option';
                   const newAddressId = result.address.address[result.address.address.length - 1]._id;
                   newAddress.innerHTML = `
-                    <input type="radio" id="address${addressCount}" name="address" value="${newAddressId}" ${addressCount === 0 ? 'checked' : ''}>
-                    <label for="address${addressCount}">
-                      <b>${data.addressType}</b><br />
-                      ${data.city},${data.landmark || ''}, ${data.district}<br />
-                      ${data.pincode}, ${data.phone}
-                    </label>
-                  `;
+  <input type="radio" id="address${addressCount}" name="address" value="${newAddressId}" ${addressCount === 0 ? 'checked' : ''}>
+  <label for="address${addressCount}">
+    <b>${data.addressType}</b><br />
+    ${data.city},${data.landmark || ''}, ${data.district}<br />
+    ${data.pincode}, ${data.phone}
+  </label>
+  <button type="button" onclick="openEditAddressModal('${newAddressId}')" class="edit-address-btn">Edit</button>
+`;
                   addressContainer.appendChild(newAddress);
     
                   addressForm.reset();

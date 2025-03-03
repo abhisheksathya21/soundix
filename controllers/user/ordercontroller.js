@@ -29,7 +29,7 @@ const orderSuccess = async (req, res) => {
     const userData = await User.findById(userId);
     res.render("order-success", { 
       orderData: latestOrder, 
-      userData: userData 
+      user: userData 
     });
   } catch (error) {
     console.error("Error loading order success page:", error);

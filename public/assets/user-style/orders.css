@@ -174,7 +174,7 @@
     }
     
     /* Buttons */
-    .view-products, .cancel-order-btn, .cancel-product-btn, .return-product-btn , .retry-payment-btn{
+    .view-products, .cancel-order-btn, .cancel-product-btn, .return-product-btn , .retry-payment-btn, .download-invoice-btn{
         padding: 10px 20px;
         border-radius: 6px;
         cursor: pointer;
@@ -221,6 +221,16 @@
        
     }
     
+    .download-invoice-btn {
+        background: #fff;
+        color: #28a745;
+        border: 1px solid #28a745;
+    }
+    .download-invoice-btn:hover {
+        background-color: #218838;
+        color:white;
+        transform: translateY(-2px);
+    }
     .cancel-product-btn {
         background: #fff;
         color: #ff0000;
@@ -512,18 +522,4 @@
     }
     .toast.error .toast-icon {
       color: #f44336;
-    }
-    .download-invoice-btn {
-        background-color: #28a745;
-        color: white;
-        padding: 8px 16px;
-        border: none;
-        border-radius: 4px;
-        cursor: pointer;
-        margin: 5px 0;
-        transition: background-color 0.3s;
-    }
-    
-    .download-invoice-btn:hover {
-        background-color: #218838;
     }
