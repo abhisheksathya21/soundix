@@ -4,32 +4,24 @@ const Address = require("../../models/addressSchema");
 const User = require("../../models/userSchema");
 const Order = require("../../models/orderSchema");
 const Wallet = require("../../models/walletSchema");
-const { generatePDF, generateExcel } = require("../../utils/reportGenerator");
-
-
-
 
 const getAllOrders = async (req, res) => {
   try {
-    
-      const search = req.query.search || "";
+    const search = req.query.search || "";
 
-    
-      const matchingUsers = await User.find({
-        fullname: { $regex: search, $options: "i" },
-        email:{$regex: search, $options: "i"}
-      }).select("_id");
+    const matchingUsers = await User.find({
+      fullname: { $regex: search, $options: "i" },
+      email: { $regex: search, $options: "i" },
+    }).select("_id");
 
-      const userIds = matchingUsers.map((user) => user._id);
+    const userIds = matchingUsers.map((user) => user._id);
 
-     
-      const searchQuery = {
-        $or: [
-          { orderId: { $regex: search, $options: "i" } },
-          { userId: { $in: userIds } }, 
-          
-        ],
-      };
+    const searchQuery = {
+      $or: [
+        { orderId: { $regex: search, $options: "i" } },
+        { userId: { $in: userIds } },
+      ],
+    };
     const page = parseInt(req.query.page) || 1;
     const limit = 5;
     const skip = (page - 1) * limit;
@@ -50,7 +42,6 @@ const getAllOrders = async (req, res) => {
       isCancellable:
         order.orderStatus !== "Cancelled" && order.orderStatus !== "Delivered",
     }));
-   
 
     res.render("orders", {
       orders: transformedOrders,
@@ -191,15 +182,11 @@ const updateOrderStatus = async (req, res) => {
   }
 };
 
-
 const cancelProductOrder = async (req, res) => {
   try {
-    
     const { orderId, productId } = req.body;
-    
 
     const order = await Order.findOne({ _id: orderId });
-   
 
     if (!order) {
       return res.status(404).json({
@@ -238,12 +225,10 @@ const cancelProductOrder = async (req, res) => {
     if (order.paymentMethod === "Razorpay") {
       let wallet = await Wallet.findOne({ userId: order.userId });
 
-      
       if (!wallet) {
         wallet = new Wallet({ userId: order.userId });
       }
 
-      
       await wallet.addTransaction({
         type: "Refund",
         amount: refundAmount,
@@ -282,7 +267,6 @@ const cancelProductOrder = async (req, res) => {
       success: true,
       message: "Product cancelled and refund processed successfully",
     });
-    
   } catch (error) {
     console.error("Cancel product error:", error);
     res.status(500).json({
@@ -299,9 +283,9 @@ const getReturnRequests = async (req, res) => {
     const skip = (page - 1) * limit;
 
     const orders = await Order.find({
-      "items.returnStatus": "Pending", 
-      "items.status": "Return Requested", 
-      "items.returnReason": { $exists: true, $ne: "" }, 
+      "items.returnStatus": "Pending",
+      "items.status": "Return Requested",
+      "items.returnReason": { $exists: true, $ne: "" },
     })
       .populate("userId", "fullname email")
       .populate("items.productId", "productName productImage")
@@ -314,7 +298,7 @@ const getReturnRequests = async (req, res) => {
         const filteredItems = order.items.filter(
           (item) =>
             item.returnStatus === "Pending" &&
-            item.status === "Return Requested" && 
+            item.status === "Return Requested" &&
             item.returnReason &&
             item.returnReason.trim() !== ""
         );
@@ -354,9 +338,6 @@ const getReturnRequests = async (req, res) => {
   }
 };
 
-
-
-
 const processReturnRequest = async (req, res) => {
   try {
     console.log("Processing Return Request");
@@ -367,7 +348,9 @@ const processReturnRequest = async (req, res) => {
       .populate("items.productId");
 
     if (!order) {
-      return res.status(404).json({ success: false, message: "Order not found" });
+      return res
+        .status(404)
+        .json({ success: false, message: "Order not found" });
     }
 
     const productItem = order.items.find(
@@ -375,7 +358,9 @@ const processReturnRequest = async (req, res) => {
     );
 
     if (!productItem) {
-      return res.status(404).json({ success: false, message: "Product not found in the order" });
+      return res
+        .status(404)
+        .json({ success: false, message: "Product not found in the order" });
     }
 
     if (productItem.returnStatus !== "Pending") {
@@ -393,7 +378,6 @@ const processReturnRequest = async (req, res) => {
         wallet = new Wallet({ userId: order.userId._id, transactions: [] });
       }
 
-     
       await wallet.addTransaction({
         type: "Refund",
         amount: refundAmount,
@@ -402,11 +386,9 @@ const processReturnRequest = async (req, res) => {
         status: "Completed",
       });
 
-     
       wallet.balance += refundAmount;
       await wallet.save();
 
-   
       if (productItem.status !== "Cancelled") {
         const product = await Product.findById(productId);
         if (product) {
@@ -436,7 +418,9 @@ const processReturnRequest = async (req, res) => {
       });
     }
 
-    const allItemsReturned = order.items.every((item) => item.returnStatus === "Approved");
+    const allItemsReturned = order.items.every(
+      (item) => item.returnStatus === "Approved"
+    );
     if (allItemsReturned) {
       order.orderStatus = "Returned";
     }
@@ -454,75 +438,11 @@ const processReturnRequest = async (req, res) => {
     });
   } catch (error) {
     console.error("Error processing return request:", error);
-    res.status(500).json({ success: false, message: "Error processing return request" });
+    res
+      .status(500)
+      .json({ success: false, message: "Error processing return request" });
   }
 };
-
-
-
-const getSalesReport = async (req, res) => {
-  try {
-    const orders = await Order.find(
-      {},
-      "orderId orderDate totalAmount discountAmount"
-    );
-
-    const salesData = orders.map((order) => ({
-      orderId: order.orderId,
-      date: order.orderDate,
-      amount: order.totalAmount,
-      discount: order.discountAmount,
-    }));
-
-    res.json(salesData);
-  } catch (error) {
-    console.error("Error fetching sales report:", error);
-    res.status(500).json({ error: "Failed to fetch sales report" });
-  }
-};
-
-
-const exportSalesReportPDF = async (req, res) => {
-  try {
-    const orders = await Order.find(
-      {},
-      "orderId orderDate totalAmount discountAmount"
-    );
-    const pdfBuffer = await generatePDF(orders);
-
-    res.set({
-      "Content-Type": "application/pdf",
-      "Content-Disposition": 'attachment; filename="sales-report.pdf"',
-    });
-    res.send(pdfBuffer);
-  } catch (error) {
-    console.error("Error generating PDF:", error);
-    res.status(500).json({ error: "Failed to generate PDF" });
-  }
-};
-
-
-const exportSalesReportExcel = async (req, res) => {
-  try {
-    const orders = await Order.find(
-      {},
-      "orderId orderDate totalAmount discountAmount"
-    );
-    const excelBuffer = await generateExcel(orders);
-
-    res.set({
-      "Content-Type":
-        "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
-      "Content-Disposition": 'attachment; filename="sales-report.xlsx"',
-    });
-    res.send(excelBuffer);
-  } catch (error) {
-    console.error("Error generating Excel:", error);
-    res.status(500).json({ error: "Failed to generate Excel" });
-  }
-};
-
-
 
 module.exports = {
   getAllOrders,
@@ -530,7 +450,4 @@ module.exports = {
   cancelProductOrder,
   processReturnRequest,
   getReturnRequests,
-  exportSalesReportExcel,
-  exportSalesReportPDF,
-  getSalesReport,
 };

@@ -23,8 +23,8 @@ const storage = multer.diskStorage({
     cb(null, "public/uploads/product-images");
   },
   filename: function (req, file, cb) {
-    const ext = file.originalname.split(".").pop(); // Extract file extension
-    cb(null, `${uuidv4()}.${ext}`); // Unique filename
+    const ext = file.originalname.split(".").pop(); 
+    cb(null, `${uuidv4()}.${ext}`); 
   },
 });
 

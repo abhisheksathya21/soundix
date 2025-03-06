@@ -112,7 +112,6 @@ const editProduct = async (req, res) => {
     const id = req.params.id;
     const productData = req.body;
 
-    
     const product = await Product.findById(id);
     if (!product) {
       console.log("Product not found");
@@ -130,9 +129,27 @@ const editProduct = async (req, res) => {
       });
     }
 
-    
-    const processedImages = product.productImage || [];
+   
+    let processedImages = [...product.productImage];
 
+   
+    if (productData.removedImages) {
+      const removedImages = JSON.parse(productData.removedImages);
+      removedImages.forEach((imagePath) => {
+       
+        const index = processedImages.indexOf(imagePath);
+        if (index > -1) {
+          processedImages.splice(index, 1);
+        }
+        
+        const filePath = path.join(__dirname, '../../public', imagePath);
+        fs.unlink(filePath, (err) => {
+          if (err) console.error(`Failed to delete file ${filePath}:`, err);
+        });
+      });
+    }
+
+    
     if (req.files && req.files.length > 0) {
       const uploadDirectory = path.join('public', 'uploads', 'product-images');
       if (!fs.existsSync(uploadDirectory)) {
@@ -141,7 +158,7 @@ const editProduct = async (req, res) => {
 
       for (let i = 0; i < req.files.length; i++) {
         const originalImagePath = req.files[i].path;
-        const uniqueFileName = req.files[i].filename; 
+        const uniqueFileName = req.files[i].filename;
 
         const buffer = await sharp(originalImagePath)
           .resize({ width: 440, height: 440, fit: sharp.fit.cover })
@@ -156,13 +173,12 @@ const editProduct = async (req, res) => {
       }
     }
 
-    
     const category = await Category.findOne({ name: productData.category });
     if (!category) {
       return res.status(400).json({ success: false, message: 'Invalid category name' });
     }
 
-    // Update product fields
+    
     product.productName = productData.productName;
     product.description = productData.description;
     product.category = category._id;

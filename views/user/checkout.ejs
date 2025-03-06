@@ -8,9 +8,7 @@
     <link rel="shortcut icon" type="image/x-icon" href="assets/img/favicon.ico" />
     <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
-    <style>
-      
-    </style>
+    <link rel="icon" type="image/png" href="/assets/img/beat-logo-161616.png"> 
   </head>
 
   <body>
@@ -128,6 +126,7 @@
               <div class="coupon-container">
                 <input type="text" id="coupon-code" placeholder="Enter Coupon Code" />
                 <button onclick="applyCoupon()">Apply</button>
+                <button id="remove-coupon-btn" onclick="removeCoupon()" style="display: none;">Remove</button>
               </div>
               <div id="coupon-message"></div>
             </div>
@@ -571,37 +570,38 @@ window.onclick = function (event) {
       });
     
       function submitOrder() {
-        console.log("submitOrder called");
-        const shippingForm = document.getElementById('shipping-form');
-        const selectedAddress = shippingForm.querySelector('input[name="address"]:checked');
-        const selectedPayment = document.querySelector('input[name="payment"]:checked');
+  console.log("submitOrder called");
+  const shippingForm = document.getElementById('shipping-form');
+  const selectedAddress = shippingForm.querySelector('input[name="address"]:checked');
+  const selectedPayment = document.querySelector('input[name="payment"]:checked');
+
+  if (!selectedAddress) {
+    showToast('Please select a shipping address', 'warning');
+    return;
+  }
+
+  const addressId = selectedAddress.value;
+  const paymentMethod = selectedPayment.value === 'cod' ? 'COD' : 
+                       selectedPayment.value === 'razorpay' ? 'RAZORPAY' : 'WALLET';
+  const discountAmount = window.discountAmount || 0; // Use updated discountAmount
+  const totalAmount = cartTotal - discountAmount;
     
-        if (!selectedAddress) {
-          showToast('Please select a shipping address', 'warning');
-          return;
-        }
-    
-        const addressId = selectedAddress.value;
-        const paymentMethod = selectedPayment.value === 'cod' ? 'COD' : 
-                             selectedPayment.value === 'razorpay' ? 'RAZORPAY' : 'WALLET';
-        const discountAmount = window.discountAmount || 0;
-        const totalAmount = cartTotal - discountAmount;
-    
-        Swal.fire({
-          title: 'Confirm Your Order',
-          html: `
-            <h3>Shipping Address</h3><p>${selectedAddress.nextElementSibling.innerHTML.trim()}</p>
-            <h3>Payment Method</h3><p>${paymentMethod === 'COD' ? 'Cash on Delivery' : paymentMethod === 'RAZORPAY' ? 'Razorpay' : 'Wallet'}</p>
-          `,
-          icon: 'info',
-          showCancelButton: true,
-          confirmButtonText: 'Place Order',
-          cancelButtonText: 'Cancel',
-        }).then((result) => {
-          if (!result.isConfirmed) {
-            showToast('Order cancelled', 'warning');
-            return;
-          }
+  Swal.fire({
+    title: 'Confirm Your Order',
+    html: `
+      <h3>Shipping Address</h3><p>${selectedAddress.nextElementSibling.innerHTML.trim()}</p>
+      <h3>Payment Method</h3><p>${paymentMethod === 'COD' ? 'Cash on Delivery' : paymentMethod === 'RAZORPAY' ? 'Razorpay' : 'Wallet'}</p>
+      <h3>Total Amount</h3><p>₹${totalAmount.toFixed(2)}</p>
+    `,
+    icon: 'info',
+    showCancelButton: true,
+    confirmButtonText: 'Place Order',
+    cancelButtonText: 'Cancel',
+  }).then((result) => {
+    if (!result.isConfirmed) {
+      showToast('Order cancelled', 'warning');
+      return;
+    }
     
           if (paymentMethod === 'WALLET') {
             if (typeof window.walletBalance === 'undefined') {
@@ -783,39 +783,59 @@ window.onclick = function (event) {
       }
     
       function applyCoupon() {
-        console.log("applyCoupon called");
-        const couponCodeInput = document.getElementById('coupon-code');
-        const couponMessage = document.getElementById('coupon-message');
-        const couponCode = couponCodeInput.value.trim().toUpperCase();
-    
-        if (!couponCode) {
-          showToast('Please enter a coupon code', 'warning');
-          return;
-        }
-    
-        fetch('/validate-coupon', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ couponCode, totalAmount: cartTotal }),
-        })
-          .then(response => response.json())
-          .then(result => {
-            console.log("Coupon validation result:", result);
-            if (result.valid) {
-              appliedCoupon = result.coupon;
-              updateOrderSummary(result.discountAmount);
-              showToast(`Coupon applied! Discount: ₹${result.discountAmount}`, 'success');
-              couponMessage.innerHTML = `Coupon applied: -₹${result.discountAmount}`;
-            } else {
-              showToast(result.message, 'error');
-              couponCodeInput.value = '';
-            }
-          })
-          .catch(error => {
-            console.error("Error in applyCoupon:", error);
-            showToast('Error applying coupon', 'error');
-          });
+  console.log("applyCoupon called");
+  const couponCodeInput = document.getElementById('coupon-code');
+  const couponMessage = document.getElementById('coupon-message');
+  const removeCouponBtn = document.getElementById('remove-coupon-btn');
+  const couponCode = couponCodeInput.value.trim().toUpperCase();
+
+  if (!couponCode) {
+    showToast('Please enter a coupon code', 'warning');
+    return;
+  }
+
+  fetch('/validate-coupon', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ couponCode, totalAmount: cartTotal }),
+  })
+    .then(response => response.json())
+    .then(result => {
+      console.log("Coupon validation result:", result);
+      if (result.valid) {
+        appliedCoupon = result.coupon;
+        updateOrderSummary(result.discountAmount);
+        showToast(`Coupon applied! Discount: ₹${result.discountAmount}`, 'success');
+        couponMessage.innerHTML = `Coupon "${couponCode}" applied: -₹${result.discountAmount}`;
+        couponCodeInput.disabled = true; // Disable input after applying
+        removeCouponBtn.style.display = 'inline-block'; // Show remove button
+      } else {
+        showToast(result.message, 'error');
+        couponCodeInput.value = '';
       }
+    })
+    .catch(error => {
+      console.error("Error in applyCoupon:", error);
+      showToast('Error applying coupon', 'error');
+    });
+}
+
+function removeCoupon() {
+  console.log("removeCoupon called");
+  const couponCodeInput = document.getElementById('coupon-code');
+  const couponMessage = document.getElementById('coupon-message');
+  const removeCouponBtn = document.getElementById('remove-coupon-btn');
+
+  // Reset UI and state
+  appliedCoupon = null;
+  updateOrderSummary(0); // Reset discount to 0
+  couponMessage.innerHTML = '';
+  couponCodeInput.value = '';
+  couponCodeInput.disabled = false; // Re-enable input
+  removeCouponBtn.style.display = 'none'; // Hide remove button
+
+  showToast('Coupon removed successfully', 'success');
+}
     
       function openAddressModal() {
         const modal = document.getElementById('addressModal');
@@ -876,21 +896,21 @@ window.onclick = function (event) {
       }
     
       function updateOrderSummary(discountAmount) {
-        console.log("updateOrderSummary called with:", discountAmount);
-        if (typeof discountAmount === "undefined") discountAmount = 0;
-        const discountEl = document.getElementById('discount-amount');
-        const totalEl = document.querySelector('.section .total');
-        const originalTotal = cartTotal;
-        const newTotal = originalTotal - discountAmount;
-    
-        if (discountEl && totalEl) {
-          discountEl.innerHTML = `Discount: -₹${discountAmount.toFixed(2)}`;
-          totalEl.innerHTML = `Total: ₹${newTotal.toFixed(2)}`;
-          window.discountAmount = discountAmount;
-        } else {
-          console.error("Discount or total elements not found");
-        }
-      }
+  console.log("updateOrderSummary called with:", discountAmount);
+  if (typeof discountAmount === "undefined") discountAmount = 0;
+  const discountEl = document.getElementById('discount-amount');
+  const totalEl = document.querySelector('.section .total');
+  const originalTotal = cartTotal;
+  const newTotal = originalTotal - discountAmount;
+
+  if (discountEl && totalEl) {
+    discountEl.innerHTML = `Discount: -₹${discountAmount.toFixed(2)}`;
+    totalEl.innerHTML = `Total: ₹${newTotal.toFixed(2)}`;
+    window.discountAmount = discountAmount;
+  } else {
+    console.error("Discount or total elements not found");
+  }
+}
     
       const cartTotal = <%= cart && typeof cart.totalAmount === 'number' ? cart.totalAmount : 0 %>;
       let cartItems;

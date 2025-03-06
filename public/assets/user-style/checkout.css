@@ -836,3 +836,16 @@ box-shadow: 0 6px 20px rgba(0, 123, 255, 0.4);
   .back-to-cart:hover {
     background-color: #d32f2f;
   }
+  #remove-coupon-btn {
+    background-color: #e74c3c; /* Red color for remove action */
+    color: white;
+    border: none;
+    padding: 8px 12px;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+  }
+  
+  #remove-coupon-btn:hover {
+    background-color: #c0392b;
+  }

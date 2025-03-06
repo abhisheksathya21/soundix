@@ -530,13 +530,13 @@ const generateInvoicePDF = async (req, res) => {
     const { orderId } = req.params;
     const userId = req.session.user;
 
-    // Fetch order with populated productId, category, and user
+   
     const order = await Order.findOne({ orderId, userId })
       .populate({
         path: 'items.productId',
         populate: { path: 'category' }
       })
-      .populate('userId') // Populate user for customer details
+      .populate('userId') 
       .lean();
 
     if (!order) {
@@ -549,10 +549,10 @@ const generateInvoicePDF = async (req, res) => {
     res.setHeader('Content-Disposition', `attachment; filename=invoice_${order.orderId}.pdf`);
     doc.pipe(res);
 
-    // 1. Header with Logo and Company Name
+    
     const logoPath = path.join(__dirname, '../../public/assets/img/beat-logo-161616.png');
     if (fs.existsSync(logoPath)) {
-      doc.image(logoPath, 50, 40, { width: 50 }); // Logo size as per your current setting
+      doc.image(logoPath, 50, 40, { width: 50 }); 
     } else {
       doc.fontSize(20).font('Helvetica-Bold').text('Beats Zone', 50, 40);
     }
@@ -584,7 +584,7 @@ const generateInvoicePDF = async (req, res) => {
        .text(`${order.shippingAddress.pinCode || 'N/A'}, ${order.shippingAddress.country || 'N/A'}`, 300, 175);
 
     // Line separator
-    doc.moveTo(50, 200).lineTo(550, 200).stroke(); // Adjusted position for more space
+    doc.moveTo(50, 200).lineTo(550, 200).stroke(); 
 
     // 3. Invoice Details
     doc.fontSize(14)
@@ -594,10 +594,10 @@ const generateInvoicePDF = async (req, res) => {
        .font('Helvetica')
        .text(`Invoice Number: ${order.orderId}`, 50, 240)
        .text(`Invoice Date: ${new Date(order.orderDate).toLocaleDateString()}`, 50, 255)
-       .text(`Order Number: ${order.orderId}`, 50, 270) // Assuming orderId is the order number
+       .text(`Order Number: ${order.orderId}`, 50, 270) 
        .text(`Payment Method: ${order.paymentMethod || 'N/A'}`, 50, 285);
 
-    // 4. Product Details Table (Improved alignment)
+    
     const tableTop = 310; // Adjusted to provide more space
     doc.font('Helvetica-Bold')
        .fontSize(11)
@@ -626,14 +626,14 @@ const generateInvoicePDF = async (req, res) => {
       }
     });
 
-    // Line separator after items
-    doc.moveTo(50, yPos + 15).lineTo(550, yPos + 15).stroke(); // Increased spacing
+    
+    doc.moveTo(50, yPos + 15).lineTo(550, yPos + 15).stroke(); 
 
-    // 5. Taxes & Discounts
+    
     doc.fontSize(14)
        .font('Helvetica-Bold')
-       .text('Taxes & Discounts', 50, yPos + 30); // Increased spacing
-    yPos += 50; // More space before details
+       .text('Taxes & Discounts', 50, yPos + 30); 
+    yPos += 50; 
     doc.fontSize(10)
        .font('Helvetica')
        .text(`Subtotal (Before Tax & Discount): ₹${(order.subTotal || 0).toFixed(2)}`, 50, yPos, { align: 'left' });
@@ -651,22 +651,22 @@ const generateInvoicePDF = async (req, res) => {
     // 6. Shipping Details
     doc.fontSize(14)
        .font('Helvetica-Bold')
-       .text('Shipping Details', 300, yPos - 60); // Adjusted position for alignment
+       .text('Shipping Details', 300, yPos - 60); 
     doc.fontSize(10)
        .font('Helvetica')
        .text(`Shipping Method: ${order.shippingAddress.addressType || 'N/A'}`, 300, yPos - 45, { align: 'left' })
        .text(`Shipping Charges: ₹0.00`, 300, yPos - 30, { align: 'left' }) // No explicit field; adjust if available
-       .text(`Tracking Number: N/A`, 300, yPos - 15, { align: 'left' }); // Add field if needed
+       .text(`Tracking Number: N/A`, 300, yPos - 15, { align: 'left' }); 
 
-    // 7. Total Amount (Moved below Shipping Details and Payment Status)
-    yPos += 50; // Increased spacing to avoid overlap with previous sections
+    
+    yPos += 50; 
     doc.moveTo(400, yPos - 10).lineTo(550, yPos - 10).stroke();
     const grandTotal = order.totalAmount || 0;
     doc.font('Helvetica-Bold')
-       .fontSize(14) // Increased for emphasis
+       .fontSize(14) 
        .text('Grand Total:', 300, yPos, { align: 'right' });
-    doc.text(`${grandTotal.toFixed(2)}`, 500, yPos + 30, { align: 'right' }); // Added 10 points of vertical space
-    // 8. Payment Status
+    doc.text(`${grandTotal.toFixed(2)}`, 500, yPos + 30, { align: 'right' }); 
+   
     yPos += 30; // Increased spacing
     doc.fontSize(14)
        .font('Helvetica-Bold')
@@ -680,7 +680,7 @@ const generateInvoicePDF = async (req, res) => {
     }
 
     // Footer
-    yPos += 50; // More spacing before footer
+    yPos += 50; 
     doc.fontSize(10)
        .font('Helvetica')
        .text('Thank you for shopping with Beats Zone!', 300, yPos, { align: 'center' })
@@ -693,7 +693,7 @@ const generateInvoicePDF = async (req, res) => {
   }
 };
 
-// Include with your existing exports
+
 module.exports = {
   orderSuccess,
   cancelOrder,

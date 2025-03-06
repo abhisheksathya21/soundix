@@ -26,7 +26,7 @@ const wallet = async (req, res) => {
 
     const formattedTransactions = wallet.transactions.map((transaction) => ({
       type: transaction.type,
-      amount: transaction.amount,
+      amount: transaction.amount.toFixed(2),
       description:
         transaction.description || getDefaultDescription(transaction.type),
       date: new Date(transaction.date).toLocaleDateString("en-IN", {
