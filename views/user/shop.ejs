@@ -38,54 +38,44 @@
 
 
             <section class="products">
-                <div class="category-filter">
-                    <h3>Categories</h3>
-                    <ul>
-                        <li>
-                            <a href="/shop" class="category-link <%= !currentCategory ? 'active' : '' %>">
-                                All Categories
-                            </a>
-                        </li>
-                        <% categories.forEach(function(category) { %>
-                            <li>
-                                <a href="/shop?category=<%= category._id %><%= searchQuery ? '&search=' + searchQuery : '' %><%= currentSort ? '&sort=' + currentSort : '' %>"
-                                    class="category-link <%= currentCategory === category._id.toString() ? 'active' : '' %>">
-                                    <%= category.name %>
-                                </a>
-                            </li>
-                            <% }); %>
-                    </ul>
-                </div>
-                <div class="sort-options-container">
-                    <select class="sort-dropdown" onchange="window.location.href=this.value">
-                        <option value="/shop" <%=!currentSort ? 'selected' : '' %>>Sort By</option>
-
-                        <option value="/shop?sort=newest<%= searchQuery ? '&search=' + searchQuery : '' %>"
-                            <%=currentSort==='newest' ? 'selected' : '' %>>
-                            Newest Arrivals
-                        </option>
-
-                        <option value="/shop?sort=priceHighLow<%= searchQuery ? '&search=' + searchQuery : '' %>"
-                            <%=currentSort==='priceHighLow' ? 'selected' : '' %>>
-                            Price High to Low
-                        </option>
-
-                        <option value="/shop?sort=priceLowHigh<%= searchQuery ? '&search=' + searchQuery : '' %>"
-                            <%=currentSort==='priceLowHigh' ? 'selected' : '' %>>
-                            Price Low to High
-                        </option>
-
-                        <option value="/shop?sort=aToZ<%= searchQuery ? '&search=' + searchQuery : '' %>"
-                            <%=currentSort==='aToZ' ? 'selected' : '' %>>
-                            A-Z
-                        </option>
-
-                        <option value="/shop?sort=zToA<%= searchQuery ? '&search=' + searchQuery : '' %>"
-                            <%=currentSort==='zToA' ? 'selected' : '' %>>
-                            Z-A
-                        </option>
-                    </select>
-                </div>
+                <!-- Category Filter -->
+<div class="category-filter">
+    <h3>Categories</h3>
+    <ul>
+      <li>
+        <a href="/shop<%= searchQuery ? '?search=' + searchQuery : '' %><%= currentSort ? (searchQuery ? '&' : '?') + 'sort=' + currentSort : '' %>"
+           class="category-link <%= !currentCategory ? 'active' : '' %>">
+          All Categories
+        </a>
+      </li>
+      <% categories.forEach(function(category) { %>
+        <li>
+          <a href="/shop?category=<%= category._id %><%= searchQuery ? '&search=' + searchQuery : '' %><%= currentSort ? '&sort=' + currentSort : '' %>"
+             class="category-link <%= currentCategory === category._id.toString() ? 'active' : '' %>">
+            <%= category.name %>
+          </a>
+        </li>
+      <% }); %>
+    </ul>
+  </div>
+  
+  <!-- Sort Dropdown -->
+  <div class="sort-options-container">
+    <select class="sort-dropdown" onchange="window.location.href=this.value">
+      <option value="/shop<%= searchQuery ? '?search=' + searchQuery : '' %><%= currentCategory ? (searchQuery ? '&' : '?') + 'category=' + currentCategory : '' %>"
+              <%= !currentSort ? 'selected' : '' %>>Sort By</option>
+      <option value="/shop?sort=newest<%= searchQuery ? '&search=' + searchQuery : '' %><%= currentCategory ? '&category=' + currentCategory : '' %>"
+              <%= currentSort === 'newest' ? 'selected' : '' %>>Newest Arrivals</option>
+      <option value="/shop?sort=priceHighLow<%= searchQuery ? '&search=' + searchQuery : '' %><%= currentCategory ? '&category=' + currentCategory : '' %>"
+              <%= currentSort === 'priceHighLow' ? 'selected' : '' %>>Price High to Low</option>
+      <option value="/shop?sort=priceLowHigh<%= searchQuery ? '&search=' + searchQuery : '' %><%= currentCategory ? '&category=' + currentCategory : '' %>"
+              <%= currentSort === 'priceLowHigh' ? 'selected' : '' %>>Price Low to High</option>
+      <option value="/shop?sort=aToZ<%= searchQuery ? '&search=' + searchQuery : '' %><%= currentCategory ? '&category=' + currentCategory : '' %>"
+              <%= currentSort === 'aToZ' ? 'selected' : '' %>>A-Z</option>
+      <option value="/shop?sort=zToA<%= searchQuery ? '&search=' + searchQuery : '' %><%= currentCategory ? '&category=' + currentCategory : '' %>"
+              <%= currentSort === 'zToA' ? 'selected' : '' %>>Z-A</option>
+    </select>
+  </div>
                 <!-- Add this category filter section -->
 
 

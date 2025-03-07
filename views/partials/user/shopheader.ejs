@@ -7,11 +7,13 @@
     <link rel="stylesheet" href="/assets/user-style/header.css">
     <link rel="icon" type="image/png" href="/assets/img/beat-logo-161616.png"> 
     <style>
-       
+        /* Add any inline styles here if needed */
     </style>
 </head>
 <body>
-   
+    
+<!-- Preloader -->
+
 
     <!-- Header -->
     <header class="header-area">
@@ -60,6 +62,9 @@
                             >
                             <% if (locals.currentSort) { %>
                                 <input type="hidden" name="sort" value="<%= currentSort %>">
+                            <% } %>
+                            <% if (locals.currentCategory) { %>
+                                <input type="hidden" name="category" value="<%= currentCategory %>">
                             <% } %>
                             <button type="submit">
                                 <i class="fa-solid fa-magnifying-glass"></i>
@@ -126,7 +131,7 @@
                             </a>
                             <ul class="submenu">
                                 <% if (locals.user) { %>
-                                    <li><a href="/signup"><%= locals.user.fullname %></a></li>
+                                    <li><a href="#"><%= locals.user.fullname %></a></li>
                                     <li><a href="/userProfile">User Profile</a></li>
                                     <li><a href="#" onclick="logout(event)">Logout</a></li>
                                 <% } else { %>
@@ -153,6 +158,9 @@
                         <% if (locals.currentSort) { %>
                             <input type="hidden" name="sort" value="<%= currentSort %>">
                         <% } %>
+                        <% if (locals.currentCategory) { %>
+                            <input type="hidden" name="category" value="<%= currentCategory %>">
+                        <% } %>
                         <button type="submit">
                             <i class="fa-solid fa-magnifying-glass"></i>
                         </button>
@@ -171,8 +179,7 @@
     <!-- Scripts -->
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script>
-        // Preloader
-       
+        
 
         // Custom Toast Function
         function showToast(type, title, text) {
@@ -195,10 +202,9 @@
             }, 3000);
         }
 
-        // Logout Function (Switched to GET)
+        // Logout Function
         async function logout(event) {
-            event.preventDefault(); // Prevent default link behavior
-
+            event.preventDefault();
             const result = await Swal.fire({
                 title: 'Are you sure?',
                 text: "You will be logged out of your account!",
@@ -210,9 +216,7 @@
             });
 
             if (result.isConfirmed) {
-               
-                    window.location.href = '/logout'; // Use GET redirect
-               
+                window.location.href = '/logout';
             }
         }
 
@@ -275,7 +279,7 @@
                 clearButton.addEventListener('click', () => {
                     input.value = '';
                     clearButton.style.display = 'none';
-                    form.submit();
+                    form.submit(); // Submits with sort and category preserved
                 });
             });
         });

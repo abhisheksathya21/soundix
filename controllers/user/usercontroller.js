@@ -559,9 +559,9 @@ const loadShopPage = async (req, res) => {
     const page = parseInt(req.query.page) || 1;
     const limit = 8;
     const skip = (page - 1) * limit;
-    const sortParam = req.query.sort || "newest";
-    const categoryId = req.query.category || null;
-    const searchQuery = req.query.search || null;
+    const sortParam = req.query.sort || "newest"; 
+    const categoryId = req.query.category || null; 
+    const searchQuery = req.query.search || null; 
 
     const categories = await Category.find({ isListed: true });
 
@@ -585,10 +585,10 @@ const loadShopPage = async (req, res) => {
     let sortCriteria;
     switch (sortParam) {
       case "priceLowHigh":
-        sortCriteria = { salePrice: 1 };
+        sortCriteria = { finalPrice: 1 };
         break;
       case "priceHighLow":
-        sortCriteria = { salePrice: -1 };
+        sortCriteria = { finalPrice: -1 };
         break;
       case "aToZ":
         sortCriteria = { productName: 1 };
@@ -597,7 +597,7 @@ const loadShopPage = async (req, res) => {
         sortCriteria = { productName: -1 };
         break;
       default:
-        sortCriteria = { createdOn: -1 };
+        sortCriteria = { createdOn: -1 }; 
     }
 
     const totalProducts = await Product.countDocuments(productFilter);
@@ -612,7 +612,6 @@ const loadShopPage = async (req, res) => {
     const updatedProducts = products.map((product) => {
       const categoryOffer = product.category?.offer || null;
       const productOffer = product.offer || null;
-
       const bestOffer =
         [categoryOffer, productOffer]
           .filter((offer) => offer?.discountPercentage)
@@ -635,13 +634,12 @@ const loadShopPage = async (req, res) => {
     });
 
     const generatePageUrl = (pageNum) => {
-      const baseUrl = "/shop?";
       const params = new URLSearchParams();
       if (pageNum) params.append("page", pageNum);
       if (sortParam) params.append("sort", sortParam);
       if (categoryId) params.append("category", categoryId);
       if (searchQuery) params.append("search", searchQuery);
-      return baseUrl + params.toString();
+      return "/shop?" + params.toString();
     };
 
     const paginationLinks = [];
@@ -653,20 +651,13 @@ const loadShopPage = async (req, res) => {
       });
     }
 
-    const breadcrumbs = [
-      { name: "Home", url: "/" },
-      { name: "Shop", url: "/shop" },
-    ];
-
+    const breadcrumbs = [{ name: "Home", url: "/" }, { name: "Shop", url: "/shop" }];
     if (categoryId) {
-      const selectedCategory = categories.find(
-        (cat) => cat._id.toString() === categoryId
-      );
+      const selectedCategory = categories.find((cat) => cat._id.toString() === categoryId);
       if (selectedCategory) {
         breadcrumbs.push({ name: selectedCategory.name, url: "" });
       }
     }
-
     if (searchQuery) {
       breadcrumbs.push({ name: `Search: ${searchQuery}`, url: "" });
     }

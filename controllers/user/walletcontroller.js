@@ -26,7 +26,7 @@ const wallet = async (req, res) => {
 
     const formattedTransactions = wallet.transactions.map((transaction) => ({
       type: transaction.type,
-      amount: transaction.amount.toFixed(2),
+      amount: transaction.amount,
       description:
         transaction.description || getDefaultDescription(transaction.type),
       date: new Date(transaction.date).toLocaleDateString("en-IN", {
@@ -144,10 +144,11 @@ const verifyRecharge = async (req, res) => {
     if (!wallet) {
       wallet = await new Wallet({ userId }).save();
     }
+    
 
     await wallet.addTransaction({
       type: "Deposit",
-      amount: amount / 100,
+      amount: amount,
       description: "Wallet recharge",
       status: "Completed",
     });

@@ -9,12 +9,8 @@
     <link rel="icon" type="image/png" href="/assets/img/beat-logo-161616.png"> 
 </head>
 <body>
-    <!-- Header (simulated partial) -->
     <%- include('../partials/user/header') %>
-
-    <!-- Main container -->
     <div class="page-container">
-        <!-- Sidebar -->
         <aside class="sidebar">
             <nav>
                 <ul class="sidebar-menu">
@@ -30,8 +26,6 @@
             </nav>
             <button class="logout-btn" onclick="logout()">Logout</button>
         </aside>
-
-        <!-- Main content -->
         <main class="content">
             <div class="view-port">
                 <div class="container" id="orders-container">
@@ -50,18 +44,18 @@
                             <form id="edit-profile-form" class="hidden">
                                 <div class="form-group">
                                     <label for="edit-name">Name:</label>
-                                    <input type="text" id="edit-name" name="name"  pattern="[A-Za-z\s]{3,}" title="Name must contain only letters and spaces, and be at least 3 characters long." />
-                                    <div class="error-message" id="name-error">Name must contain only letters and spaces, at least 3 characters.</div>
+                                    <input type="text" id="edit-name" name="name" pattern="[A-Za-z]+(\s[A-Za-z]+)*(\s[A-Za-z]+)?" title="Name must contain only letters, with at most two spaces separating words." required />
+                                    <div class="error-message" id="name-error">Name must contain only letters, with at most two spaces separating words, and be at least 3 characters long.</div>
                                 </div>
                                 <div class="form-group">
                                     <label for="edit-email">Email:</label>
-                                    <input type="email" id="edit-email" name="email"  readonly />
-                                    <div class="error-message" id="email-error"></div> <!-- No validation needed since readonly -->
+                                    <input type="email" id="edit-email" name="email" readonly />
+                                    <div class="error-message" id="email-error"></div>
                                 </div>
                                 <% if (!isGoogleUser) { %>
                                   <div class="form-group">
                                     <label for="edit-phone">Phone:</label>
-                                    <input type="tel" id="edit-phone" name="phone"  pattern="\d{10}" title="Phone number must be 10 digits." />
+                                    <input type="tel" id="edit-phone" name="phone" pattern="\d{10}" title="Phone number must be 10 digits." />
                                     <div class="error-message" id="phone-error">Phone number must be exactly 10 digits.</div>
                                   </div>
                                 <% } %>
@@ -80,17 +74,10 @@
             </div>
         </main>
     </div>
-
-    <!-- Toast Container -->
     <div class="toast-container" id="toast-container"></div>
-
-    <!-- Footer (simulated partial) -->
     <%- include('../partials/user/footer') %>
-
-    <!-- SweetAlert CDN (only for logout confirmation) -->
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script>
-        // Custom Toast Function
         function showToast(type, title, text) {
             const toastContainer = document.getElementById('toast-container');
             const toast = document.createElement('div');
@@ -103,18 +90,13 @@
                 </div>
             `;
             toastContainer.appendChild(toast);
-
-           
             setTimeout(() => toast.classList.add('show'), 10);
-
-           
             setTimeout(() => {
                 toast.classList.remove('show');
-                setTimeout(() => toast.remove(), 300); // Match transition duration
+                setTimeout(() => toast.remove(), 300);
             }, 3000);
         }
 
-      
         const editBtn = document.getElementById("edit-profile-btn");
         const cancelBtn = document.getElementById("cancel-edit-btn");
         const profileInfo = document.getElementById("profile-info");
@@ -147,14 +129,14 @@
             clearErrors();
         });
 
-       
         nameInput.addEventListener("input", validateName);
         <% if (!isGoogleUser) { %>
           phoneInput.addEventListener("input", validatePhone);
         <% } %>
 
         function validateName() {
-            const namePattern = /^[A-Za-z\s]{3,}$/;
+            // Updated regex: allows letters and at most two spaces between words
+            const namePattern = /^[A-Za-z]+(\s[A-Za-z]+){0,2}$/;
             if (!namePattern.test(nameInput.value)) {
                 nameInput.parentElement.classList.add("invalid");
                 return false;
@@ -227,7 +209,6 @@
                     throw new Error(result.message || 'Failed to update profile');
                 }
 
-                
                 nameSpan.textContent = data.name;
                 <% if (!isGoogleUser) { %>
                   phoneSpan.textContent = data.phone;
@@ -237,13 +218,12 @@
                 setTimeout(() => {
                     profileInfo.classList.remove("hidden");
                     editForm.classList.add("hidden");
-                }, 1000); // Delay to show toast
+                }, 1000);
             } catch (error) {
                 showToast('error', 'Update Failed', error.message || 'An error occurred while updating your profile.');
             }
         });
 
-       
         function logout() {
             Swal.fire({
                 title: 'Are you sure?',
