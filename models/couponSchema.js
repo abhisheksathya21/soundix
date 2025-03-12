@@ -6,11 +6,11 @@ const couponSchema = new mongoose.Schema({
     required: true,
     unique: true,
     trim: true,
-    uppercase: true, // Ensures the code is always stored in uppercase
+    uppercase: true, 
   },
   discountType: {
     type: String,
-    enum: ["percentage"], // Only percentage-based discounts allowed
+    enum: ["percentage"], 
     default: "percentage",
     required: true,
   },
@@ -18,15 +18,15 @@ const couponSchema = new mongoose.Schema({
     type: Number,
     required: true,
     min: 1,
-    max: 100, // Ensures percentage discount does not exceed 100%
+    max: 100, 
   },
   minPurchaseAmount: {
     type: Number,
-    default: 0, // Minimum cart value required to apply the coupon
+    default: 0, 
   },
   maxDiscountAmount: {
     type: Number,
-    default: null, // Caps the discount amount (useful for high percentage values)
+    default: null, 
   },
   startDate: {
     type: Date,
@@ -34,19 +34,19 @@ const couponSchema = new mongoose.Schema({
   },
   expiryDate: {
     type: Date,
-    required: true, // The date after which the coupon will be invalid
+    required: true, 
   },
   usageLimit: {
     type: Number,
-    default: null, // Maximum number of times this coupon can be used overall
+    default: null, 
   },
   usedCount: {
     type: Number,
-    default: 0, // Tracks how many times the coupon has been used
+    default: 0, 
   },
   perUserLimit: {
     type: Number,
-    default: 1, // Limits how many times a user can use this coupon
+    default: 1, 
   },
   usersUsed: [
     {
@@ -56,13 +56,13 @@ const couponSchema = new mongoose.Schema({
       },
       count: {
         type: Number,
-        default: 0, // Tracks how many times a specific user has used this coupon
+        default: 0, 
       },
     },
   ],
   isActive: {
     type: Boolean,
-    default: true, // Whether the coupon is active or not
+    default: true, 
   },
 });
 

@@ -10,7 +10,8 @@ const loadCoupon=async(req,res)=>{
     const totalPages = Math.ceil(totalCoupons / limit);
 
     const coupons = await Coupon.find()
-      .sort({ createdAt: -1 })
+    
+      .sort({ _id: -1 })
       .skip(skip)
       .limit(limit);
 

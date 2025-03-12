@@ -3,14 +3,14 @@ const mongoose = require("mongoose");
 const wishlistSchema = new mongoose.Schema({
   user: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: "User", // References the User collection
+    ref: "User", 
     required: true,
   },
   items: [
     {
       product: {
         type: mongoose.Schema.Types.ObjectId,
-        ref: "Product", // References the Product collection
+        ref: "Product", 
         required: true,
       },
       finalPrice: {
@@ -20,7 +20,7 @@ const wishlistSchema = new mongoose.Schema({
       },
       addedOn: {
         type: Date,
-        default: Date.now, // Tracks when the product was added to
+        default: Date.now, 
       },
     },
   ],

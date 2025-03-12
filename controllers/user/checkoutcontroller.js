@@ -74,6 +74,7 @@ const validateCoupon = async (req, res) => {
 const loadCheckout = async (req, res) => {
   try {
     const userId = req.session.user;
+    const userData = await User.findById(userId);
     const cartData = await Cart.findOne({ user: userId }).populate({
       path: "items.product",
       populate: { path: "category" },
@@ -81,7 +82,7 @@ const loadCheckout = async (req, res) => {
 
     if (!cartData || !cartData.items.length) {
       return res.render("checkout", {
-        user: null,
+        user: userData,
         cart: null,
         Address: null,
         availableCoupons: [],
@@ -170,7 +171,7 @@ const loadCheckout = async (req, res) => {
 
     if (cartData.items.length === 0) {
       return res.render("checkout", {
-        user: null,
+        user: userData,
         cart: null,
         Address: null,
         availableCoupons: [],
@@ -180,7 +181,7 @@ const loadCheckout = async (req, res) => {
 
     // Fetch additional data
     const AddressData = await Address.findOne({ userId: userId });
-    const userData = await User.findById(userId);
+    
     const availableCoupons = await Coupon.find({
       isActive: true,
       startDate: { $lte: new Date() },

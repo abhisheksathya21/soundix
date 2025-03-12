@@ -585,10 +585,10 @@ const loadShopPage = async (req, res) => {
     let sortCriteria;
     switch (sortParam) {
       case "priceLowHigh":
-        sortCriteria = { finalPrice: 1 };
+        sortCriteria = { salePrice: 1 };
         break;
       case "priceHighLow":
-        sortCriteria = { finalPrice: -1 };
+        sortCriteria = { salePrice: -1 };
         break;
       case "aToZ":
         sortCriteria = { productName: 1 };

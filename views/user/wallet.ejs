@@ -20,6 +20,9 @@
                     <li><a href="/orders">Order Details</a></li>
                     <li><a href="/addressManagement">Manage Address</a></li>
                     <li><a href="/wallet" class="active">Wallet</a></li>
+                    <% if (!isGoogleUser) { %>
+                        <li><a href="/password">Password</a></li>
+                        <% } %>
                     <li><a href="/wishlist">Wishlist</a></li>
                 </ul>
             </nav>

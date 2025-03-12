@@ -97,6 +97,7 @@ const getSalesReportData = async (req, res) => {
     
 
     const orders = await Order.find(filter)
+    .sort({ _id: -1 })
       .select(
         "orderId orderDate subTotal discountAmount paymentMethod orderStatus"
       )
@@ -156,14 +157,14 @@ const exportSalesReportPDF = async (req, res) => {
       .select("orderId orderDate subTotal discountAmount totalAmount paymentMethod orderStatus")
       .lean();
 
-    // Calculate Summary Metrics
+    
     const totalOrders = orders.length;
     const grossSales = orders.reduce((sum, order) => sum + (order.subTotal || 0), 0);
     const totalDiscounts = orders.reduce((sum, order) => sum + (order.discountAmount || 0), 0);
     const netRevenue = grossSales - totalDiscounts;
     const avgOrderValue = totalOrders > 0 ? netRevenue / totalOrders : 0;
 
-    // Payment Method Breakdown
+   
     const paymentMethods = {};
     orders.forEach((order) => {
       const method = order.paymentMethod || "Unknown";
@@ -174,12 +175,12 @@ const exportSalesReportPDF = async (req, res) => {
       paymentMethods[method].amount += order.totalAmount || 0;
     });
 
-    // Determine Date Range for Display
+   
     const start = startDate ? new Date(startDate) : new Date(dateFilter.orderDate.$gte);
     const end = endDate ? new Date(endDate) : new Date(dateFilter.orderDate.$lte);
     const periodText = `${start.toLocaleDateString("en-IN", { month: "long", day: "numeric", year: "numeric" })} - ${end.toLocaleDateString("en-IN", { month: "long", day: "numeric", year: "numeric" })}`;
 
-    // Generate PDF
+   
     const doc = new PDFDocument({
       margin: 40,
       size: "A4",
@@ -206,18 +207,18 @@ const exportSalesReportPDF = async (req, res) => {
 
     doc.font("Helvetica").fontSize(10);
     doc.text(`Total Orders: ${totalOrders}`);
-    doc.text(`Gross Sales: ₹${grossSales.toFixed(2)}`);
-    doc.text(`Total Discounts: ₹${totalDiscounts.toFixed(2)}`);
-    doc.text(`Net Revenue: ₹${netRevenue.toFixed(2)}`);
-    doc.text(`Average Order Value: ₹${avgOrderValue.toFixed(2)}`);
+    doc.text(`Gross Sales: Rs.${grossSales.toFixed(2)}`);
+    doc.text(`Total Discounts: Rs.${totalDiscounts.toFixed(2)}`);
+    doc.text(`Net Revenue: Rs.${netRevenue.toFixed(2)}`);
+    doc.text(`Average Order Value: Rs.${avgOrderValue.toFixed(2)}`);
     doc.moveDown(0.5);
 
     doc.text("Payment Methods:");
     for (const [method, data] of Object.entries(paymentMethods)) {
-      doc.text(`- ${method}: ${data.count} orders (₹${data.amount.toFixed(2)})`);
+      doc.text(`- ${method}: ${data.count} orders (Rs.${data.amount.toFixed(2)})`);
     }
 
-    // Detailed Table Section
+   
     doc.moveDown(2);
     doc.fontSize(14).text("Detailed Sales Data", { underline: true });
     doc.moveDown(1);
@@ -234,8 +235,9 @@ const exportSalesReportPDF = async (req, res) => {
 
     let yPosition = doc.y + 10;
     const rowHeight = 20;
+    const rowSpacing = 5; // Add 5 points of space between rows
 
-    // Draw Table Header
+    
     doc.rect(40, yPosition - 5, 515, rowHeight).fill("#DDDDDD").stroke();
     doc.fillColor("black").fontSize(10);
     columns.forEach((col) => {
@@ -261,9 +263,9 @@ const exportSalesReportPDF = async (req, res) => {
       const values = [
         order.orderId || "N/A",
         order.orderDate ? new Date(order.orderDate).toLocaleDateString() : "N/A",
-        `₹${Number(order.subTotal || 0).toFixed(2)}`,
-        `₹${Number(order.discountAmount || 0).toFixed(2)}`,
-        `₹${Number(order.totalAmount || 0).toFixed(2)}`,
+        `Rs.${Number(order.subTotal || 0).toFixed(2)}`,
+        `Rs.${Number(order.discountAmount || 0).toFixed(2)}`,
+        `Rs.${Number(order.totalAmount || 0).toFixed(2)}`,
         order.paymentMethod || "N/A",
         order.orderStatus || "N/A",
       ];
@@ -272,7 +274,8 @@ const exportSalesReportPDF = async (req, res) => {
         doc.text(values[idx], col.x, yPosition, { width: col.width, align: "left" });
       });
 
-      yPosition += rowHeight;
+      // Add spacing after each row
+      yPosition += rowHeight + rowSpacing;
     });
 
     doc.end();
@@ -296,14 +299,14 @@ const exportSalesReportExcel = async (req, res) => {
       .select("orderId orderDate subTotal discountAmount totalAmount paymentMethod orderStatus")
       .lean();
 
-    // Calculate Summary Metrics
+    
     const totalOrders = orders.length;
     const grossSales = orders.reduce((sum, order) => sum + (order.subTotal || 0), 0);
     const totalDiscounts = orders.reduce((sum, order) => sum + (order.discountAmount || 0), 0);
     const netRevenue = grossSales - totalDiscounts;
     const avgOrderValue = totalOrders > 0 ? netRevenue / totalOrders : 0;
 
-    // Payment Method Breakdown
+    
     const paymentMethods = {};
     orders.forEach((order) => {
       const method = order.paymentMethod || "Unknown";
@@ -314,18 +317,18 @@ const exportSalesReportExcel = async (req, res) => {
       paymentMethods[method].amount += order.totalAmount || 0;
     });
 
-    // Determine Date Range for Display
+    
     const start = startDate ? new Date(startDate) : new Date(dateFilter.orderDate.$gte);
     const end = endDate ? new Date(endDate) : new Date(dateFilter.orderDate.$lte);
     const periodText = `${start.toLocaleDateString("en-IN", { month: "long", day: "numeric", year: "numeric" })} - ${end.toLocaleDateString("en-IN", { month: "long", day: "numeric", year: "numeric" })}`;
 
-    // Generate Excel
+    
     const workbook = new ExcelJS.Workbook();
     const worksheet = workbook.addWorksheet("Sales Report", {
       properties: { tabColor: { argb: "FF00FF00" } },
     });
 
-    // Summary Section
+    
     worksheet.mergeCells("A1:H1");
     worksheet.getCell("A1").value = "Sales Report";
     worksheet.getCell("A1").font = { bold: true, size: 16 };
@@ -344,13 +347,13 @@ const exportSalesReportExcel = async (req, res) => {
     worksheet.addRow(["Average Order Value", `₹${avgOrderValue.toFixed(2)}`]);
     worksheet.addRow(["Payment Methods", ""]);
 
-    let rowIndex = 8; // Start after summary metrics
+    let rowIndex = 8; 
     for (const [method, data] of Object.entries(paymentMethods)) {
       worksheet.addRow([`- ${method}`, `${data.count} orders (₹${data.amount.toFixed(2)})`]);
       rowIndex++;
     }
 
-    // Styling Summary Section
+  
     worksheet.getRow(3).font = { bold: true };
     for (let i = 4; i <= rowIndex; i++) {
       worksheet.getRow(i).getCell(1).font = { bold: true };
@@ -359,7 +362,7 @@ const exportSalesReportExcel = async (req, res) => {
     worksheet.addRow([]); // Empty row for spacing
     rowIndex += 1;
 
-    // Detailed Data Table
+   
     worksheet.addRow([
       "Order ID",
       "Date",

@@ -47,7 +47,8 @@ const wallet = async (req, res) => {
     res.render("wallet", {
       walletBalance: wallet.balance.toFixed(2),
       transactions: sortedTransactions,
-      user:userData
+      user:userData,
+      isGoogleUser: !!userData.googleId,
     });
   } catch (error) {
     console.error("Error fetching wallet:", error);

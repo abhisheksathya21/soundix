@@ -272,3 +272,67 @@ body {
         font-size: 0.8rem;
     }
 }
+/* Add this to your existing /assets/admin-style/sales.css file */
+
+.table-responsive {
+    position: relative;
+    max-height: 500px; /* Adjust height as needed */
+    overflow-y: auto;
+    margin-bottom: 20px;
+    border: 1px solid #e0e0e0;
+    border-radius: 4px;
+  }
+  
+  #sales-table {
+    width: 100%;
+    border-collapse: collapse;
+  }
+  
+  #sales-table thead {
+    position: sticky;
+    top: 0;
+    z-index: 10;
+    background-color: #f8f9fa;
+    box-shadow: 0 2px 2px -1px rgba(0, 0, 0, 0.1);
+  }
+  
+  #sales-table th, 
+  #sales-table td {
+    padding: 12px;
+    text-align: left;
+    border-bottom: 1px solid #e0e0e0;
+  }
+  
+  #sales-table tbody tr:nth-child(even) {
+    background-color: #f8f9fa;
+  }
+  
+  #sales-table tbody tr:hover {
+    background-color: #f1f1f1;
+  }
+  
+  /* Custom scrollbar styling */
+  .table-responsive::-webkit-scrollbar {
+    width: 8px;
+  }
+  
+  .table-responsive::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    border-radius: 4px;
+  }
+  
+  .table-responsive::-webkit-scrollbar-thumb {
+    background: #888;
+    border-radius: 4px;
+  }
+  
+  .table-responsive::-webkit-scrollbar-thumb:hover {
+    background: #555;
+  }
+  
+  /* Responsive adjustments */
+  @media (max-width: 768px) {
+    .table-responsive {
+      max-height: 400px;
+    }
+  }

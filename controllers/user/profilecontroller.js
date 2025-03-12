@@ -204,12 +204,12 @@ const editAddress = async (req, res) => {
       return res.status(404).json({ message: "Address not found" });
     }
 
-    // Check if the request expects JSON (e.g., from fetch/AJAX)
+    
     if (req.headers['accept'] === 'application/json') {
       return res.status(200).json({ success: true, address: addressData });
     }
 
-    // Otherwise, render the page as before
+   
     res.render("editAddress", { 
       address: addressData, 
       user: user, 
