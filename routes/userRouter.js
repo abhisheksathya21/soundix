@@ -46,6 +46,7 @@ router.get("/shop", UserAuth, usercontroller.loadShopPage);
 router.get("/productdetails", UserAuth, productcontroller.productDetails);
 
 // Cart
+router.get('/cart/count',UserAuth,cartcontroller.cartcount)
 router.get("/cart", UserAuth, cartcontroller.loadCart);
 router.post("/cart-add", UserAuth, cartcontroller.addtoCart);
 router.post(
@@ -58,6 +59,7 @@ router.post("/updateQuantity", UserAuth, cartcontroller.updateQuantity);
 router.get("/validate-cart", UserAuth, cartcontroller.validateCart);
 
 // Wishlist
+router.get('/wishlist/count',UserAuth,wishlistcontroller.wishlistcount);
 router.get("/wishlist", UserAuth, wishlistcontroller.loadWishlist);
 router.post("/wishlist/toggle", UserAuth, wishlistcontroller.toggleWishlist);
 router.post(

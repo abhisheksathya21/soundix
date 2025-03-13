@@ -10,6 +10,7 @@ const couponcontroller = require("../controllers/admin/couponcontroller");
 const salesReportcontroller = require("../controllers/admin/salesReportcontroller");
 const { UserAuth, AdminAuth } = require("../middlewares/auth");
 const dashboardController = require("../controllers/admin/dashboardController");
+const bannerController = require("../controllers/admin/bannerController"); 
 
 router.get("/dashboard", (req, res) => {
   res.render("dashboard");
@@ -18,38 +19,41 @@ router.get("/dashboard/data", dashboardController.getDashboardData);
 
 const { v4: uuidv4 } = require("uuid");
 
-const storage = multer.diskStorage({
+
+// Product image storage
+const productStorage = multer.diskStorage({
   destination: function (req, file, cb) {
     cb(null, "public/uploads/product-images");
   },
   filename: function (req, file, cb) {
-    const ext = file.originalname.split(".").pop(); 
-    cb(null, `${uuidv4()}.${ext}`); 
+    const ext = file.originalname.split(".").pop();
+    cb(null, `${uuidv4()}.${ext}`);
   },
 });
 
+// Banner image storage
+const bannerStorage = multer.diskStorage({
+  destination: function (req, file, cb) {
+    cb(null, "public/uploads/banners");
+  },
+  filename: function (req, file, cb) {
+    const ext = file.originalname.split(".").pop();
+    cb(null, `${uuidv4()}.${ext}`);
+  },
+});
+
+// Sales Report
 router.get("/sales-report", AdminAuth, salesReportcontroller.getSalesReport);
-router.get(
-  "/sales-report/data",
-  AdminAuth,
-  salesReportcontroller.getSalesReportData
-);
-router.get(
-  "/sales-report/export/pdf",
-  AdminAuth,
-  salesReportcontroller.exportSalesReportPDF
-);
-router.get(
-  "/sales-report/export/excel",
-  AdminAuth,
-  salesReportcontroller.exportSalesReportExcel
-);
+router.get("/sales-report/data", AdminAuth, salesReportcontroller.getSalesReportData);
+router.get("/sales-report/export/pdf", AdminAuth, salesReportcontroller.exportSalesReportPDF);
+router.get("/sales-report/export/excel", AdminAuth, salesReportcontroller.exportSalesReportExcel);
 
-const uploads = multer({ storage: storage });
+const productUploads = multer({ storage: productStorage });
+const bannerUploads = multer({ storage: bannerStorage });
 
-router.get("/pageError", admincontroller.pageError);
+
 //Login Management
-
+router.get("/pageError", admincontroller.pageError);
 router.get("/login", admincontroller.loadLogin);
 router.post("/login", admincontroller.login);
 router.get("/", AdminAuth, admincontroller.loadDashboard);
@@ -61,50 +65,25 @@ router.get("/customers", AdminAuth, customercontroller.customerInfo);
 router.get("/blockCustomer", AdminAuth, customercontroller.blockCustomer);
 router.get("/UnblockCustomer", AdminAuth, customercontroller.UnblockCustomer);
 
-//Category Management
-
+// Category Management
 router.get("/category", AdminAuth, categorycontroller.categoryInfo);
 router.post("/addCategory", AdminAuth, categorycontroller.addcategory);
 router.get("/editcategory", AdminAuth, categorycontroller.geteditcategory);
 router.post("/editcategory/:id", AdminAuth, categorycontroller.editcategory);
 router.get("/listcategory", AdminAuth, categorycontroller.listcategory);
 router.get("/Unlistcategory", AdminAuth, categorycontroller.Unlistcategory);
-router.post(
-  "/addCategoryOffer",
-  AdminAuth,
-  categorycontroller.addCategoryOffer
-);
-router.post(
-  "/removeCategoryOffer",
-  AdminAuth,
-  categorycontroller.removeCategoryOffer
-);
-
-//product Management
+router.post("/addCategoryOffer", AdminAuth, categorycontroller.addCategoryOffer);
+router.post("/removeCategoryOffer", AdminAuth, categorycontroller.removeCategoryOffer);
+//product management
 router.get("/addproducts", AdminAuth, productcontroller.loadProductaddpage);
-router.post(
-  "/addproducts",
-  AdminAuth,
-  uploads.array("images", 6),
-  productcontroller.addProducts
-);
-
+router.post("/addproducts", AdminAuth, productUploads.array("images", 6), productcontroller.addProducts);
 router.get("/products", AdminAuth, productcontroller.getAllproducts);
 router.get("/blockProduct", AdminAuth, productcontroller.blockProduct);
 router.get("/UnblockProduct", AdminAuth, productcontroller.UnblockProduct);
 router.get("/editProduct", AdminAuth, productcontroller.geteditProduct);
-router.post(
-  "/editProduct/:id",
-  AdminAuth,
-  uploads.array("images", 6),
-  productcontroller.editProduct
-);
+router.post("/editProduct/:id", AdminAuth, productUploads.array("images", 6), productcontroller.editProduct);
 router.post("/addProductOffer", AdminAuth, productcontroller.addProductOffer);
-router.post(
-  "/removeProductOffer",
-  AdminAuth,
-  productcontroller.removeProductOffer
-);
+router.post("/removeProductOffer", AdminAuth, productcontroller.removeProductOffer);
 
 //coupon management
 router.get("/coupon", AdminAuth, couponcontroller.loadCoupon);
@@ -113,23 +92,21 @@ router.get("/editCoupon", couponcontroller.getEditCouponPage);
 router.post("/editCoupon", couponcontroller.updateCoupon);
 router.post("/toggleCouponStatus", couponcontroller.toggleCouponStatus);
 
-//order lists
+// Order Management
 router.get("/orders", AdminAuth, ordercontroller.getAllOrders);
-
-//order status
-router.post(
-  "/update-order-status",
-  AdminAuth,
-  ordercontroller.updateOrderStatus
-);
+router.post("/update-order-status", AdminAuth, ordercontroller.updateOrderStatus);
 router.post("/cancel-order", AdminAuth, ordercontroller.cancelProductOrder);
-//
-
 router.get("/return-requests", AdminAuth, ordercontroller.getReturnRequests);
-router.post(
-  "/process-return-request",
-  AdminAuth,
-  ordercontroller.processReturnRequest
-);
+router.post("/process-return-request", AdminAuth, ordercontroller.processReturnRequest);
+
+
+// Banner Management (New Routes)
+router.get("/banners", AdminAuth, bannerController.getBanners);
+router.get("/banners/add", AdminAuth, bannerController.getAddBanner);
+router.post("/banners", AdminAuth, bannerUploads.single("image"), bannerController.addBanner);
+router.get("/banners/edit/:id", AdminAuth, bannerController.getEditBanner);
+router.post("/banners/edit/:id", AdminAuth, bannerUploads.single("image"), bannerController.editBanner);
+router.post("/banners/delete/:id", AdminAuth, bannerController.deleteBanner);
+router.get("/banners/toggle/:id", AdminAuth, bannerController.toggleBannerStatus); // Optional
 
 module.exports = router;

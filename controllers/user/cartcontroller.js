@@ -4,6 +4,20 @@ const User = require("../../models/userSchema");
 const Cart = require("../../models/cartSchema");
 const Wishlist = require("../../models/wishlistSchema");
 
+
+const cartcount= async (req, res) => {
+  if (!req.session.user) {
+    return res.json({ success: true, count: 0 });
+  }
+  try {
+    const cart = await Cart.findOne({ user: req.session.user }).populate('items.product');
+    const count = cart ? cart.items.filter(item => !item.product.isBlocked).length : 0;
+    res.json({ success: true, count });
+  } catch (error) {
+    console.error('Error fetching cart count:', error);
+    res.status(500).json({ success: false, error: 'Server error' });
+  }
+}
 const loadCart = async (req, res) => {
   try {
     const userId = req.session.user;
@@ -407,4 +421,5 @@ module.exports = {
   removeCart,
   updateQuantity,
   validateCart,
+  cartcount,
 };

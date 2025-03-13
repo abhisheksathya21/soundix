@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <%- include("../partials/admin/header") %>
+  <title>Banners - BeatsZone Admin</title>
+</head>
+<body>
+  
+  <main class="main-content">
+    <h1>Banner Management</h1>
+    <% if (typeof success !== 'undefined' && success) { %>
+        <script>
+          Toastify({
+            text: "<%= success %>",
+            duration: 3000,
+            gravity: "top",
+            position: "right",
+            backgroundColor: "green",
+          }).showToast();
+        </script>
+      <% } %>
+      
+    <a href="/admin/banners/add" class="btn btn-primary mb-3">Add New Banner</a>
+    <table class="table table-bordered">
+      <thead>
+        <tr>
+          <th>Title</th>
+          <th>Image</th>
+          <th>Start Date</th>
+          <th>End Date</th>
+          <th>Status</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% banners.forEach(banner => { %>
+          <tr>
+            <td><%= banner.title %></td>
+            <td><img src="<%= banner.imageUrl %>" width="100" alt="<%= banner.title %>"></td>
+            <td><%= new Date(banner.startDate).toLocaleDateString() %></td>
+            <td><%= new Date(banner.endDate).toLocaleDateString() %></td>
+            <td><%= banner.status ? 'Active' : 'Inactive' %></td>
+            <td>
+              <a href="/admin/banners/edit/<%= banner._id %>" class="btn btn-sm btn-warning">Edit</a>
+              <form action="/admin/banners/delete/<%= banner._id %>" method="POST" style="display:inline;">
+                <button type="submit" class="btn btn-sm btn-danger">Delete</button>
+              </form>
+              <a href="/admin/banners/toggle/<%= banner._id %>" class="btn btn-sm btn-<%= banner.status ? 'secondary' : 'success' %>">
+                <%= banner.status ? 'Deactivate' : 'Activate' %>
+              </a>
+            </td>
+          </tr>
+        <% }) %>
+      </tbody>
+    </table>
+  </main>
+  <script>
+    const toggleSidebar = document.getElementById('toggleSidebar');
+    const sidebar = document.getElementById('sidebar');
+    const mainContent = document.querySelector('.main-content');
+    toggleSidebar.addEventListener('click', () => {
+      sidebar.classList.toggle('collapsed');
+      mainContent.classList.toggle('expanded');
+    });
+  </script>
+  <%- include("../partials/admin/footer") %>
+</body>
+</html>
