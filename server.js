@@ -2,7 +2,6 @@ const express=require('express')
 const app= express();
 const path=require("path");
 const env =require("dotenv").config({ path: require("path").resolve(__dirname, ".env") });
-console.log("RAZORPAY_KEY_ID:", process.env.RAZORPAY_KEY_ID);
 const db=require("./config/dbs");
 const userRouter=require('./routes/userRouter');
 const adminRouter=require('./routes/adminRouter');

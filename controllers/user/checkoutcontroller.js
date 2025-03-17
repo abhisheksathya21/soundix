@@ -7,7 +7,6 @@ const Order = require("../../models/orderSchema");
 const Wallet = require("../../models/walletSchema");
 const Coupon = require("../../models/couponSchema");
 const crypto = require("crypto"); //
-const Razorpay = require('razorpay');
 
 const Razorpay = require("razorpay");
 const razorpay = new Razorpay({
