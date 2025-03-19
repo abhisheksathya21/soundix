@@ -91,7 +91,7 @@ const loadSignup = async (req, res) => {
   try {
     const message = req.query.message;
     const icon = req.query.icon || "warning";
-    return res.render("Signup", { user: null, message, icon });
+    return res.render("signup", { user: null, message, icon });
   } catch (error) {
     console.log("Signup page not found", error);
     res.redirect("/pageNotFound?message=Signup page failed to load&icon=warning");
