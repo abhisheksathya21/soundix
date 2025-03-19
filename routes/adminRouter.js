@@ -10,7 +10,7 @@ const couponcontroller = require("../controllers/admin/couponcontroller");
 const salesReportcontroller = require("../controllers/admin/salesReportcontroller");
 const { UserAuth, AdminAuth } = require("../middlewares/auth");
 const dashboardController = require("../controllers/admin/dashboardController");
-const bannerController = require("../controllers/admin/bannerController"); 
+
 
 router.get("/dashboard", (req, res) => {
   res.render("dashboard");
@@ -31,16 +31,7 @@ const productStorage = multer.diskStorage({
   },
 });
 
-// Banner image storage
-const bannerStorage = multer.diskStorage({
-  destination: function (req, file, cb) {
-    cb(null, "public/uploads/banners");
-  },
-  filename: function (req, file, cb) {
-    const ext = file.originalname.split(".").pop();
-    cb(null, `${uuidv4()}.${ext}`);
-  },
-});
+
 
 // Sales Report
 router.get("/sales-report", AdminAuth, salesReportcontroller.getSalesReport);
@@ -49,7 +40,7 @@ router.get("/sales-report/export/pdf", AdminAuth, salesReportcontroller.exportSa
 router.get("/sales-report/export/excel", AdminAuth, salesReportcontroller.exportSalesReportExcel);
 
 const productUploads = multer({ storage: productStorage });
-const bannerUploads = multer({ storage: bannerStorage });
+
 
 
 //Login Management
@@ -100,13 +91,5 @@ router.get("/return-requests", AdminAuth, ordercontroller.getReturnRequests);
 router.post("/process-return-request", AdminAuth, ordercontroller.processReturnRequest);
 
 
-// Banner Management (New Routes)
-router.get("/banners", AdminAuth, bannerController.getBanners);
-router.get("/banners/add", AdminAuth, bannerController.getAddBanner);
-router.post("/banners", AdminAuth, bannerUploads.single("image"), bannerController.addBanner);
-router.get("/banners/edit/:id", AdminAuth, bannerController.getEditBanner);
-router.post("/banners/edit/:id", AdminAuth, bannerUploads.single("image"), bannerController.editBanner);
-router.post("/banners/delete/:id", AdminAuth, bannerController.deleteBanner);
-router.get("/banners/toggle/:id", AdminAuth, bannerController.toggleBannerStatus); // Optional
 
 module.exports = router;
