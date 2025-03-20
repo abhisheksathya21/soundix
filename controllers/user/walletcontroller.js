@@ -8,7 +8,6 @@ const Wallet = require("../../models/walletSchema");
 const Razorpay = require("razorpay"); 
 const crypto = require("crypto"); 
 
-
 const razorpay = new Razorpay({
   key_id: process.env.RAZORPAY_KEY_ID,
   key_secret: process.env.RAZORPAY_KEY_SECRET,
@@ -17,7 +16,7 @@ const razorpay = new Razorpay({
 const wallet = async (req, res) => {
   try {
     const userId = req.session.user;
-    const userData=await User.findOne({_id:userId});
+    const userData = await User.findOne({ _id: userId });
     let wallet = await Wallet.findOne({ userId });
 
     if (!wallet) {
@@ -41,13 +40,11 @@ const wallet = async (req, res) => {
     const sortedTransactions = formattedTransactions.sort(
       (a, b) => new Date(b.date) - new Date(a.date)
     );
-    
-   
 
     res.render("wallet", {
       walletBalance: wallet.balance.toFixed(2),
       transactions: sortedTransactions,
-      user:userData,
+      user: userData,
       isGoogleUser: !!userData.googleId,
     });
   } catch (error) {
@@ -76,6 +73,7 @@ function getDefaultDescription(type) {
       return "Wallet transaction";
   }
 }
+
 const getWalletBalance = async (req, res) => {
   try {
     const userId = req.session.user;
@@ -91,6 +89,40 @@ const getWalletBalance = async (req, res) => {
     res.status(500).json({ success: false, error: "Failed to fetch wallet balance" });
   }
 };
+
+const getWalletData = async (req, res) => {
+  try {
+    const userId = req.session.user;
+    let wallet = await Wallet.findOne({ userId });
+
+    if (!wallet) {
+      wallet = await new Wallet({ userId }).save();
+    }
+
+    const formattedTransactions = wallet.transactions.map((transaction) => ({
+      type: transaction.type,
+      amount: transaction.amount,
+      description: transaction.description || getDefaultDescription(transaction.type),
+      date: new Date(transaction.date).toLocaleDateString("en-IN", {
+        day: "numeric",
+        month: "short",
+        year: "numeric",
+      }),
+      status: transaction.status,
+      isDebit: ["Purchase", "Withdrawal"].includes(transaction.type),
+    }));
+
+    res.status(200).json({
+      success: true,
+      balance: wallet.balance,
+      transactions: formattedTransactions.sort((a, b) => new Date(b.date) - new Date(a.date)),
+    });
+  } catch (error) {
+    console.error("Error fetching wallet data:", error);
+    res.status(500).json({ success: false, error: "Failed to fetch wallet data" });
+  }
+};
+
 const addMoney = async (req, res) => {
   try {
     const { amount } = req.body;
@@ -128,7 +160,6 @@ const verifyRecharge = async (req, res) => {
       amount,
     } = req.body;
 
-    // Verify signature
     const sign = razorpay_order_id + "|" + razorpay_payment_id;
     const expectedSign = crypto
       .createHmac("sha256", process.env.RAZORPAY_KEY_SECRET)
@@ -145,7 +176,6 @@ const verifyRecharge = async (req, res) => {
     if (!wallet) {
       wallet = await new Wallet({ userId }).save();
     }
-    
 
     await wallet.addTransaction({
       type: "Deposit",
@@ -166,4 +196,5 @@ module.exports = {
   verifyRecharge,
   wallet,
   getWalletBalance,
+  getWalletData,
 };

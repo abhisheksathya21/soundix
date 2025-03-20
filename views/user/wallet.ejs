@@ -22,7 +22,7 @@
                     <li><a href="/wallet" class="active">Wallet</a></li>
                     <% if (!isGoogleUser) { %>
                         <li><a href="/password">Password</a></li>
-                        <% } %>
+                    <% } %>
                     <li><a href="/wishlist">Wishlist</a></li>
                 </ul>
             </nav>
@@ -184,29 +184,20 @@
 
                             const verifyData = await verifyResponse.json();
                             if (verifyData.success) {
-                                // Update wallet balance dynamically
-                                const balanceResponse = await fetch('/get-wallet-balance', {
+                                // Fetch updated wallet data (balance and transactions)
+                                const walletResponse = await fetch('/get-wallet-data', {
                                     method: 'GET',
                                     headers: { 'Content-Type': 'application/json' },
                                 });
-                                const balanceData = await balanceResponse.json();
-                                if (balanceData.success) {
-                                    document.getElementById('wallet-balance').textContent = `₹${balanceData.balance.toFixed(2)}`;
-                                    addTransactionToTable({
-                                        type: 'Deposit',
-                                        description: 'Wallet recharge',
-                                        date: new Date().toLocaleDateString('en-IN', {
-                                            day: 'numeric',
-                                            month: 'short',
-                                            year: 'numeric',
-                                        }),
-                                        amount: amount,
-                                        status: 'Completed',
-                                        isDebit: false
-                                    });
+                                const walletData = await walletResponse.json();
+                                if (walletData.success) {
+                                    // Update balance
+                                    document.getElementById('wallet-balance').textContent = `₹${walletData.balance.toFixed(2)}`;
+                                    // Update transaction table
+                                    updateTransactionTable(walletData.transactions);
                                     toast.show("Money added to wallet successfully!", "success");
                                 } else {
-                                    throw new Error("Failed to fetch updated balance");
+                                    throw new Error("Failed to fetch updated wallet data");
                                 }
                             } else {
                                 throw new Error("Payment verification failed");
@@ -236,23 +227,26 @@
             }
         });
 
-        function addTransactionToTable(transaction) {
+        function updateTransactionTable(transactions) {
             const tbody = document.getElementById('transaction-body');
-            if (!tbody) return; // No transaction table exists
+            if (!tbody) return;
 
-            const tr = document.createElement('tr');
-            tr.innerHTML = `
-                <td>${transaction.type}</td>
-                <td>${transaction.description}</td>
-                <td>${transaction.date}</td>
-                <td class="${transaction.isDebit ? 'amount-debit' : 'amount-credit'}">
-                    ${transaction.isDebit ? '-' : '+'}₹${transaction.amount}
-                </td>
-                <td>
-                    <span class="status-badge status-${transaction.status.toLowerCase()}">${transaction.status}</span>
-                </td>
-            `;
-            tbody.insertBefore(tr, tbody.firstChild); // Add to top of table
+            tbody.innerHTML = ''; // Clear existing rows
+            transactions.forEach(transaction => {
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td>${transaction.type}</td>
+                    <td>${transaction.description}</td>
+                    <td>${transaction.date}</td>
+                    <td class="${transaction.isDebit ? 'amount-debit' : 'amount-credit'}">
+                        ${transaction.isDebit ? '-' : '+'}₹${transaction.amount}
+                    </td>
+                    <td>
+                        <span class="status-badge status-${transaction.status.toLowerCase()}">${transaction.status}</span>
+                    </td>
+                `;
+                tbody.appendChild(tr);
+            });
         }
 
         function logout() {
@@ -266,7 +260,7 @@
                 confirmButtonText: 'Yes, log out!'
             }).then((result) => {
                 if (result.isConfirmed) {
-                     window.location.href = '/logout'; 
+                    window.location.href = '/logout'; 
                 }
             });
         }

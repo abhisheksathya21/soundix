@@ -135,7 +135,7 @@ router.get("/orders", UserAuth, profilecontroller.orders);
 router.get("/wallet", UserAuth, walletcontroller.wallet);
 router.post("/add-money", UserAuth, walletcontroller.addMoney);
 router.post("/verify-recharge", UserAuth, walletcontroller.verifyRecharge);
-
+router.get('/get-wallet-data', UserAuth,walletcontroller.getWalletData);
 // Google authentication route
 router.get(
   "/auth/google",
