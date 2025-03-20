@@ -58,50 +58,48 @@
 
                     <div class="transaction-history">
                         <h3>Transaction History</h3>
-                        <div id="transaction-container">
-                            <% if (transactions && transactions.length > 0) { %>
-                            <div class="table-wrapper" id="transaction-table-wrapper">
-                                <div class="transaction-table-container">
-                                    <table class="transaction-table">
-                                        <thead>
-                                            <tr>
-                                                <th>Type</th>
-                                                <th>Description</th>
-                                                <th>Date</th>
-                                                <th>Amount</th>
-                                                <th>Status</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody id="transaction-body">
-                                            <% transactions.forEach(function(transaction) { %>
-                                            <tr>
-                                                <td><%= transaction.type %></td>
-                                                <td><%= transaction.description %></td>
-                                                <td><%= transaction.date %></td>
-                                                <td class="<%= transaction.isDebit ? 'amount-debit' : 'amount-credit' %>">
-                                                    <%= transaction.isDebit ? '-' : '+' %>₹<%= transaction.amount %>
-                                                </td>
-                                                <td>
-                                                    <% if (transaction.status) { %>
-                                                    <span class="status-badge status-<%= transaction.status.toLowerCase() %>">
-                                                        <%= transaction.status %>
-                                                    </span>
-                                                    <% } else { %>
-                                                    <span class="status-badge status-completed">Completed</span>
-                                                    <% } %>
-                                                </td>
-                                            </tr>
-                                            <% }); %>
-                                        </tbody>
-                                    </table>
-                                </div>
+                        <% if (transactions && transactions.length > 0) { %>
+                        <div class="table-wrapper">
+                            <div class="transaction-table-container">
+                                <table class="transaction-table">
+                                    <thead>
+                                        <tr>
+                                            <th>Type</th>
+                                            <th>Description</th>
+                                            <th>Date</th>
+                                            <th>Amount</th>
+                                            <th>Status</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="transaction-body">
+                                        <% transactions.forEach(function(transaction) { %>
+                                        <tr>
+                                            <td><%= transaction.type %></td>
+                                            <td><%= transaction.description %></td>
+                                            <td><%= transaction.date %></td>
+                                            <td class="<%= transaction.isDebit ? 'amount-debit' : 'amount-credit' %>">
+                                                <%= transaction.isDebit ? '-' : '+' %>₹<%= transaction.amount %>
+                                            </td>
+                                            <td>
+                                                <% if (transaction.status) { %>
+                                                <span class="status-badge status-<%= transaction.status.toLowerCase() %>">
+                                                    <%= transaction.status %>
+                                                </span>
+                                                <% } else { %>
+                                                <span class="status-badge status-completed">Completed</span>
+                                                <% } %>
+                                            </td>
+                                        </tr>
+                                        <% }); %>
+                                    </tbody>
+                                </table>
                             </div>
-                            <% } else { %>
-                            <div class="no-transactions" id="no-transactions-message">
-                                <p>No transactions found</p>
-                            </div>
-                            <% } %>
                         </div>
+                        <% } else { %>
+                        <div class="no-transactions">
+                            <p>No transactions found</p>
+                        </div>
+                        <% } %>
                     </div>
                 </div>
             </div>
@@ -146,13 +144,20 @@
 
         document.getElementById("addMoneyForm").addEventListener("submit", async (e) => {
             e.preventDefault();
+
             const amountInput = document.getElementById("amount");
+            const submitButton = e.target.querySelector("button[type='submit']");
             const amount = parseFloat(amountInput.value);
 
+            // Validate amount
             if (amount <= 0 || isNaN(amount)) {
                 toast.show("Please enter a valid amount greater than 0.", "error");
                 return;
             }
+
+            // Show loading state
+            submitButton.disabled = true;
+            submitButton.textContent = "Processing...";
 
             try {
                 const response = await fetch("/add-money", {
@@ -188,22 +193,30 @@
 
                             const verifyData = await verifyResponse.json();
                             if (verifyData.success) {
-                                // Fetch updated wallet data (balance and transactions)
-                                const walletResponse = await fetch('/get-wallet-data', {
+                                // Update wallet balance dynamically
+                                const balanceResponse = await fetch('/get-wallet-balance', {
                                     method: 'GET',
                                     headers: { 'Content-Type': 'application/json' },
                                 });
-                                const walletData = await walletResponse.json();
-                                if (walletData.success) {
-                                    // Update balance
-                                    document.getElementById('wallet-balance').textContent = `₹${walletData.balance.toFixed(2)}`;
-                                    // Update transaction table
-                                    updateTransactionTable(walletData.transactions);
+                                const balanceData = await balanceResponse.json();
+                                if (balanceData.success) {
+                                    document.getElementById('wallet-balance').textContent = `₹${balanceData.balance.toFixed(2)}`;
+                                    addTransactionToTable({
+                                        type: 'Deposit',
+                                        description: 'Wallet recharge',
+                                        date: new Date().toLocaleDateString('en-IN', {
+                                            day: 'numeric',
+                                            month: 'short',
+                                            year: 'numeric',
+                                        }),
+                                        amount: amount,
+                                        status: 'Completed',
+                                        isDebit: false
+                                    });
                                     toast.show("Money added to wallet successfully!", "success");
-                                    // Clear the input field
-                                    amountInput.value = '';
+                                    amountInput.value = ''; // Clear the input field
                                 } else {
-                                    throw new Error("Failed to fetch updated wallet data");
+                                    throw new Error("Failed to fetch updated balance");
                                 }
                             } else {
                                 throw new Error("Payment verification failed");
@@ -230,72 +243,30 @@
                 });
             } catch (error) {
                 toast.show(error.message, "error");
+            } finally {
+                // Reset loading state
+                submitButton.disabled = false;
+                submitButton.textContent = "Add Money";
             }
         });
 
-        function updateTransactionTable(transactions) {
-            const transactionContainer = document.getElementById('transaction-container');
-            const noTransactionsMessage = document.getElementById('no-transactions-message');
-            const transactionTableWrapper = document.getElementById('transaction-table-wrapper');
-
-            // If no transactions exist, show the "No transactions found" message
-            if (!transactions || transactions.length === 0) {
-                if (!noTransactionsMessage) {
-                    const noTransactionsDiv = document.createElement('div');
-                    noTransactionsDiv.className = 'no-transactions';
-                    noTransactionsDiv.id = 'no-transactions-message';
-                    noTransactionsDiv.innerHTML = '<p>No transactions found</p>';
-                    transactionContainer.innerHTML = '';
-                    transactionContainer.appendChild(noTransactionsDiv);
-                }
-                return;
-            }
-
-            // If transactions exist, ensure the table is displayed
-            if (!transactionTableWrapper) {
-                const tableWrapper = document.createElement('div');
-                tableWrapper.className = 'table-wrapper';
-                tableWrapper.id = 'transaction-table-wrapper';
-                tableWrapper.innerHTML = `
-                    <div class="transaction-table-container">
-                        <table class="transaction-table">
-                            <thead>
-                                <tr>
-                                    <th>Type</th>
-                                    <th>Description</th>
-                                    <th>Date</th>
-                                    <th>Amount</th>
-                                    <th>Status</th>
-                                </tr>
-                            </thead>
-                            <tbody id="transaction-body"></tbody>
-                        </table>
-                    </div>
-                `;
-                transactionContainer.innerHTML = '';
-                transactionContainer.appendChild(tableWrapper);
-            }
-
-            // Update the table body with transactions
+        function addTransactionToTable(transaction) {
             const tbody = document.getElementById('transaction-body');
-            if (!tbody) return;
+            if (!tbody) return; // No transaction table exists
 
-            tbody.innerHTML = ''; // Clear existing rows
-            transactions.forEach(transaction => {
-                const tr = document.createElement('tr');
-                tr.innerHTML = `
-                    <td>${transaction.type}</td>
-                    <td>${transaction.description}</td>
-                    <td>${transaction.date}</td>
-                    <td class="${transaction.isDebit ? 'amount-debit' : 'amount-credit'}">
-                        ${transaction.isDebit ? '-' : '+'}₹${transaction.amount}
-                    </td>
-                    <td>
-                        <span class="status-badge status-${transaction.status.toLowerCase()}">${transaction.status}</span>
-                    </td>
-                `;
-                tbody.appendChild(tr);
-            });
+            const tr = document.createElement('tr');
+            tr.innerHTML = `
+                <td>${transaction.type}</td>
+                <td>${transaction.description}</td>
+                <td>${transaction.date}</td>
+                <td class="${transaction.isDebit ? 'amount-debit' : 'amount-credit'}">
+                    ${transaction.isDebit ? '-' : '+'}₹${transaction.amount}
+                </td>
+                <td>
+                    <span class="status-badge status-${transaction.status.toLowerCase()}">${transaction.status}</span>
+                </td>
+            `;
+            tbody.insertBefore(tr, tbody.firstChild); // Add to top of table
         }
 
         function logout() {

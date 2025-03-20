@@ -38,7 +38,7 @@ const wallet = async (req, res) => {
     }));
 
     const sortedTransactions = formattedTransactions.sort(
-      (a, b) => new Date(b.date) - new Date(a.date)
+      (a, b) => new Date(a.date) - new Date(b.date)
     );
 
     res.render("wallet", {
