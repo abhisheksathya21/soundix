@@ -731,7 +731,7 @@ window.onclick = function (event) {
                     prefill: { 
                       name: "<%= user.name %>", 
                       email: "<%= user.email %>", 
-                      contact: "<%= user.phone || AddressData?.address[0]?.phone || '' %>"
+                      contact: "<%= user.phone %>"
                     },
                     theme: { color: "#3399cc" },
                   };
