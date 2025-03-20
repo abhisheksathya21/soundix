@@ -316,8 +316,11 @@ const PassresendOtp = async (req, res) => {
 const verifyPassOtp = async (req, res) => {
   try {
     const { otpInput } = req.body;
+    console.log("otpInput received:", otpInput);
+    console.log("session userPassOtp:", req.session.userPassOtp);
 
     if (!req.session.userPassOtp) {
+      console.log("Session expired");
       return res.status(400).json({
         success: false,
         message: "Session expired. Please request a new OTP.",
@@ -325,8 +328,9 @@ const verifyPassOtp = async (req, res) => {
       });
     }
 
+    console.log("reached OTP comparison...");
     if (otpInput === req.session.userPassOtp) {
-      console.log("OTP verified successfully");
+      console.log("OTP matched, clearing session OTP");
       req.session.userPassOtp = null;
       return res.status(200).json({
         success: true,
@@ -334,7 +338,7 @@ const verifyPassOtp = async (req, res) => {
         icon: "success",
       });
     } else {
-      console.log("Invalid OTP");
+      console.log("OTP mismatch");
       return res.status(400).json({
         success: false,
         message: "Invalid OTP. Please try again.",
