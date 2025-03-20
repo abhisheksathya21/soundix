@@ -7,6 +7,7 @@ const Order = require("../../models/orderSchema");
 const Wallet = require("../../models/walletSchema");
 const Coupon = require("../../models/couponSchema");
 const crypto = require("crypto"); //
+const mongoose = require('mongoose');
 
 const Razorpay = require("razorpay");
 const razorpay = new Razorpay({
@@ -182,12 +183,58 @@ const loadCheckout = async (req, res) => {
     // Fetch additional data
     const AddressData = await Address.findOne({ userId: userId });
     
-    const availableCoupons = await Coupon.find({
-      isActive: true,
-      startDate: { $lte: new Date() },
-      expiryDate: { $gte: new Date() },
-      minPurchaseAmount: { $lte: cartData.totalAmount },
-    });
+    // const availableCoupons = await Coupon.find({
+    //   isActive: true,
+    //   startDate: { $lte: new Date() },
+    //   expiryDate: { $gte: new Date() },
+    //   minPurchaseAmount: { $lte: cartData.totalAmount },
+    // });
+
+    const availableCoupons = await Coupon.aggregate([
+    
+      {
+        $match: {
+          isActive: true,
+          startDate: { $lte: new Date() },
+          expiryDate: { $gte: new Date() },
+          minPurchaseAmount: { $lte: cartData.totalAmount },
+        },
+      },
+     
+      {
+        $addFields: {
+          userUsage: {
+            $filter: {
+              input: "$usersUsed",
+              as: "user",
+              cond: { $eq: ["$$user.user", new mongoose.Types.ObjectId(userId)] },
+            },
+          },
+        },
+      },
+     
+      {
+        $unwind: {
+          path: "$userUsage",
+          preserveNullAndEmptyArrays: true, 
+        },
+      },
+     
+      {
+        $match: {
+          $or: [
+            { userUsage: { $exists: false } }, 
+            { "userUsage.count": { $lt: "$perUserLimit" } }, 
+          ],
+        },
+      },
+    
+      {
+        $project: {
+          userUsage: 0,
+        },
+      },
+    ]);
 
     res.render("checkout", {
       user: userData,

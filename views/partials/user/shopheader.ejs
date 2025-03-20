@@ -7,12 +7,19 @@
     <link rel="stylesheet" href="/assets/user-style/header.css">
     <link rel="icon" type="image/png" href="/assets/img/beat-logo-161616.png"> 
     <style>
-        /* Add any inline styles here if needed */
+        /* Hide counter when count is 0 */
+        .cart-counter, .wishlist-counter {
+            display: none;
+            text-align: center;
+        }
+        .cart-counter[data-count]:not([data-count="0"]),
+        .wishlist-counter[data-count]:not([data-count="0"]) {
+            display: inline-block;
+        }
     </style>
 </head>
 <body>
     
-<!-- Preloader -->
 
 
     <!-- Header -->
@@ -81,17 +88,17 @@
                     <!-- Wishlist (Desktop) -->
                     <a href="/wishlist" class="icon-link wishlist-icon">
                         <i class="fa-solid fa-heart"></i>
-                        <% if (locals.wishlistItemCount && wishlistItemCount > 0) { %>
-                            <span class="wishlist-counter"><%= wishlistItemCount %></span>
-                        <% } %>
+                        <span class="wishlist-counter" data-count="<%= locals.wishlistItemCount || 0 %>">
+                            <%= locals.wishlistItemCount || 0 %>
+                        </span>
                     </a>
 
                     <!-- Cart -->
                     <a href="/cart" class="icon-link cart-icon">
                         <i class="fa-solid fa-cart-shopping"></i>
-                        <% if (locals.cartItemCount && cartItemCount > 0) { %>
-                            <span class="cart-counter"><%= cartItemCount %></span>
-                        <% } %>
+                        <span class="cart-counter" data-count="<%= locals.cartItemCount || 0 %>">
+                            <%= locals.cartItemCount || 0 %>
+                        </span>
                     </a>
 
                     <!-- Mobile Menu Toggle -->
@@ -112,17 +119,17 @@
                         <li>
                             <a href="/wishlist" class="icon-link wishlist-icon">
                                 <i class="fa-solid fa-heart"></i> Wishlist
-                                <% if (locals.wishlistItemCount && wishlistItemCount > 0) { %>
-                                    <span class="wishlist-counter"><%= wishlistItemCount %></span>
-                                <% } %>
+                                <span class="wishlist-counter" data-count="<%= locals.wishlistItemCount || 0 %>">
+                                    <%= locals.wishlistItemCount || 0 %>
+                                </span>
                             </a>
                         </li>
                         <li>
                             <a href="/cart" class="cart-mobile">
                                 <i class="fa-solid fa-cart-shopping"></i> Cart
-                                <% if (locals.cartItemCount && cartItemCount > 0) { %>
-                                    <span class="cart-counter"><%= cartItemCount %></span>
-                                <% } %>
+                                <span class="cart-counter" data-count="<%= locals.cartItemCount || 0 %>">
+                                    <%= locals.cartItemCount || 0 %>
+                                </span>
                             </a>
                         </li>
                         <li>
@@ -179,7 +186,7 @@
     <!-- Scripts -->
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script>
-        
+      
 
         // Custom Toast Function
         function showToast(type, title, text) {

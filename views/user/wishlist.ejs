@@ -11,9 +11,6 @@
     <link rel="icon" type="image/png" href="/assets/img/beat-logo-161616.png"> 
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 </head>
-<style>
-    
-</style>
 <body>
     <%- include('../partials/user/header')%>
     <div class="page-container">
@@ -52,12 +49,10 @@
                                 <h3><%= item.product.productName %></h3>
                                 <div class="price-container">
                                     <span class="final-price">₹<%= item.finalPrice %></span>
-                                    
-                                        <span class="original-price">₹<%= (item.product.salePrice || item.product.regularPrice) %></span>
-                                        
+                                    <span class="original-price">₹<%= (item.product.salePrice || item.product.regularPrice) %></span>
                                 </div>
                                 <div class="item-actions">
-                                    <button class="add-to-cart-btn" data-product-id="<%= item.product._id %>">Add to Cart</button>
+                                    <button class="add-to-cart-btn" data-product-id="<%= item.product._id %>" data-price="<%= item.finalPrice %>">Add to Cart</button>
                                     <button class="remove-btn" data-product-id="<%= item.product._id %>">Remove</button>
                                 </div>
                             </div>
@@ -72,6 +67,7 @@
 
     <div class="toast-container"></div>
     <%- include('../partials/user/footer')%>
+    <script src="/js/global.js"></script>
     <script>
         document.addEventListener("DOMContentLoaded", function() {
             const showToast = (message, type = 'success') => {
@@ -91,42 +87,7 @@
                     setTimeout(() => toast.remove(), 300);
                 }, 3000);
             };
-    
-            function updateCartCount(count) {
-                const cartCountElement = document.querySelector(".cart-count");
-                if (cartCountElement) cartCountElement.textContent = count;
-            }
-    
-            async function addToCart(productId) {
-                try {
-                    const response = await fetch("/cart-add-from-wishlist", {
-                        method: "POST",
-                        headers: { "Content-Type": "application/json" },
-                        body: JSON.stringify({ productId, quantity: 1 }),
-                    });
-                    const result = await response.json();
-                    if (!response.ok) throw new Error(result.error || "Failed to add to cart");
-    
-                    // Success: Remove the item from the wishlist UI
-                    showToast("Product added to cart successfully!", "success");
-                    updateCartCount(result.cart.items.length);
-    
-                    // Find and remove the wishlist item from the DOM
-                    const wishlistItem = document.querySelector(`.wishlist-item[data-id="${productId}"]`);
-                    if (wishlistItem) {
-                        wishlistItem.style.opacity = '0'; // Optional: Add fade-out effect
-                        wishlistItem.style.transform = 'scale(0.9)';
-                        setTimeout(() => {
-                            wishlistItem.remove();
-                            checkWishlistEmpty(); // Check if wishlist is now empty
-                        }, 300); // Match the timing with your remove-btn animation
-                    }
-                } catch (error) {
-                    console.error("Error adding to cart:", error);
-                    showToast(error.message, "error");
-                }
-            }
-    
+
             function checkWishlistEmpty() {
                 const wishlistWrapper = document.querySelector('.wishlist-items-wrapper');
                 if (!document.querySelector('.wishlist-item') && wishlistWrapper) {
@@ -140,15 +101,43 @@
                     `;
                 }
             }
-    
+
             const addToCartButtons = document.querySelectorAll(".add-to-cart-btn");
             addToCartButtons.forEach(button => {
-                button.addEventListener("click", function() {
+                button.addEventListener("click", async function() {
                     const productId = this.dataset.productId;
-                    addToCart(productId);
+                    const price = parseFloat(this.dataset.price);
+                    try {
+                        const response = await fetch("/cart-add-from-wishlist", {
+                            method: "POST",
+                            headers: { "Content-Type": "application/json" },
+                            body: JSON.stringify({ productId, price, quantity: 1 }),
+                        });
+                        const result = await response.json();
+                        if (!response.ok) throw new Error(result.error || "Failed to add to cart");
+
+                        // Success: Show toast and update cart count
+                        showToast("Product added to cart successfully!", "success");
+                        fetchAndUpdateCartCount(); // Update cart count in header
+
+                        // Remove the item from the wishlist UI
+                        const wishlistItem = document.querySelector(`.wishlist-item[data-id="${productId}"]`);
+                        if (wishlistItem) {
+                            wishlistItem.style.opacity = '0'; // Fade-out effect
+                            wishlistItem.style.transform = 'scale(0.9)';
+                            setTimeout(() => {
+                                wishlistItem.remove();
+                                checkWishlistEmpty(); // Check if wishlist is now empty
+                                fetchAndUpdateWishlistCount(); // Update wishlist count after removal
+                            }, 300);
+                        }
+                    } catch (error) {
+                        console.error("Error adding to cart:", error);
+                        showToast(error.message, "error");
+                    }
                 });
             });
-    
+
             const removeButtons = document.querySelectorAll(".remove-btn");
             removeButtons.forEach(button => {
                 button.addEventListener("click", async function() {
@@ -168,6 +157,7 @@
                             setTimeout(() => {
                                 wishlistItem.remove();
                                 checkWishlistEmpty();
+                                fetchAndUpdateWishlistCount(); // Update wishlist count in header
                             }, 300);
                         } else {
                             showToast(data.message || "Failed to remove product", "error");
@@ -179,7 +169,7 @@
                 });
             });
         });
-    
+
         function logout() {
             Swal.fire({
                 title: 'Are you sure?',
@@ -191,7 +181,7 @@
                 confirmButtonText: 'Yes, log out!'
             }).then((result) => {
                 if (result.isConfirmed) {
-                     window.location.href = '/logout'; 
+                    window.location.href = '/logout'; 
                 }
             });
         }

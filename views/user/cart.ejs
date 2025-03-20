@@ -9,51 +9,44 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css" />
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <link rel="icon" type="image/png" href="/assets/img/beat-logo-161616.png"> 
-    
-     
   </head>
   <body>
     <div class="content">
       <header><%- include('../partials/user/header')%></header>
-<main class="cart-container">
-  <h1 class="cart-title">Beats Shopping Cart</h1>
-  <div class="cart-content">
-    <div class="cart-items">
-      <% if(cart.items && cart.items.length > 0) { %>
-        <div class="cart-items-wrapper">
-          <% cart.items.forEach(item => { %>
-            <div class="cart-item">
-              <img src="<%= item.product.productImage[0] %>" alt="<%= item.product.productName %>" />
-              <div class="item-details">
-                <h3><%= item.product.productName %></h3>
-                <p class="price">₹<%= item.price %></p>
-                <div class="quantity">
-                  <label for="quantity-<%= item.product._id %>">Quantity:</label>
-                  <div class="quantity-control">
-                    <button class="quantity-btn decrease-btn" data-product-id="<%= item.product._id %>">-</button>
-                    <span class="quantity-display" id="quantity-<%= item.product._id %>"><%= item.quantity %></span>
-                    <button class="quantity-btn increase-btn" data-product-id="<%= item.product._id %>">+</button>
+      <main class="cart-container">
+        <h1 class="cart-title">Beats Shopping Cart</h1>
+        <div class="cart-content">
+          <div class="cart-items">
+            <% if(cart.items && cart.items.length > 0) { %>
+              <div class="cart-items-wrapper">
+                <% cart.items.forEach(item => { %>
+                  <div class="cart-item">
+                    <img src="<%= item.product.productImage[0] %>" alt="<%= item.product.productName %>" />
+                    <div class="item-details">
+                      <h3><%= item.product.productName %></h3>
+                      <p class="price">₹<%= item.price %></p>
+                      <div class="quantity">
+                        <label for="quantity-<%= item.product._id %>">Quantity:</label>
+                        <div class="quantity-control">
+                          <button class="quantity-btn decrease-btn" data-product-id="<%= item.product._id %>">-</button>
+                          <span class="quantity-display" id="quantity-<%= item.product._id %>"><%= item.quantity %></span>
+                          <button class="quantity-btn increase-btn" data-product-id="<%= item.product._id %>">+</button>
+                        </div>
+                        <button class="remove-btn" data-product-id="<%= item.product._id %>">Remove</button>
+                      </div>
+                    </div>
                   </div>
-                  <button class="remove-btn" data-product-id="<%= item.product._id %>">Remove</button>
-                </div>
+                <% }); %>
               </div>
-            </div>
-          <% }); %>
-          
-        </div>
-        
-      <% } else { %>
-        <div class="empty-cart">
-          <h2>Your cart is empty</h2>
-          <p>Add items to your cart to see them here</p>
-          
-          <a href="/shop" class="continue-shopping">Continue Shopping</a>
-        </div>
-      <% } %>
-    </div>
-    
+            <% } else { %>
+              <div class="empty-cart">
+                <h2>Your cart is empty</h2>
+                <p>Add items to your cart to see them here</p>
+                <a href="/shop" class="continue-shopping">Continue Shopping</a>
+              </div>
+            <% } %>
+          </div>
 
-          
           <% if(cart.items && cart.items.length > 0) { %>
             <div class="cart-summary">
               <h2>Order Summary</h2>
@@ -72,7 +65,6 @@
               <button class="checkout-btn" onclick="window.location.href='/checkout'">
                 Proceed to Checkout
               </button>
-              
             </div>
           <% } %>
         </div>
@@ -81,249 +73,223 @@
     <div class="toast-container"></div>
     <footer><%- include('../partials/user/footer')%></footer>
   </body>
-  </html>
-       
+  <script src="/js/global.js"></script>
   <script>
     document.addEventListener("DOMContentLoaded", () => {
-  // Constants
-  const MAX_QUANTITY = 5;
-  
-  // Elements
-  const removeButtons = document.querySelectorAll(".remove-btn");
-  const quantityButtons = document.querySelectorAll(".quantity-btn");
-  const checkoutBtn = document.querySelector('.checkout-btn');
-  
-  //===== TOAST NOTIFICATION FUNCTION =====//
-  // Shows a popup message to the user
-  function showToast(message, type = 'success') {
-    // Find the container for toast messages
-    const toastContainer = document.querySelector('.toast-container');
-    
-    // Create a new toast message
-    const toast = document.createElement('div');
-    toast.className = `toast ${type}`;
-    
-    // Select icon based on message type
-    let icon = 'info-circle';
-    if (type === 'success') icon = 'check-circle';
-    if (type === 'error') icon = 'exclamation-circle';
-    if (type === 'warning') icon = 'exclamation-triangle';
-    
-    // Add content to toast
-    toast.innerHTML = `
-      <i class="fas fa-${icon} toast-icon"></i>
-      <span>${message}</span>
-    `;
-    
-    // Add toast to container
-    toastContainer.appendChild(toast);
-    
-    // Force browser to process the new element
-    toast.offsetHeight;
-    
-    // Show the toast
-    setTimeout(() => toast.classList.add('show'), 10);
-    
-    // Remove toast after 3 seconds
-    setTimeout(() => {
-      toast.classList.remove('show');
-      setTimeout(() => toast.remove(), 300);
-    }, 3000);
-  }
-  
-  //===== PRICE FORMATTING FUNCTION =====//
-  // Converts numbers to Indian Rupee format
-  function formatPrice(price) {
-    return parseFloat(price).toLocaleString('en-IN', {
-      maximumFractionDigits: 2,
-      minimumFractionDigits: 0
-    });
-  }
-  
-  //===== UPDATE PRICE SUMMARY FUNCTION =====//
-  // Updates the subtotal and total in the cart summary
-  function updateSummaryAmounts(newTotal) {
-    const subtotalElement = document.querySelector('.subtotal');
-    const totalElement = document.querySelector('.total-amount');
-    
-    const formattedTotal = formatPrice(newTotal);
-    
-    if (subtotalElement && totalElement) {
-      subtotalElement.textContent = `₹${formattedTotal}`;
-      totalElement.textContent = `₹${formattedTotal}`;
-    }
-  }
-  
-  //===== CART VALIDATION FUNCTION =====//
-  // Checks if the cart is valid before checkout
-  async function validateCart() {
-    try {
-      const response = await fetch('/validate-cart');
-      const data = await response.json();
-      
-      if (!data.valid) {
-        // Show each warning to the user
-        data.warnings.forEach(warning => {
-          showToast(warning.message, 'warning');
-        });
-        return false;
+      // Constants
+      const MAX_QUANTITY = 5;
+
+      // Elements
+      const removeButtons = document.querySelectorAll(".remove-btn");
+      const quantityButtons = document.querySelectorAll(".quantity-btn");
+      const checkoutBtn = document.querySelector('.checkout-btn');
+
+      //===== TOAST NOTIFICATION FUNCTION =====//
+      function showToast(message, type = 'success') {
+        const toastContainer = document.querySelector('.toast-container');
+        const toast = document.createElement('div');
+        toast.className = `toast ${type}`;
+        let icon = 'info-circle';
+        if (type === 'success') icon = 'check-circle';
+        if (type === 'error') icon = 'exclamation-circle';
+        if (type === 'warning') icon = 'exclamation-triangle';
+        toast.innerHTML = `
+          <i class="fas fa-${icon} toast-icon"></i>
+          <span>${message}</span>
+        `;
+        toastContainer.appendChild(toast);
+        toast.offsetHeight;
+        setTimeout(() => toast.classList.add('show'), 10);
+        setTimeout(() => {
+          toast.classList.remove('show');
+          setTimeout(() => toast.remove(), 300);
+        }, 3000);
       }
-      return true;
-    } catch (error) {
-      console.error('Error validating cart:', error);
-      showToast('Unable to validate cart', 'error');
-      return false;
-    }
-  }
-  
-  //===== REMOVE ITEM FUNCTION =====//
-  // Set up event listeners for all remove buttons
-  removeButtons.forEach((button) => {
-    button.addEventListener("click", async (event) => {
-      // Get product info
-      const productId = button.getAttribute("data-product-id");
-      const cartItem = button.closest('.cart-item');
-      const productName = cartItem.querySelector('h3').textContent;
-      
-      // Show confirmation dialog
-      const result = await Swal.fire({
-        title: 'Remove Item?',
-        text: `Are you sure you want to remove "${productName}" from your cart?`,
-        icon: 'warning',
-        showCancelButton: true,
-        confirmButtonColor: '#d33',
-        cancelButtonColor: '#3085d6',
-        confirmButtonText: 'Yes, remove it!',
-        cancelButtonText: 'No, keep it',
-        reverseButtons: true
-      });
-      
-      // If user confirmed removal
-      if (result.isConfirmed) {
+
+      //===== PRICE FORMATTING FUNCTION =====//
+      function formatPrice(price) {
+        return parseFloat(price).toLocaleString('en-IN', {
+          maximumFractionDigits: 2,
+          minimumFractionDigits: 0
+        });
+      }
+
+      //===== UPDATE PRICE SUMMARY FUNCTION =====//
+      function updateSummaryAmounts(newTotal) {
+        const subtotalElement = document.querySelector('.subtotal');
+        const totalElement = document.querySelector('.total-amount');
+        const formattedTotal = formatPrice(newTotal);
+        if (subtotalElement && totalElement) {
+          subtotalElement.textContent = `₹${formattedTotal}`;
+          totalElement.textContent = `₹${formattedTotal}`;
+        }
+      }
+
+      //===== CART VALIDATION FUNCTION =====//
+      async function validateCart() {
         try {
-          // Disable button and show loading state
+          const response = await fetch('/validate-cart');
+          const data = await response.json();
+          if (!data.valid) {
+            data.warnings.forEach(warning => {
+              showToast(warning.message, 'warning');
+            });
+            return false;
+          }
+          return true;
+        } catch (error) {
+          console.error('Error validating cart:', error);
+          showToast('Unable to validate cart', 'error');
+          return false;
+        }
+      }
+
+      //===== DEBOUNCE FUNCTION =====//
+      function debounce(func, wait) {
+        let timeout;
+        return function (...args) {
+          clearTimeout(timeout);
+          timeout = setTimeout(() => func.apply(this, args), wait);
+        };
+      }
+
+      //===== REMOVE ITEM FUNCTION =====//
+      removeButtons.forEach((button) => {
+        button.addEventListener("click", async (event) => {
+          const productId = button.getAttribute("data-product-id");
+          const cartItem = button.closest('.cart-item');
+          const productName = cartItem.querySelector('h3').textContent;
+
+          const result = await Swal.fire({
+            title: 'Remove Item?',
+            text: `Are you sure you want to remove "${productName}" from your cart?`,
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#d33',
+            cancelButtonColor: '#3085d6',
+            confirmButtonText: 'Yes, remove it!',
+            cancelButtonText: 'No, keep it',
+            reverseButtons: true
+          });
+
+          if (result.isConfirmed) {
+            try {
+              button.disabled = true;
+              button.textContent = 'Removing...';
+
+              const response = await fetch("/removeCart", {
+                method: "POST",
+                headers: {
+                  "Content-Type": "application/json",
+                },
+                body: JSON.stringify({ productId }),
+              });
+
+              const data = await response.json();
+
+              if (data.success) {
+                cartItem.remove();
+                if (data.cart && data.cart.totalAmount !== undefined) {
+                  updateSummaryAmounts(data.cart.totalAmount);
+                }
+                showToast('Item removed from cart', 'success');
+                fetchAndUpdateCartCount();
+
+                const remainingItems = document.querySelectorAll('.cart-item');
+                if (remainingItems.length === 0) {
+                  location.reload();
+                }
+              } else {
+                showToast(data.message || 'Failed to remove item', 'error');
+                button.disabled = false;
+                button.textContent = 'Remove';
+              }
+            } catch (error) {
+              console.error("Error removing product:", error);
+              showToast('Failed to remove item. Please try again', 'error');
+              button.disabled = false;
+              button.textContent = 'Remove';
+            }
+          }
+        });
+      });
+
+      //===== QUANTITY UPDATE FUNCTION =====//
+      const updateQuantity = debounce(async (button) => {
+        const productId = button.getAttribute("data-product-id");
+        const action = button.classList.contains('increase-btn') ? '+' : '-';
+        const quantityDisplay = document.getElementById(`quantity-${productId}`);
+        let currentQuantity = parseInt(quantityDisplay.textContent);
+
+        if (action === "+") {
+          if (currentQuantity >= MAX_QUANTITY) {
+            showToast(`Maximum quantity allowed is ${MAX_QUANTITY}`, 'warning');
+            return;
+          }
+          currentQuantity++;
+        } else if (action === "-") {
+          if (currentQuantity <= 1) {
+            showToast('Minimum quantity must be 1', 'warning');
+            return;
+          }
+          currentQuantity--;
+        }
+
+        try {
           button.disabled = true;
-          button.textContent = 'Removing...';
-          
-          // Send request to server
-          const response = await fetch("/removeCart", {
+          button.style.opacity = "0.5";
+
+          const response = await fetch("/updateQuantity", {
             method: "POST",
             headers: {
               "Content-Type": "application/json",
             },
-            body: JSON.stringify({ productId }),
+            body: JSON.stringify({ productId, quantity: currentQuantity }),
           });
-          
-          const data = await response.json();
-          
-          if (data.success) {
-            // Remove item from DOM
-            cartItem.remove();
-            
-            // Update cart totals
-            if (data.cart && data.cart.totalAmount !== undefined) {
-              updateSummaryAmounts(data.cart.totalAmount);
+
+          if (!response.ok) {
+            const errorData = await response.json();
+            throw new Error(errorData.message || 'Failed to update quantity');
+          }
+
+          const result = await response.json();
+
+          if (result.success) {
+            quantityDisplay.textContent = currentQuantity;
+            if (result.cart && result.cart.totalAmount !== undefined) {
+              updateSummaryAmounts(result.cart.totalAmount);
             }
-            
-            showToast('Item removed from cart', 'success');
-            
-            // If no items left, reload page
-            const remainingItems = document.querySelectorAll('.cart-item');
-            if (remainingItems.length === 0) {
-              location.reload();
-            }
+            showToast('Quantity updated successfully', 'success');
+            fetchAndUpdateCartCount();
           } else {
-            showToast(data.message || 'Failed to remove item', 'error');
-            button.disabled = false;
-            button.textContent = 'Remove';
+            throw new Error(result.message || 'Failed to update quantity');
           }
         } catch (error) {
-          console.error("Error removing product:", error);
-          showToast('Failed to remove item. Please try again', 'error');
+          console.error("Error updating quantity:", error);
+          showToast(error.message || 'Failed to update quantity. Please try again', 'error');
+          quantityDisplay.textContent = currentQuantity > MAX_QUANTITY ? MAX_QUANTITY : currentQuantity <= 1 ? 1 : currentQuantity; // Revert on error
+        } finally {
           button.disabled = false;
-          button.textContent = 'Remove';
+          button.style.opacity = "1";
         }
-      }
-    });
-  });
-  
-  //===== QUANTITY UPDATE FUNCTION =====//
-  // Set up event listeners for all quantity buttons
-  quantityButtons.forEach((button) => {
-    button.addEventListener("click", async (event) => {
-      // Get product info and action type
-      const productId = button.getAttribute("data-product-id");
-      const action = button.classList.contains('increase-btn') ? '+' : '-';
-      const quantityDisplay = document.getElementById(`quantity-${productId}`);
-      let currentQuantity = parseInt(quantityDisplay.textContent);
+      }, 300); // 300ms debounce delay
 
-      // Increase or decrease quantity
-      if (action === "+") {
-        if (currentQuantity >= MAX_QUANTITY) {
-          showToast(`Maximum quantity allowed is ${MAX_QUANTITY}`, 'warning');
-          return;
-        }
-        currentQuantity++;
-      } else if (action === "-") {
-        if (currentQuantity <= 1) {
-          showToast('Minimum quantity must be 1', 'warning');
-          return;
-        }
-        currentQuantity--;
-      }
-
-      try {
-        // Show loading state
-        button.disabled = true;
-        button.style.opacity = "0.5";
-
-        // Send request to server
-        const response = await fetch("/updateQuantity", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({ productId, quantity: currentQuantity }),
+      quantityButtons.forEach((button) => {
+        button.addEventListener("click", (event) => {
+          updateQuantity(button);
         });
+      });
 
-        const result = await response.json();
-
-        if (response.ok && result.success) {
-          // Update display
-          quantityDisplay.textContent = currentQuantity;
-          
-          // Update cart totals
-          if (result.cart && result.cart.totalAmount !== undefined) {
-            updateSummaryAmounts(result.cart.totalAmount);
+      //===== CHECKOUT BUTTON FUNCTION =====//
+      if (checkoutBtn) {
+        checkoutBtn.addEventListener('click', async function(e) {
+          e.preventDefault();
+          const isValid = await validateCart();
+          if (isValid) {
+            window.location.href = '/checkout';
           }
-          
-          showToast('Quantity updated successfully', 'success');
-        } else {
-          showToast(result.message || 'Failed to update quantity', 'error');
-        }
-      } catch (error) {
-        console.error("Error updating quantity:", error);
-        showToast('Failed to update quantity. Please try again', 'error');
-      } finally {
-        // Restore button state
-        button.disabled = false;
-        button.style.opacity = "1";
+        });
       }
     });
-  });
-  
-  //===== CHECKOUT BUTTON FUNCTION =====//
-  // Set up event listener for checkout button
-  if (checkoutBtn) {
-    checkoutBtn.addEventListener('click', async function(e) {
-      e.preventDefault();
-      // Validate cart before proceeding to checkout
-      const isValid = await validateCart();
-      if (isValid) {
-        window.location.href = '/checkout';
-      }
-    });
-  }
-});
   </script>
-
+</html>

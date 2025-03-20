@@ -9,7 +9,7 @@
     <link rel="stylesheet" href="/assets/user-style/product-details.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
     <link rel="icon" type="image/png" href="/assets/img/beat-logo-161616.png"> 
-   <style>
+    <style>
         /* Toast Styles */
         .toast-container {
             position: fixed;
@@ -201,7 +201,7 @@
                         <strong>In Stock:</strong> <%= product.quantity %>
                     </div>
                     <div class="action-buttons">
-                        <button class="add-to-cart" data-product-id="<%= product._id %>" data-price="<%= product.salePrice %>">
+                        <button class="add-to-cart" data-product-id="<%= product._id %>" data-price="<%= finalPrice %>">
                             <i class="fas fa-shopping-cart"></i> Add to Cart
                         </button>
                         <button class="main-wishlist-btn" data-product-id="<%= product._id %>">
@@ -325,6 +325,52 @@ document.addEventListener("DOMContentLoaded", function () {
         }, 3000);
     };
 
+    // Fetch and update cart count
+    async function fetchAndUpdateCartCount() {
+        try {
+            const response = await fetch('/cart/count');
+            const data = await response.json();
+            if (data.success) {
+                updateCartCount(data.count);
+            }
+        } catch (error) {
+            console.error('Error fetching cart count:', error);
+        }
+    }
+
+    // Fetch and update wishlist count
+    async function fetchAndUpdateWishlistCount() {
+        try {
+            const response = await fetch('/wishlist/count');
+            const data = await response.json();
+            if (data.success) {
+                updateWishlistCount(data.count);
+            }
+        } catch (error) {
+            console.error('Error fetching wishlist count:', error);
+        }
+    }
+
+    // Update cart count in DOM
+    function updateCartCount(count) {
+        const cartCountElements = document.querySelectorAll(".cart-counter");
+        cartCountElements.forEach(element => {
+            if (element) element.textContent = count;
+        });
+    }
+
+    // Update wishlist count in DOM
+    function updateWishlistCount(count) {
+        const wishlistCountElements = document.querySelectorAll(".wishlist-counter");
+        wishlistCountElements.forEach(element => {
+            if (element) element.textContent = count;
+        });
+    }
+
+    // Initialize counts on page load
+    fetchAndUpdateCartCount();
+    fetchAndUpdateWishlistCount();
+
     // Thumbnail Switching
     const thumbnails = document.querySelectorAll('.thumbnail');
     thumbnails.forEach(thumbnail => {
@@ -383,7 +429,7 @@ document.addEventListener("DOMContentLoaded", function () {
                     throw new Error(result.error || "Failed to add to cart");
                 }
                 showToast("Product added to cart successfully!", "success");
-                updateCartCount(result.items.length);
+                fetchAndUpdateCartCount(); // Fetch and update cart count
             } catch (error) {
                 console.error("Error adding to cart:", error);
                 showToast(error.message, "error");
@@ -408,19 +454,13 @@ document.addEventListener("DOMContentLoaded", function () {
                     throw new Error(result.error || "Failed to add to cart");
                 }
                 showToast("Product added to cart successfully!", "success");
-                updateCartCount(result.items.length);
+                fetchAndUpdateCartCount(); // Fetch and update cart count
             } catch (error) {
                 console.error("Error adding to cart:", error);
                 showToast(error.message, "error");
             }
         });
     });
-
-    // Update Cart Count
-    function updateCartCount(count) {
-        const cartCountElement = document.querySelector(".cart-count");
-        if (cartCountElement) cartCountElement.textContent = count;
-    }
 
     // Fetch Wishlist State
     async function fetchWishlistState() {
@@ -440,6 +480,7 @@ document.addEventListener("DOMContentLoaded", function () {
                         }
                     });
                 });
+                fetchAndUpdateWishlistCount(); // Fetch and update wishlist count after fetching state
             }
         } catch (error) {
             console.error("Error fetching wishlist state:", error);
@@ -469,6 +510,7 @@ document.addEventListener("DOMContentLoaded", function () {
                     heartIcon.setAttribute('fill', data.isAdded ? 'red' : 'none');
                     this.classList.toggle('active', data.isAdded);
                     showToast(data.message, "success");
+                    fetchAndUpdateWishlistCount(); // Fetch and update wishlist count
                 } else {
                     showToast(data.message, "error");
                 }
