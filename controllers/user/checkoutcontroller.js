@@ -182,15 +182,17 @@ const loadCheckout = async (req, res) => {
 
     // Fetch additional data
     const AddressData = await Address.findOne({ userId: userId });
+    const now = new Date();
+    const nowUTC = new Date(now.toISOString()); // Ensures UTC format
     
     const availableCoupons = await Coupon.find({
       isActive: true,
-      startDate: { $lte: new Date() },
-      expiryDate: { $gte: new Date() },
+      startDate: { $lte: nowUTC },
+      expiryDate: { $gte: nowUTC },
       minPurchaseAmount: { $lte: cartData.totalAmount },
     });
 
-    
+   
 
     res.render("checkout", {
       user: userData,
