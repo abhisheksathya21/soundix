@@ -173,16 +173,15 @@ function generateOtp() {
 
 async function sendVerificationEmail(email, otp) {
   try {
-    const transporter = nodemailer.createTransport({
-      service: "gmail",
-      port: 587,
-      secure: false,
-      requireTLS: true,
-      auth: {
-        user: process.env.NODEMAILER_EMAIL,
-        pass: process.env.NODEMAILER_PASSWORD,
-      },
-    });
+       const transporter = nodemailer.createTransport({
+  host: "smtp.gmail.com",
+  port: 465,
+  secure: true, 
+  auth: {
+    user: process.env.NODEMAILER_EMAIL,
+    pass: process.env.NODEMAILER_PASSWORD,
+  },
+});
 
     const info = await transporter.sendMail({
       from: process.env.NODEMAILER_EMAIL,
@@ -716,3 +715,4 @@ module.exports = {
   loadresetPassword,
   resetPassword,
 };
+
