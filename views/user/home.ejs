@@ -17,7 +17,7 @@
       <div class="container">
         <h2 class="section-title">New Arrivals</h2>
         <div class="product-grid">
-          <% for (let i = Math.max(products.length - 4, 0); i < products.length; i++) { %>
+          <% for (let i = Math.max(products.length - 5, 0); i < products.length; i++) { %>
             <div class="product-card"><a href="/productDetails?id=<%= products[i]._id %>">
               <img src="<%= products[i].productImage[0] %>" alt="<%= products[i].productName %>">
               <div class="product-info">
@@ -101,4 +101,5 @@
  
   <script src="/js/global.js"></script>
 </main>
+
 
