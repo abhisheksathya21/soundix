@@ -10,7 +10,8 @@ const couponcontroller = require("../controllers/admin/couponcontroller");
 const salesReportcontroller = require("../controllers/admin/salesReportcontroller");
 const { UserAuth, AdminAuth } = require("../middlewares/auth");
 const dashboardController = require("../controllers/admin/dashboardController");
-
+const { CloudinaryStorage } = require('multer-storage-cloudinary');
+const cloudinary = require('../config/cloudinary');
 
 router.get("/dashboard", (req, res) => {
   res.render("dashboard");
@@ -21,15 +22,18 @@ const { v4: uuidv4 } = require("uuid");
 
 
 // Product image storage
-const productStorage = multer.diskStorage({
-  destination: function (req, file, cb) {
-    cb(null, "public/uploads/product-images");
-  },
-  filename: function (req, file, cb) {
-    const ext = file.originalname.split(".").pop();
-    cb(null, `${uuidv4()}.${ext}`);
+
+
+const productStorage = new CloudinaryStorage({
+  cloudinary,
+  params: {
+    folder: 'beats-product-images',
+    format: 'jpeg',
+    public_id: (req, file) => uuidv4(),
   },
 });
+
+
 
 
 
@@ -67,12 +71,12 @@ router.post("/addCategoryOffer", AdminAuth, categorycontroller.addCategoryOffer)
 router.post("/removeCategoryOffer", AdminAuth, categorycontroller.removeCategoryOffer);
 //product management
 router.get("/addproducts", AdminAuth, productcontroller.loadProductaddpage);
-router.post("/addproducts", AdminAuth, productUploads.array("images", 6), productcontroller.addProducts);
+router.post("/addproducts", AdminAuth, productcontroller.addProducts);
 router.get("/products", AdminAuth, productcontroller.getAllproducts);
 router.get("/blockProduct", AdminAuth, productcontroller.blockProduct);
 router.get("/UnblockProduct", AdminAuth, productcontroller.UnblockProduct);
 router.get("/editProduct", AdminAuth, productcontroller.geteditProduct);
-router.post("/editProduct/:id", AdminAuth, productUploads.array("images", 6), productcontroller.editProduct);
+router.post("/editProduct/:id", AdminAuth, productcontroller.editProduct);
 router.post("/addProductOffer", AdminAuth, productcontroller.addProductOffer);
 router.post("/removeProductOffer", AdminAuth, productcontroller.removeProductOffer);
 
