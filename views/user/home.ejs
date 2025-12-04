@@ -4,13 +4,42 @@
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
 
   <div class="content">
-    <section class="hero">
-      <img src="/assets/img/hp-register--fitpro-solo3.png.large.2x.png" alt="Floating PNG" />
-      <div>
-        <h1>Welcome to SoundZone</h1>
-        <p>Experience the ultimate sound like never before.</p>
-      </div>
-    </section>
+   
+    <div class="hero-container gradient-1">
+        <div class="bg-shapes">
+            <div class="shape shape-1"></div>
+            <div class="shape shape-2"></div>
+            <div class="shape shape-3"></div>
+        </div>
+
+        <div class="hero-content">
+            <div class="hero-text">
+                <div class="text-content" id="textContent">
+                    <h1 id="heroTitle">Welcome to SoundZone</h1>
+                    <div class="subtitle" id="heroSubtitle">Premium Audio Experience</div>
+                    <p id="heroDescription">Experience the ultimate sound like never before. Immerse yourself in crystal-clear audio with our premium collection.</p>
+                    <div class="cta-buttons">
+                        <a href="/products" class="cta-button primary">Explore Collection</a>
+                        <a href="#popular" class="cta-button secondary">View Products</a>
+                    </div>
+                </div>
+            </div>
+
+            <div class="hero-images">
+                <div class="nav-arrow prev" onclick="changeProduct(-1)">
+                    <svg viewBox="0 0 24 24"><path d="M15.41 7.41L14 6l-6 6 6 6 1.41-1.41L10.83 12z"/></svg>
+                </div>
+                
+                <div class="nav-arrow next" onclick="changeProduct(1)">
+                    <svg viewBox="0 0 24 24"><path d="M10 6L8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6z"/></svg>
+                </div>
+
+                <div id="productShowcases"></div>
+
+                <div class="product-indicators" id="indicators"></div>
+            </div>
+        </div>
+    </div>
 
     <!-- New Arrivals -->
     <section class="new-arrivals">
@@ -38,14 +67,13 @@
               </div>
             </a>
             </div>
-            
           <% } %>
         </div>
       </div>
     </section>
 
     <!-- Popular Items -->
-    <section class="popular-items">
+    <section class="popular-items" id="popular">
       <div class="container">
         <h2 class="section-title">Popular Items</h2>
         <p class="section-description">Discover our most loved products, chosen by customers like you.</p>
@@ -103,4 +131,121 @@
 </main>
 
 
+<script>
+    // Sample product data - replace with your actual data
+   const products = [
+        <% for (let i = 0; i < Math.min( products.length); i++) { %>
+        {
+            name: "<%= products[i].productName %>",
+            subtitle: "Premium Audio",
+            description: "<%= products[i].description || 'Experience superior sound quality' %>",
+            image: "<%= products[i].productImage[0] %>",
+            badges: [
+                <% if (products[i].bestOffer) { %>"<%= products[i].bestOffer.discountPercentage %>% OFF",<% } %>
+                "In Stock",
+                "Premium"
+            ],
+            gradient: "gradient-<%= (i % 4) + 1 %>"
+        }<% if (i < Math.min( products.length) - 1) { %>,<% } %>
+        <% } %>
+    ];
+
+    let currentProduct = 0;
+    let autoPlayInterval;
+
+    function init() {
+        const showcaseContainer = document.getElementById('productShowcases');
+        const indicatorsContainer = document.getElementById('indicators');
+
+        products.forEach((product, index) => {
+            // Create product showcase
+            const showcase = document.createElement('div');
+            showcase.className = `product-showcase ${index === 0 ? 'active' : ''}`;
+            showcase.innerHTML = `
+                <div class="main-product">
+                    <div class="product-image-wrapper">
+                        <img src="${product.image}" alt="${product.name}">
+                    </div>
+                    ${product.badges.map((badge, i) => `
+                        <div class="feature-badge badge-${i + 1}">${badge}</div>
+                    `).join('')}
+                </div>
+            `;
+            showcaseContainer.appendChild(showcase);
+
+            // Create indicator
+            const indicator = document.createElement('div');
+            indicator.className = `indicator ${index === 0 ? 'active' : ''}`;
+            indicator.onclick = () => goToProduct(index);
+            indicatorsContainer.appendChild(indicator);
+        });
+
+        startAutoPlay();
+    }
+
+    function changeProduct(direction) {
+        const showcases = document.querySelectorAll('.product-showcase');
+        const indicators = document.querySelectorAll('.indicator');
+        const textContent = document.getElementById('textContent');
+        const container = document.querySelector('.hero-container');
+
+        showcases[currentProduct].classList.remove('active');
+        indicators[currentProduct].classList.remove('active');
+
+        currentProduct = (currentProduct + direction + products.length) % products.length;
+
+        showcases[currentProduct].classList.add('active');
+        indicators[currentProduct].classList.add('active');
+
+        // Update text content with animation
+        textContent.style.animation = 'none';
+        setTimeout(() => {
+            document.getElementById('heroTitle').textContent = products[currentProduct].name;
+            document.getElementById('heroSubtitle').textContent = products[currentProduct].subtitle;
+            document.getElementById('heroDescription').textContent = products[currentProduct].description;
+            
+            // Change background gradient
+            container.className = `hero-container ${products[currentProduct].gradient}`;
+            
+            textContent.style.animation = 'slideInContent 0.8s ease-out forwards';
+        }, 50);
+
+        resetAutoPlay();
+    }
+
+    function goToProduct(index) {
+        const direction = index > currentProduct ? 1 : -1;
+        const steps = Math.abs(index - currentProduct);
+        
+        for (let i = 0; i < steps; i++) {
+            setTimeout(() => changeProduct(direction), i * 100);
+        }
+    }
+
+    function startAutoPlay() {
+        autoPlayInterval = setInterval(() => {
+            changeProduct(1);
+        }, 5000);
+    }
+
+    function resetAutoPlay() {
+        clearInterval(autoPlayInterval);
+        startAutoPlay();
+    }
+
+    // Pause autoplay on hover
+    const heroImages = document.querySelector('.hero-images');
+    if (heroImages) {
+        heroImages.addEventListener('mouseenter', () => {
+            clearInterval(autoPlayInterval);
+        });
+
+        heroImages.addEventListener('mouseleave', () => {
+            startAutoPlay();
+        });
+    }
+
+    // Initialize hero section
+    init();
+</script>
 
