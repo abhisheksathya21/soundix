@@ -605,10 +605,3 @@ body {
           color: #f44336;
 
         }
-/* New Arrivals - force 5 items in a row */
-.new-arrivals .product-grid {
-  display: grid;
-  grid-template-columns: repeat(5, 1fr);
-  gap: 25px;
-  align-items: stretch;
-}
