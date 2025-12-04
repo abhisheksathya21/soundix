@@ -47,4 +47,8 @@ app.use('/admin',adminRouter);
 app.listen(process.env.PORT,()=>{
     console.log("server running on 3002");
 });  
+<<<<<<< HEAD
 module.exports=app;
+=======
+module.exports=app;
+>>>>>>> 3a559030cb2ec33ef241e099247bc766b68751cb
