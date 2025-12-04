@@ -13,9 +13,14 @@ const wishlistCountMiddleware=require('./middlewares/wislistcount');
 
 db();
 app.use(nocache());
-app.use(express.json());
-app.use(express.urlencoded({extended:true}))
 
+// NEW (with increased limits for base64 images)
+app.use(express.json({ limit: '50mb' }));
+app.use(express.urlencoded({ 
+  limit: '50mb', 
+  extended: true,
+  parameterLimit: 50000 
+}));
 app.set("view engine","ejs");
 app.set("views",[path.join(__dirname,'views/user'),path.join(__dirname,'views/admin')]);
 app.use(express.static(path.join(__dirname, 'public')));
