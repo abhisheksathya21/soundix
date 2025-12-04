@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Order Success - Beats Zone</title>
+    
+    <link rel="shortcut icon" type="image/x-icon" href="assets/img/favicon.ico" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link rel="icon" type="image/png" href="/assets/img/beat-logo-161616.png"> 
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <style>
+        .content { 
+            padding: 40px 20px; 
+            background: #f8f9fa; 
+            min-height: calc(100vh - 200px); 
+        }
+        .container { 
+            max-width: 1200px; 
+            margin: 0 auto; 
+            background: white; 
+            border-radius: 12px; 
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05); 
+            padding: 30px; 
+        }
+        h1 { 
+            text-align: center; 
+            color: #333; 
+            font-size: 2rem; 
+            margin-bottom: 30px; 
+            font-weight: 700; 
+        }
+        .checkout-grid { 
+            display: grid; 
+            grid-template-columns: 2fr 1fr; 
+            gap: 30px; 
+            margin: 0; 
+        }
+        .section { 
+            background: white; 
+            padding: 25px; 
+            border-radius: 8px; 
+            border: 1px solid #eee; 
+            margin-bottom: 25px; 
+        }
+        h2 { 
+            color: #333; 
+            margin-bottom: 20px; 
+            font-size: 1.5rem; 
+            font-weight: 600; 
+            border-bottom: 2px solid #f0f0f0; 
+            padding-bottom: 10px; 
+        }
+        .product-summary { 
+            display: flex; 
+            align-items: center; 
+            padding: 15px 0; 
+            border-bottom: 1px solid #eee; 
+        }
+        .product-summary:last-child { 
+            border-bottom: none; 
+        }
+        .product-image { 
+            width: 70px; 
+            height: 70px; 
+            object-fit: cover; 
+            margin-right: 20px; 
+            border-radius: 6px; 
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05); 
+        }
+        .product-details h3 { 
+            margin: 0 0 8px 0; 
+            font-size: 1.2rem; 
+            color: #222; 
+        }
+        .product-details p { 
+            margin: 4px 0; 
+            color: #666; 
+        }
+        .success-message { 
+            text-align: center; 
+            color: #28a745; 
+            margin: 0 0 20px 0; 
+            font-size: 1.1rem; 
+            font-weight: 500; 
+        }
+        .btn { 
+            display: inline-block; 
+            padding: 12px 25px; 
+            background: #007bff; 
+            color: white; 
+            border: none; 
+            border-radius: 6px; 
+            cursor: pointer; 
+            text-decoration: none; 
+            margin: 10px 5px 0; 
+            font-weight: 500; 
+            transition: background 0.3s ease; 
+        }
+        .btn:hover { 
+            background: #0056b3; 
+        }
+        .btn.secondary { 
+            background: #6c757d; 
+        }
+        .btn.secondary:hover { 
+            background: #545b62; 
+        }
+        .btn.danger { 
+            background: #dc3545; 
+        }
+        .btn.danger:hover { 
+            background: #c82333; 
+        }
+        .total { 
+            font-size: 1.3rem; 
+            font-weight: 700; 
+            margin-top: 20px; 
+            border-top: 2px solid #eee; 
+            padding-top: 15px; 
+            color: #333; 
+        }
+        .status { 
+            color: #666; 
+            font-size: 0.9rem; 
+        }
+        p { 
+            margin: 8px 0; 
+            color: #555; 
+            line-height: 1.5; 
+        }
+        strong { 
+            color: #333; 
+            font-weight: 600; 
+        }
+    </style>
+</head>
+<body>
+    <%- include('../partials/user/header')%>
+
+    <div class="content">
+        <div class="container">
+            <h1>Order Confirmation</h1>
+
+            <div class="checkout-grid">
+                <!-- Order Details Section -->
+                <div class="checkout-details">
+                    <div class="section">
+                        <h2>Order Details</h2>
+                        <p class="success-message">
+                            <i class="fas fa-check-circle"></i> Thank you! Your order has been successfully placed.
+                        </p>
+                        <% if (orderData) { %>
+                            <p><strong>Order ID:</strong> <%= orderData.orderId || 'N/A' %></p>
+                            <p><strong>Order Date:</strong> <%= orderData.orderDate ? new Date(orderData.orderDate).toLocaleDateString() : 'Date not available' %></p>
+                            <p><strong>Order Status:</strong> <%= orderData.orderStatus || 'N/A' %></p>
+                        <% } else { %>
+                            <p>No order data available.</p>
+                        <% } %>
+                    </div>
+
+                    <div class="section">
+                        <h2>Shipping Address</h2>
+                        <% if (orderData && orderData.shippingAddress) { %>
+                            <p>
+                                <b><%= orderData.shippingAddress.name || '' %></b><br>
+                                <%= orderData.shippingAddress.street || '' %><br>
+                                <%= orderData.shippingAddress.city || '' %>, <%= orderData.shippingAddress.state || '' %><br>
+                                <%= orderData.shippingAddress.pinCode || '' %><br>
+                                Phone: <%= orderData.shippingAddress.phoneNumber || '' %>
+                            </p>
+                        <% } else { %>
+                            <p>Shipping address not available</p>
+                        <% } %>
+                    </div>
+
+                    <div class="section">
+                        <h2>Ordered Items</h2>
+                        <% if (orderData && orderData.items && orderData.items.length > 0) { %>
+                            <% orderData.items.forEach(item => { %>
+                                <div class="product-summary">
+                                    <img src="<%= item.productId.productImage[0] %>" alt="<%= item.productId.productName %>" class="product-image" />
+                                    <div class="product-details">
+                                        <h3><%= item.productId.productName %></h3>
+                                        <p>Quantity: <%= item.quantity %></p>
+                                        <p>Price: ₹<%= item.price.toFixed(2) %></p>
+                                        <p class="status">Status: <%= item.status %></p>
+                                        <% if (item.status === 'Delivered') { %>
+                                            <button class="btn danger" onclick="createReturnRequest('<%= orderData.orderId %>', '<%= item.productId._id %>')">Return Item</button>
+                                        <% } %>
+                                    </div>
+                                </div>
+                            <% }); %>
+                        <% } else { %>
+                            <p>No items to display</p>
+                        <% } %>
+                    </div>
+                </div>
+
+                <!-- Order Summary Section -->
+                <div class="payment-summary">
+                    <div class="section">
+                        <h2>Payment Summary</h2>
+                        <% if (orderData) { %>
+                            <p><strong>Payment Method:</strong> <%= orderData.paymentMethod || 'N/A' %></p>
+                            <p><strong>Payment Status:</strong> <%= orderData.paymentStatus || 'N/A' %></p>
+                            <p>Subtotal: ₹<%= orderData.subTotal ? orderData.subTotal.toFixed(2) : '0.00' %></p>
+                            <% if (orderData.discountAmount) { %>
+                                <p style="color: #2ecc71;">Discount: -₹<%= orderData.discountAmount.toFixed(2) %></p>
+                            <% } %>
+                            <p>Shipping: ₹<%= orderData.shippingCost ? orderData.shippingCost.toFixed(2) : '0.00' %></p>
+                            <div class="total">Total: ₹<%= orderData.totalAmount ? orderData.totalAmount.toFixed(2) : '0.00' %></div>
+                            <a href="/orders" class="btn">Track Order</a>
+                            <a href="/shop" class="btn secondary">Continue Shopping</a>
+                        <% } else { %>
+                            <p>Order information not available</p>
+                        <% } %>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <%- include('../partials/user/footer')%>
+    <div class="toast-container"></div>
+
+    <script>
+        function showToast(message, type = 'success') {
+            const toastContainer = document.querySelector('.toast-container');
+            const toast = document.createElement('div');
+            toast.className = `toast ${type}`;
+            let icon;
+            switch (type) {
+                case 'success': icon = 'check-circle'; break;
+                case 'error': icon = 'exclamation-circle'; break;
+                case 'warning': icon = 'exclamation-triangle'; break;
+                default: icon = 'info-circle';
+            }
+            toast.innerHTML = `<i class="fas fa-${icon} toast-icon"></i><span>${message}</span>`;
+            toastContainer.appendChild(toast);
+            setTimeout(() => toast.classList.add('show'), 10);
+            setTimeout(() => {
+                toast.classList.remove('show');
+                setTimeout(() => toast.remove(), 300);
+            }, 3000);
+        }
+
+        function createReturnRequest(orderId, productId) {
+            Swal.fire({
+                title: 'Return Item',
+                input: 'textarea',
+                inputLabel: 'Reason for return',
+                inputPlaceholder: 'Enter your reason here...',
+                showCancelButton: true,
+                confirmButtonText: 'Submit Return',
+            }).then((result) => {
+                if (result.isConfirmed && result.value) {
+                    fetch('/create-return-request', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ orderId, productId, reason: result.value })
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            showToast('Return request submitted successfully', 'success');
+                            setTimeout(() => location.reload(), 1500);
+                        } else {
+                            showToast(data.message || 'Failed to submit return request', 'error');
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                        showToast('Error submitting return request', 'error');
+                    });
+                }
+            });
+        }
+    </script>
+</body>
+</html>

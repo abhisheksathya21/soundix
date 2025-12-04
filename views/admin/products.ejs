@@ -1,0 +1,293 @@
+<%- include('../partials/admin/header') %>
+<!-- SweetAlert 2 -->
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/toastify-js/src/toastify.min.css">
+<link rel="stylesheet" href="/assets/admin-style/products.css">
+
+<main class="main-content" id="mainContent">
+    <div class="content-header">
+        <div>
+            <h2 class="content-title card-title">Products</h2>
+        </div>
+    </div>
+
+    <!-- Search Box -->
+    <header class="card-header text-center mb-20">
+        <div class="search-container mb-4">
+            <form action="/admin/products/" method="get" class="search-form">
+                <div class="search-box">
+                    <input type="text" class="search-input" placeholder="Search products..." name="search">
+                    <button class="search-button" type="submit">Search</button>
+                </div>
+            </form>
+        </div>
+    </header>
+
+    <!-- Products Table -->
+    <div class="right mt-5">
+        <div class="card">
+            <div class="card-body">
+                <table class="table table-striped">
+                    <thead>
+                        <tr>
+                            <th scope="col">Product image</th>
+                            <th scope="col">Product name</th>
+                            <th scope="col">Category</th>
+                            <th scope="col">Sale Price</th>
+                            <th scope="col">Offer Price</th>
+                            <th scope="col">Offer</th>
+                            <th scope="col">Quantity</th>
+                            <th scope="col">Action</th>
+                            <th scope="col">Edit</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <% for (let i = data.length - 1; i >= 0; i--) { %>
+                        <tr data-product-id="<%= data[i]._id %>">
+                            <td>
+                                <img src="<%= data[i].productImage[0] %>" alt="<%= data[i].productName %>" style="width: 50px; height: 50px; object-fit: cover;">
+                            </td>
+                            <td><%= data[i].productName %></td>
+                            <td><%= data[i].category.name %></td>
+                            <td><%= data[i].regularPrice %></td>
+                            <td><%= data[i].salePrice %></td>
+                            <td>
+                                <% if (data[i].offer && data[i].offer.discountPercentage) { %>
+                                <button class="btn btn-danger text-white" onclick="removeProductOffer('<%= data[i]._id %>', '<%= data[i].productName %>')">Remove Offer</button>
+                                <% } else { %>
+                                <button class="btn btn-warning text-white" onclick="handleProductOffer('<%= data[i]._id %>', '<%= data[i].productName %>')">Add Offer</button>
+                                <% } %>
+                            </td>
+                            <td><%= data[i].quantity %></td>
+                            <td>
+                                <% if (data[i].isBlocked === false) { %>
+                                <button class="btn btn-danger action-btn" style="width: 100px;" data-id="<%= data[i]._id %>" data-href="/admin/blockProduct?id=<%= data[i]._id %>">Block</button>
+                                <% } else { %>
+                                <button class="btn btn-success action-btn" style="width: 100px;" data-id="<%= data[i]._id %>" data-href="/admin/UnblockProduct?id=<%= data[i]._id %>">Unblock</button>
+                                <% } %>
+                            </td>
+                            <td>
+                                <button class="btn btn-info" style="width: 100px;">
+                                    <a href="/admin/editProduct?id=<%= data[i]._id %>" class="text-white" style="text-decoration: none;">Edit</a>
+                                </button>
+                            </td>
+                        </tr>
+                        <% } %>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Pagination -->
+    <div class="pagination-container">
+        <% if (currentPage > 1) { %>
+            <a href="?page=<%= currentPage - 1 %>" class="pagination-link">« Previous</a>
+        <% } %>
+        <% for (let i = 1; i <= totalPages; i++) { %>
+            <% if (i === currentPage) { %>
+                <span class="current-page"><%= i %></span>
+            <% } else { %>
+                <a href="?page=<%= i %>" class="pagination-link"><%= i %></a>
+            <% } %>
+        <% } %>
+        <% if (currentPage < totalPages) { %>
+            <a href="?page=<%= currentPage + 1 %>" class="pagination-link">Next »</a>
+        <% } %>
+    </div>
+</main>
+
+<script src="https://cdn.jsdelivr.net/npm/toastify-js"></script>
+<script>
+    // Block/Unblock action handler
+    document.addEventListener('DOMContentLoaded', () => {
+        const actionButtons = document.querySelectorAll('.action-btn');
+
+        actionButtons.forEach(button => {
+            button.addEventListener('click', async (e) => {
+                e.preventDefault();
+
+                const href = button.getAttribute('data-href');
+                const productId = button.getAttribute('data-id');
+                const isBlocking = button.classList.contains('btn-danger');
+
+                button.disabled = true;
+
+                try {
+                    const response = await fetch(href, {
+                        method: 'GET',
+                        headers: { 'Content-Type': 'application/json' }
+                    });
+
+                    const data = await response.json();
+
+                    if (data.success) {
+                        if (isBlocking) {
+                            button.classList.remove('btn-danger');
+                            button.classList.add('btn-success');
+                            button.textContent = 'Unblock';
+                            button.setAttribute('data-href', `/admin/UnblockProduct?id=${productId}`);
+                            Toastify({
+                                text: `${data.message} ❗`,
+                                duration: 3000,
+                                close: true,
+                                gravity: "top",
+                                position: "right",
+                                style: {
+                                    background: "white",
+                                    color: "red",
+                                    border: "1px solid red",
+                                    borderRadius: "5px",
+                                    padding: "10px",
+                                    fontSize: "16px",
+                                    boxShadow: "0 4px 6px rgba(0, 0, 0, 0.1)"
+                                }
+                            }).showToast();
+                        } else {
+                            button.classList.remove('btn-success');
+                            button.classList.add('btn-danger');
+                            button.textContent = 'Block';
+                            button.setAttribute('data-href', `/admin/blockProduct?id=${productId}`);
+                            Toastify({
+                                text: `${data.message} ✅`,
+                                duration: 3000,
+                                close: true,
+                                gravity: "top",
+                                position: "right",
+                                style: {
+                                    background: "white",
+                                    color: "green",
+                                    border: "1px solid green",
+                                    borderRadius: "5px",
+                                    padding: "10px",
+                                    fontSize: "16px",
+                                    boxShadow: "0 4px 6px rgba(0, 0, 0, 0.1)"
+                                }
+                            }).showToast();
+                        }
+                    } else {
+                        throw new Error(data.message || 'Operation failed');
+                    }
+                } catch (error) {
+                    Toastify({
+                        text: error.message || 'An error occurred',
+                        duration: 3000,
+                        close: true,
+                        gravity: "top",
+                        position: "right",
+                        style: {
+                            background: "white",
+                            color: "gray",
+                            border: "1px solid gray",
+                            borderRadius: "5px",
+                            padding: "10px",
+                            fontSize: "16px"
+                        }
+                    }).showToast();
+                } finally {
+                    button.disabled = false;
+                }
+            });
+        });
+    });
+
+    // Existing offer handlers
+    async function handleProductOffer(productId, productName) {
+        const { value: formValues } = await Swal.fire({
+            title: `Add Offer for ${productName}`,
+            html: `
+                <input id="offerPercentage" class="swal2-input" type="number" min="1" max="99" placeholder="Discount Percentage">
+                <input id="startDate" class="swal2-input" type="datetime-local">
+                <input id="endDate" class="swal2-input" type="datetime-local">
+            `,
+            focusConfirm: false,
+            preConfirm: () => {
+                const percentage = document.getElementById('offerPercentage').value;
+                const startDate = document.getElementById('startDate').value;
+                const endDate = document.getElementById('endDate').value;
+
+                if (!percentage || !startDate || !endDate) {
+                    Swal.showValidationMessage('Please fill in all fields');
+                    return false;
+                }
+                if (percentage < 1 || percentage > 99) {
+                    Swal.showValidationMessage('Percentage must be between 1 and 99');
+                    return false;
+                }
+                if (new Date(startDate) >= new Date(endDate)) {
+                    Swal.showValidationMessage('End date must be after start date');
+                    return false;
+                }
+
+                return { percentage, startDate, endDate };
+            }
+        });
+
+        if (formValues) {
+            try {
+                const response = await fetch('/admin/addProductOffer', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        productId,
+                        discountPercentage: formValues.percentage,
+                        startDate: formValues.startDate,
+                        endDate: formValues.endDate
+                    })
+                });
+
+                if (!response.ok) throw new Error('Failed to add offer');
+
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Success',
+                    text: 'Offer added successfully!'
+                }).then(() => location.reload());
+            } catch (error) {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error',
+                    text: 'Failed to add offer. Please try again.'
+                });
+            }
+        }
+    }
+
+    async function removeProductOffer(productId, productName) {
+        const confirmation = await Swal.fire({
+            title: `Remove Offer from ${productName}?`,
+            text: "Are you sure you want to remove this offer?",
+            icon: "warning",
+            showCancelButton: true,
+            confirmButtonColor: "#d33",
+            cancelButtonColor: "#3085d6",
+            confirmButtonText: "Yes, remove it!"
+        });
+
+        if (confirmation.isConfirmed) {
+            try {
+                const response = await fetch('/admin/removeProductOffer', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ productId })
+                });
+
+                if (!response.ok) throw new Error('Failed to remove offer');
+
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Success',
+                    text: 'Offer removed successfully!'
+                }).then(() => location.reload());
+            } catch (error) {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error',
+                    text: 'Failed to remove offer. Please try again.'
+                });
+            }
+        }
+    }
+</script>
+
+<%- include('../partials/admin/footer') %>

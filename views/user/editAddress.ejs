@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Edit Address</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" />
+    <link rel="stylesheet" href="/assets/user-style/address.css" />
+    <link rel="stylesheet" href="/assets/user-style/sidebar.css" />
+    <link rel="shortcut icon" type="image/x-icon" href="/assets/img/favicon.ico" />
+    <link rel="icon" type="image/png" href="/assets/img/beat-logo-161616.png"> 
+   <style>
+        .error-message {
+            color: red;
+            font-size: 12px;
+            margin-top: 5px;
+            display: block;
+            min-height: 15px;
+        }
+        .form-group {
+            position: relative;
+            margin-bottom: 15px;
+        }
+    </style>
+</head>
+<body>
+    <%- include('../partials/user/header')%>
+    <div class="page-container">
+        <aside class="sidebar">
+            <nav>
+                <ul class="sidebar-menu">
+                    <li><a href="/userProfile">Account Overview</a></li>
+                    <li><a href="/orders">Order Details</a></li>
+                    <li><a href="/addressManagement" class="active">Manage Address</a></li>
+                    <li><a href="/wallet">Wallet</a></li>
+                    <% if (!isGoogleUser) { %>
+                    <li><a href="/password">Password</a></li>
+                    <% } %>
+                    <li><a href="/wishlist">Wishlist</a></li>
+                </ul>
+            </nav>
+            <button class="logout-btn" onclick="logout()">Logout</button>
+        </aside>
+
+        <main class="content">
+            <div class="view-port">
+                <div class="overview-grid">
+                    <div class="overview-card" id="address-details">
+                        <h3>Edit Address</h3>
+                        <form action="/updateAddress?id=<%=address._id%>" method="POST" id="edit-address-form" novalidate>
+                            <% if (typeof csrfToken !== 'undefined') { %>
+                            <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+                            <% } %>
+                            <div class="form-grid">
+                                <div class="form-group">
+                                    <label for="address-type">Address Type:</label>
+                                    <input type="text" id="address-type" name="addressType" value="<%=address.addressType%>" />
+                                    <span class="error-message" id="address-type-error"></span>
+                                </div>
+                                <div class="form-group">
+                                    <label for="address-name">Name:</label>
+                                    <input type="text" id="address-name" name="name" value="<%=address.name%>" />
+                                    <span class="error-message" id="name-error"></span>
+                                </div>
+                                <div class="form-group">
+                                    <label for="address-city">City:</label>
+                                    <input type="text" id="address-city" name="city" value="<%=address.city%>" />
+                                    <span class="error-message" id="city-error"></span>
+                                </div>
+                                <div class="form-group">
+                                    <label for="address-landmark">Landmark:</label>
+                                    <input type="text" id="address-landmark" name="landmark" value="<%=address.landmark%>" />
+                                    <span class="error-message" id="landmark-error"></span>
+                                </div>
+                                <div class="form-group">
+                                    <label for="address-district">District:</label>
+                                    <input type="text" id="address-district" name="district" value="<%=address.district%>" />
+                                    <span class="error-message" id="district-error"></span>
+                                </div>
+                                <div class="form-group">
+                                    <label for="address-state">State:</label>
+                                    <input type="text" id="address-state" name="state" value="<%=address.state%>" />
+                                    <span class="error-message" id="state-error"></span>
+                                </div>
+                                <div class="form-group">
+                                    <label for="address-pincode">Pincode:</label>
+                                    <input type="text" id="address-pincode" name="pincode" value="<%=address.pincode%>" pattern="\d{6}" />
+                                    <span class="error-message" id="pincode-error"></span>
+                                </div>
+                                <div class="form-group">
+                                    <label for="address-phone">Phone:</label>
+                                    <input type="tel" id="address-phone" name="phone" value="<%=address.phone%>" pattern="\d{10}" />
+                                    <span class="error-message" id="phone-error"></span>
+                                </div>
+                                <div class="form-group full-width">
+                                    <label for="address-alt-phone">Alternative Phone:</label>
+                                    <input type="tel" id="address-alt-phone" name="alternativePhone" value="<%=address.alternativePhone%>" pattern="\d{10}" />
+                                    <span class="error-message" id="alt-phone-error"></span>
+                                </div>
+                            </div>
+                            <div class="form-actions">
+                                <button type="submit" class="submit-btn">Update Address</button>
+                                <button type="button" class="cancel-btn" onclick="window.location.href='/addressManagement'">Cancel</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <%- include('../partials/user/footer')%>
+    <div class="toast-container"></div>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script>
+        class ToastNotification {
+            constructor() {
+                this.container = document.querySelector('.toast-container');
+                if (!this.container) {
+                    this.container = document.createElement('div');
+                    this.container.className = 'toast-container';
+                    document.body.appendChild(this.container);
+                }
+            }
+
+            show(message, type = 'success') {
+                const toast = document.createElement('div');
+                toast.className = `toast ${type}`;
+                const icon = document.createElement('i');
+                icon.className = `toast-icon fas ${type === 'success' ? 'fa-check-circle' : type === 'error' ? 'fa-exclamation-circle' : 'fa-exclamation-triangle'}`;
+                const textDiv = document.createElement('div');
+                textDiv.textContent = message;
+                toast.appendChild(icon);
+                toast.appendChild(textDiv);
+                this.container.appendChild(toast);
+                toast.offsetHeight;
+                setTimeout(() => toast.classList.add('show'), 10);
+                setTimeout(() => {
+                    toast.classList.remove('show');
+                    setTimeout(() => this.container.removeChild(toast), 300);
+                }, 3000);
+            }
+        }
+
+        const toast = new ToastNotification();
+
+        document.getElementById("edit-address-form").addEventListener("submit", async (e) => {
+            e.preventDefault();
+
+            // Clear previous error messages
+            document.querySelectorAll('.error-message').forEach(error => error.textContent = '');
+
+            const formData = new FormData(e.target);
+            const data = {
+                addressType: formData.get("addressType").trim(),
+                name: formData.get("name").trim(),
+                city: formData.get("city").trim(),
+                landmark: formData.get("landmark").trim(),
+                district: formData.get("district").trim(),
+                state: formData.get("state").trim(),
+                pincode: formData.get("pincode").trim(),
+                phone: formData.get("phone").trim(),
+                alternativePhone: formData.get("alternativePhone").trim(),
+                _csrf: formData.get("_csrf") // Include CSRF token if present
+            };
+
+            let isValid = true;
+
+            // Validation rules
+            if (!data.addressType) {
+                document.getElementById('address-type-error').textContent = 'Address type is required';
+                isValid = false;
+            } else if (!/^[A-Za-z\s]{2,}$/.test(data.addressType)) {
+                document.getElementById('address-type-error').textContent = 'Address type must contain only letters and spaces, minimum 2 characters';
+                isValid = false;
+            }
+
+            if (!data.name) {
+                document.getElementById('name-error').textContent = 'Name is required';
+                isValid = false;
+            } else if (!/^[A-Za-z\s]{3,}$/.test(data.name)) {
+                document.getElementById('name-error').textContent = 'Name must contain only letters and spaces, minimum 3 characters';
+                isValid = false;
+            }
+
+            if (!data.city) {
+                document.getElementById('city-error').textContent = 'City is required';
+                isValid = false;
+            } else if (!/^[A-Za-z\s]{2,}$/.test(data.city)) {
+                document.getElementById('city-error').textContent = 'City must contain only letters and spaces, minimum 2 characters';
+                isValid = false;
+            }
+
+            if (data.landmark && !/^[A-Za-z0-9\s]{2,}$/.test(data.landmark)) {
+                document.getElementById('landmark-error').textContent = 'Landmark must be alphanumeric, minimum 2 characters';
+                isValid = false;
+            }
+
+            if (!data.district) {
+                document.getElementById('district-error').textContent = 'District is required';
+                isValid = false;
+            } else if (!/^[A-Za-z\s]{2,}$/.test(data.district)) {
+                document.getElementById('district-error').textContent = 'District must contain only letters and spaces, minimum 2 characters';
+                isValid = false;
+            }
+
+            if (!data.state) {
+                document.getElementById('state-error').textContent = 'State is required';
+                isValid = false;
+            } else if (!/^[A-Za-z\s]{2,}$/.test(data.state)) {
+                document.getElementById('state-error').textContent = 'State must contain only letters and spaces, minimum 2 characters';
+                isValid = false;
+            }
+
+            if (!data.pincode) {
+                document.getElementById('pincode-error').textContent = 'Pincode is required';
+                isValid = false;
+            } else if (!/^\d{6}$/.test(data.pincode)) {
+                document.getElementById('pincode-error').textContent = 'Pincode must be exactly 6 digits';
+                isValid = false;
+            }
+
+            if (!data.phone) {
+                document.getElementById('phone-error').textContent = 'Phone number is required';
+                isValid = false;
+            } else if (!/^\d{10}$/.test(data.phone)) {
+                document.getElementById('phone-error').textContent = 'Phone number must be exactly 10 digits';
+                isValid = false;
+            }
+
+            if (data.alternativePhone && !/^\d{10}$/.test(data.alternativePhone)) {
+                document.getElementById('alt-phone-error').textContent = 'Alternate phone must be exactly 10 digits';
+                isValid = false;
+            }
+
+            // If form is valid, proceed with submission
+            if (isValid) {
+                try {
+                    const response = await fetch(`/updateAddress?id=<%=address._id%>`, {
+                        method: "POST",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify(data),
+                        credentials: 'include' // Ensure cookies (e.g., session) are sent
+                    });
+
+                    const result = await response.json();
+                    if (response.ok) {
+                        toast.show(result.message || "Address updated successfully!", "success");
+                        setTimeout(() => {
+                            window.location.href = "/addressManagement";
+                        }, 1500);
+                    } else {
+                        toast.show(result.message || "Failed to update address.", "error");
+                    }
+                } catch (error) {
+                    console.error("Fetch error:", error);
+                    toast.show(error.message || "Something went wrong, please try again later.", "error");
+                }
+            }
+        });
+
+        function logout() {
+            Swal.fire({
+                title: 'Are you sure?',
+                text: "You will be logged out of your account!",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#4A90E2',
+                cancelButtonColor: '#ff4444',
+                confirmButtonText: 'Yes, log out!'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                     window.location.href = '/logout';
+                }
+            });
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Wallet - Adidas</title>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;700&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+    <link rel="shortcut icon" type="image/x-icon" href="assets/img/favicon.ico" />
+    <link rel="stylesheet" href="/assets/user-style/wallet.css">
+    <link rel="icon" type="image/png" href="/assets/img/beat-logo-161616.png"> 
+</head>
+<body>
+    <%- include('../partials/user/header')%>
+    <div class="page-container">
+        <aside class="sidebar">
+            <nav>
+                <ul class="sidebar-menu">
+                    <li><a href="/userProfile">Account Overview</a></li>
+                    <li><a href="/orders">Order Details</a></li>
+                    <li><a href="/addressManagement">Manage Address</a></li>
+                    <li><a href="/wallet" class="active">Wallet</a></li>
+                    <% if (!isGoogleUser) { %>
+                        <li><a href="/password">Password</a></li>
+                    <% } %>
+                    <li><a href="/wishlist">Wishlist</a></li>
+                </ul>
+            </nav>
+            <button class="logout-btn" onclick="logout()">Logout</button>
+        </aside>
+
+        <main class="container">
+            <div class="view-port">
+                <div class="wallet-container">
+                    <h1>Wallet</h1>
+                    <div class="wallet-card">
+                        <div class="wallet-label">Available Balance</div>
+                        <div class="wallet-balance" id="wallet-balance">₹<%= walletBalance %></div>
+                    </div>
+
+                    <div class="add-money-form">
+                        <h3 class="mb-4">Add Money to Wallet</h3>
+                        <form id="addMoneyForm">
+                            <div class="mb-3">
+                                <label for="amount" class="form-label">Enter Amount (₹)</label>
+                                <input
+                                    type="number"
+                                    class="form-control"
+                                    id="amount"
+                                    name="amount"
+                                    min="1"
+                                    required
+                                />
+                            </div>
+                            <button type="submit" class="btn-primary">Add Money</button>
+                        </form>
+                    </div>
+
+                    <div class="transaction-history">
+                        <h3>Transaction History</h3>
+                        <% if (transactions && transactions.length > 0) { %>
+                        <div class="table-wrapper">
+                            <div class="transaction-table-container">
+                                <table class="transaction-table">
+                                    <thead>
+                                        <tr>
+                                            <th>Type</th>
+                                            <th>Description</th>
+                                            <th>Date</th>
+                                            <th>Amount</th>
+                                            <th>Status</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="transaction-body">
+                                        <% transactions.forEach(function(transaction) { %>
+                                        <tr>
+                                            <td><%= transaction.type %></td>
+                                            <td><%= transaction.description %></td>
+                                            <td><%= transaction.date %></td>
+                                            <td class="<%= transaction.isDebit ? 'amount-debit' : 'amount-credit' %>">
+                                                <%= transaction.isDebit ? '-' : '+' %>₹<%= transaction.amount %>
+                                            </td>
+                                            <td>
+                                                <% if (transaction.status) { %>
+                                                <span class="status-badge status-<%= transaction.status.toLowerCase() %>">
+                                                    <%= transaction.status %>
+                                                </span>
+                                                <% } else { %>
+                                                <span class="status-badge status-completed">Completed</span>
+                                                <% } %>
+                                            </td>
+                                        </tr>
+                                        <% }); %>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                        <% } else { %>
+                        <div class="no-transactions">
+                            <p>No transactions found</p>
+                        </div>
+                        <% } %>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <%- include('../partials/user/footer')%>
+    <div class="toast-container"></div>
+    <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script>
+        class ToastNotification {
+            constructor() {
+                this.container = document.querySelector('.toast-container');
+                if (!this.container) {
+                    this.container = document.createElement('div');
+                    this.container.className = 'toast-container';
+                    document.body.appendChild(this.container);
+                }
+            }
+
+            show(message, type = 'success') {
+                const toast = document.createElement('div');
+                toast.className = `toast ${type}`;
+                const icon = document.createElement('i');
+                icon.className = `toast-icon fas ${type === 'success' ? 'fa-check-circle' : type === 'error' ? 'fa-exclamation-circle' : 'fa-exclamation-triangle'}`;
+                const textDiv = document.createElement('div');
+                textDiv.textContent = message;
+                toast.appendChild(icon);
+                toast.appendChild(textDiv);
+                this.container.appendChild(toast);
+                toast.offsetHeight;
+                setTimeout(() => toast.classList.add('show'), 10);
+                setTimeout(() => {
+                    toast.classList.remove('show');
+                    setTimeout(() => this.container.removeChild(toast), 300);
+                }, 3000);
+            }
+        }
+
+        const toast = new ToastNotification();
+
+        document.getElementById("addMoneyForm").addEventListener("submit", async (e) => {
+            e.preventDefault();
+
+            const amountInput = document.getElementById("amount");
+            const submitButton = e.target.querySelector("button[type='submit']");
+            const amount = parseFloat(amountInput.value);
+
+            // Validate amount
+            if (amount <= 0 || isNaN(amount)) {
+                toast.show("Please enter a valid amount greater than 0.", "error");
+                return;
+            }
+
+            // Show loading state
+            submitButton.disabled = true;
+            submitButton.textContent = "Processing...";
+
+            try {
+                const response = await fetch("/add-money", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ amount }),
+                });
+                const data = await response.json();
+
+                if (data.error) {
+                    throw new Error(data.error);
+                }
+
+                const options = {
+                    key: data.key_id,
+                    amount: data.amount,
+                    currency: data.currency,
+                    order_id: data.orderId,
+                    name: "Wallet Recharge",
+                    description: "Add money to wallet",
+                    handler: async function (response) {
+                        try {
+                            const verifyResponse = await fetch("/verify-recharge", {
+                                method: "POST",
+                                headers: { "Content-Type": "application/json" },
+                                body: JSON.stringify({
+                                    razorpay_order_id: response.razorpay_order_id,
+                                    razorpay_payment_id: response.razorpay_payment_id,
+                                    razorpay_signature: response.razorpay_signature,
+                                    amount: data.amount / 100, // Convert paise to rupees
+                                }),
+                            });
+
+                            const verifyData = await verifyResponse.json();
+                            if (verifyData.success) {
+                                // Update wallet balance dynamically
+                                const balanceResponse = await fetch('/get-wallet-balance', {
+                                    method: 'GET',
+                                    headers: { 'Content-Type': 'application/json' },
+                                });
+                                const balanceData = await balanceResponse.json();
+                                if (balanceData.success) {
+                                    document.getElementById('wallet-balance').textContent = `₹${balanceData.balance.toFixed(2)}`;
+                                    addTransactionToTable({
+                                        type: 'Deposit',
+                                        description: 'Wallet recharge',
+                                        date: new Date().toLocaleDateString('en-IN', {
+                                            day: 'numeric',
+                                            month: 'short',
+                                            year: 'numeric',
+                                        }),
+                                        amount: amount,
+                                        status: 'Completed',
+                                        isDebit: false
+                                    });
+                                    toast.show("Money added to wallet successfully!", "success");
+                                    amountInput.value = ''; // Clear the input field
+                                } else {
+                                    throw new Error("Failed to fetch updated balance");
+                                }
+                            } else {
+                                throw new Error("Payment verification failed");
+                            }
+                        } catch (error) {
+                            toast.show("Failed to verify payment. Please contact support.", "error");
+                        }
+                    },
+                    prefill: {
+                        name: "<%= user.name %>",
+                        email: "<%= user.email %>",
+                        contact: "<%= user.phone || '' %>",
+                    },
+                    theme: {
+                        color: "#4A90E2",
+                    },
+                };
+
+                const rzp = new Razorpay(options);
+                rzp.open();
+
+                rzp.on("payment.failed", function (response) {
+                    toast.show("The payment was unsuccessful. Please try again.", "error");
+                });
+            } catch (error) {
+                toast.show(error.message, "error");
+            } finally {
+                // Reset loading state
+                submitButton.disabled = false;
+                submitButton.textContent = "Add Money";
+            }
+        });
+
+        function addTransactionToTable(transaction) {
+            const tbody = document.getElementById('transaction-body');
+            if (!tbody) return; // No transaction table exists
+
+            const tr = document.createElement('tr');
+            tr.innerHTML = `
+                <td>${transaction.type}</td>
+                <td>${transaction.description}</td>
+                <td>${transaction.date}</td>
+                <td class="${transaction.isDebit ? 'amount-debit' : 'amount-credit'}">
+                    ${transaction.isDebit ? '-' : '+'}₹${transaction.amount}
+                </td>
+                <td>
+                    <span class="status-badge status-${transaction.status.toLowerCase()}">${transaction.status}</span>
+                </td>
+            `;
+            tbody.insertBefore(tr, tbody.firstChild); // Add to top of table
+        }
+
+        function logout() {
+            Swal.fire({
+                title: 'Are you sure?',
+                text: "You will be logged out of your account!",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#4A90E2',
+                cancelButtonColor: '#ff4444',
+                confirmButtonText: 'Yes, log out!'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    window.location.href = '/logout'; 
+                }
+            });
+        }
+    </script>
+</body>
+</html>

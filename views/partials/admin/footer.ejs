@@ -1,0 +1,62 @@
+    <!-- Main Content -->
+    <main class="main-content" id="mainContent">
+       <!-- Dynamic content goes here -->
+    </main>
+<script>
+  // Wait for the entire page, including images, to load completely
+  window.onload = function () {
+    // Get the preloader element
+    var preloader = document.getElementById("preloader-active");
+
+    // Add a 2-second delay before starting the fade-out effect
+    setTimeout(function () {
+      // Add a fade-out effect
+      preloader.style.transition = "opacity 0.6s";
+      preloader.style.opacity = 0;
+
+      // Remove the preloader from the DOM after the fade-out effect is complete
+      preloader.addEventListener("transitionend", function () {
+        preloader.style.display = "none";
+      });
+    }, 2000); // 2 seconds = 2000 milliseconds
+  };
+</script>
+
+    <script>
+      document.addEventListener("DOMContentLoaded", function () {
+        const toggleBtn = document.getElementById("toggleSidebar");
+        const sidebar = document.getElementById("sidebar");
+        const mainContent = document.getElementById("mainContent");
+
+        toggleBtn.addEventListener("click", function () {
+          sidebar.classList.toggle("collapsed");
+          mainContent.classList.toggle("expanded");
+
+          // For mobile
+          sidebar.classList.toggle("show");
+        });
+
+        // Handle responsive behavior
+        function handleResize() {
+          if (window.innerWidth <= 768) {
+            sidebar.classList.remove("collapsed");
+            sidebar.classList.remove("show");
+            mainContent.classList.remove("expanded");
+          }
+        }
+
+        window.addEventListener("resize", handleResize);
+        handleResize();
+
+        // Handle active state of nav links
+        const navLinks = document.querySelectorAll(".nav-link");
+        navLinks.forEach((link) => {
+          link.addEventListener("click", function () {
+            navLinks.forEach((l) => l.classList.remove("active"));
+            this.classList.add("active");
+          });
+        });
+      });
+    </script>
+  </body>
+</html>

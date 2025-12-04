@@ -1,0 +1,276 @@
+<%- include('../partials/admin/header') %>
+<main class="main-content" id="mainContent">
+      
+        <!-- Add your dashboard content here -->
+         <div class="content-header row mb-4">
+    <h2 class="content-title">Return Requests</h2>
+</div>
+<div class="container">
+    <div class="table-wrapper">
+        <table class="return-table">
+            <thead>
+                <tr>
+                    <th>Order ID</th>
+                    <th>Customer</th>
+                    <th>Product</th>
+                    <th>Return Reason</th>
+                    <th>Request Date</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+    <tbody>
+    <% let hasPendingReturns = false; %>
+    <% orders.forEach(order => {
+        order.items.forEach((item) => {
+            if (item.returnStatus === 'Pending') { 
+                hasPendingReturns = true; %>
+                <tr>
+                    <td><%= order.orderId %></td>
+                    <td><%= order.userId.fullname %></td>
+                    <td>
+                        <div class="product-info">
+                            <img src="<%= item.productId.productImage[0] %>" alt="Product">
+                            <span><%= item.productId.productName %></span>
+                        </div>
+                    </td>
+                    <td><%= item.returnReason %></td>
+                    <td><%= new Date(order.createdAt).toLocaleDateString() %></td>
+                    <td>
+                        <button class="approve-btn" 
+                                onclick="handleReturn('<%= order._id %>', '<%= item.productId._id %>', 'Approved')">
+                            Approve
+                        </button>
+                        <button class="reject-btn" 
+                                onclick="handleReturn('<%= order._id %>', '<%= item.productId._id %>', 'Rejected')">
+                            Reject
+                        </button>
+                    </td>
+                </tr>
+            <% }
+        });
+    }); %>
+
+    <% if (!hasPendingReturns) { %>
+        <tr>
+            <td colspan="6" style="text-align: center; padding: 1rem; font-size: 1.1rem; color: #64748b;">
+                No return requests available
+            </td>
+        </tr>
+    <% } %>
+</tbody>
+
+        </table>
+    </div>
+    
+    <div class="pagination">
+        <% if (currentPage > 1) { %>
+            <a href="?page=1" class="page-link">1</a>
+        <% } %>
+        <% if (currentPage > 2) { %>
+            <span class="page-dots">...</span>
+        <% } %>
+        <a href="?page=<%= currentPage %>" class="page-link active"><%= currentPage %></a>
+        <% if (currentPage < totalPages - 1) { %>
+            <a href="?page=<%= currentPage + 1 %>" class="page-link">Next »</a>
+        <% } %>
+    </div>
+</div>
+         
+    </main>
+
+
+<style>
+
+.content-header {
+    padding: 1rem 0;
+    margin-bottom: 2rem;
+}
+
+.content-title {
+    font-size: 1.8rem;
+    font-weight: 600;
+    color: #2c3e50;  /* Darker color for better visibility */
+}
+
+.table-wrapper {
+    background: #ffffff;
+    padding: 1.5rem;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    border: 1px solid #e5e7eb;
+}
+
+.return-table {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0;
+    margin-top: 1rem;
+}
+
+.return-table th,
+.return-table td {
+    padding: 1rem;
+    text-align: left;
+    border-bottom: 1px solid #cbd5e1;  /* Darker border color */
+    color: #334155;  /* Darker text color */
+}
+
+.return-table th {
+    background-color: #f1f5f9;  /* Slightly darker background */
+    font-weight: 600;
+    color: #1e293b;  /* Even darker color for headers */
+    font-size: 1rem;
+}
+
+.return-table tr:hover {
+    background-color: #f8fafc;
+}
+
+.product-info {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.product-info img {
+    width: 50px;
+    height: 50px;
+    object-fit: cover;
+    border-radius: 4px;
+    border: 1px solid #e2e8f0;  /* Add border to images */
+}
+
+.product-info span {
+    color: #334155;  /* Darker text for product names */
+    font-weight: 500;
+}
+
+.action-buttons {
+    display: flex;
+    gap: 0.5rem;
+}
+
+.approve-btn {
+    background-color: #22c55e;  /* Brighter green */
+    color: white;
+    padding: 0.5rem 1rem;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-weight: 500;
+    transition: background-color 0.2s;
+}
+
+.approve-btn:hover {
+    background-color: #16a34a;
+}
+
+.reject-btn {
+    background-color: #ef4444;  /* Brighter red */
+    color: white;
+    padding: 0.5rem 1rem;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-weight: 500;
+    transition: background-color 0.2s;
+}
+
+.reject-btn:hover {
+    background-color: #dc2626;
+}
+
+.pagination {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-top: 2rem;
+    gap: 0.5rem;
+}
+
+.page-link {
+    padding: 0.5rem 1rem;
+    border: 1px solid #cbd5e1;
+    border-radius: 4px;
+    color: #3b82f6;
+    text-decoration: none;
+    font-weight: 500;
+}
+
+.page-link:hover {
+    background-color: #f1f5f9;
+    color: #2563eb;
+}
+
+.page-link.active {
+    background-color: #3b82f6;
+    color: white;
+    border-color: #3b82f6;
+}
+
+.page-dots {
+    color: #64748b;
+    font-weight: 500;
+}
+</style>
+ <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script>
+async function handleReturn(orderId, productId, status) {
+    try {
+        let reason = '';
+        if (status === 'Rejected') {
+            const { value: rejectionReason } = await Swal.fire({
+                title: 'Enter rejection reason',
+                input: 'text',
+                inputLabel: 'Reason',
+                inputPlaceholder: 'Enter reason for rejecting return request',
+                showCancelButton: true,
+                inputValidator: (value) => {
+                    if (!value) {
+                        return 'Please enter a reason for rejection';
+                    }
+                }
+            });
+
+            if (!rejectionReason) return;
+            reason = rejectionReason;
+        }
+
+        const response = await fetch('/admin/process-return-request', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                orderId,
+                productId,
+                status,
+                reason
+            }),
+        });
+
+        const data = await response.json();
+
+        if (!response.ok) {
+            throw new Error(data.message || 'Failed to process return request');
+        }
+
+        Swal.fire({
+            icon: 'success',
+            title: 'Success',
+            text: data.message,
+            timer: 2000,
+            showConfirmButton: false,
+        });
+
+        location.reload();
+    } catch (error) {
+        console.error('Error:', error);
+        Swal.fire({
+            icon: 'error',
+            title: 'Error',
+            text: error.message || 'Failed to process return request',
+        });
+    }
+}
+</script>

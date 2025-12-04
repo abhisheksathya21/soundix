@@ -1,0 +1,134 @@
+.dashboard-container {
+    padding: 40px;
+    max-width: 1600px;
+    margin: 0 auto;
+    background: #f5f7fa;
+  }
+  
+  .dashboard-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 40px;
+    padding-bottom: 20px;
+    border-bottom: 2px solid #e0e0e0;
+  }
+  
+  .dashboard-header h1 {
+    font-size: 32px;
+    color: #333;
+    margin: 0;
+  }
+  
+  .filter-section {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+  }
+  
+  .filter-section label {
+    font-size: 18px;
+    color: #555;
+  }
+  
+  .filter-section select,
+  .filter-section input[type="date"],
+  .filter-section button {
+    padding: 12px 20px;
+    font-size: 16px;
+    border-radius: 8px;
+    border: 1px solid #ddd;
+    background: #fff;
+    transition: all 0.3s ease;
+  }
+  
+  .filter-section select:focus,
+  .filter-section input[type="date"]:focus,
+  .filter-section button:hover {
+    border-color: #4CAF50;
+    outline: none;
+  }
+  
+  .date-range {
+    display: flex;
+    gap: 15px;
+  }
+  
+  .dashboard-section {
+    margin-bottom: 50px;
+  }
+  
+  .chart-card {
+    background: #fff;
+    padding: 30px;
+    border-radius: 12px;
+    box-shadow: 0 6px 15px rgba(0, 0, 0, 0.08);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+  }
+  
+  .chart-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.12);
+  }
+  
+  .chart-card h2 {
+    font-size: 24px;
+    color: #333;
+    margin-bottom: 20px;
+    text-align: center;
+    font-weight: 600;
+  }
+  
+  .chart-card canvas {
+    height: 450px !important;
+    width: 100% !important;
+  }
+  
+  .btn-primary {
+    background-color: #4CAF50;
+    color: rgb(0, 0, 0);
+    border: none;
+    cursor: pointer;
+    font-weight: 600;
+  }
+  
+  .btn-primary:hover {
+    background-color: #45a049;
+  }
+  
+  /* Responsive Design */
+  @media (max-width: 768px) {
+    .dashboard-container {
+      padding: 20px;
+    }
+  
+    .dashboard-header {
+      flex-direction: column;
+      gap: 20px;
+      text-align: center;
+    }
+  
+    .filter-section {
+      flex-direction: column;
+      width: 100%;
+    }
+  
+    .filter-section select,
+    .filter-section input[type="date"],
+    .filter-section button {
+      width: 100%;
+    }
+  
+    .date-range {
+      flex-direction: column;
+      width: 100%;
+    }
+  
+    .chart-card {
+      padding: 20px;
+    }
+  
+    .chart-card canvas {
+      height: 350px !important;
+    }
+  }

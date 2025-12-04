@@ -1,0 +1,127 @@
+/* General Page Styles */
+body {
+  background-color: #f9f9f9;
+}
+
+h1 {
+  font-size: 2rem;
+  font-weight: bold;
+  color: #333;
+  margin-bottom: 20px;
+}
+
+/* Container Styles */
+.container {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 20px;
+  background-color: #fff;
+  border-radius: 12px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.container:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+}
+
+/* Form Styles */
+.edit-category-form h3 {
+  font-size: 1.8rem;
+  font-weight: bold;
+  color: #333;
+  margin-bottom: 15px;
+}
+
+.edit-category-form .form-label {
+  font-size: 1rem;
+  font-weight: 600;
+  color: #555;
+}
+
+.edit-category-form .form-control {
+  border-radius: 8px;
+  padding: 10px 12px;
+  font-size: 1rem;
+  border: 1px solid #ddd;
+  box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.1);
+  transition: border-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+.edit-category-form .form-control:focus {
+  border-color: #007bff;
+  box-shadow: 0 0 5px rgba(0, 123, 255, 0.4);
+}
+
+/* Button Styles */
+.edit-category-form .btn-primary {
+  background-color: #007bff;
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  padding: 10px 20px;
+  font-size: 1rem;
+  transition: background-color 0.3s ease, transform 0.2s ease;
+}
+
+.edit-category-form .btn-primary:hover {
+  background-color: #0056b3;
+  transform: translateY(-2px);
+}
+
+/* Cancel Button Styles */
+.edit-category-form .btn-secondary {
+  background-color: #6c757d;
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  padding: 10px 20px;
+  font-size: 1rem;
+  transition: background-color 0.3s ease, transform 0.2s ease;
+}
+
+.edit-category-form .btn-secondary:hover {
+  background-color: #5a6268;
+  transform: translateY(-2px);
+}
+
+/* Textarea Styles */
+.edit-category-form textarea {
+  resize: none;
+}
+
+/* Flexbox Layout for Buttons */
+.edit-category-form .d-flex {
+  display: flex;
+  justify-content: space-between;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .edit-category-form h3 {
+    font-size: 1.5rem;
+  }
+
+  .edit-category-form .form-control {
+    font-size: 0.9rem;
+  }
+
+  .edit-category-form .btn-primary {
+    font-size: 0.9rem;
+    padding: 8px 16px;
+  }
+
+  .edit-category-form .btn-secondary {
+    font-size: 0.9rem;
+    padding: 8px 16px;
+  }
+}
+
+.error-message {
+  color: red;
+  font-size: 0.875rem;
+  margin-top: 5px;
+  padding: 2px 0;
+  display: none;
+}

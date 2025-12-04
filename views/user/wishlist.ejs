@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Wishlist - Adidas</title>
+    <link href="https://fonts.googleapis.com/css2?family=Josefin+Sans:wght@200;300;400;500;600;700&family=Roboto:wght@300;400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="shortcut icon" type="image/x-icon" href="assets/img/favicon.ico" />
+    <link rel="stylesheet" href="/assets/user-style/wishlist.css" />
+    <link rel="icon" type="image/png" href="/assets/img/beat-logo-161616.png"> 
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+</head>
+<body>
+    <%- include('../partials/user/header')%>
+    <div class="page-container">
+        <aside class="sidebar">
+            <nav>
+                <ul class="sidebar-menu">
+                    <li><a href="/userProfile">Account Overview</a></li>
+                    <li><a href="/orders">Order Details</a></li>
+                    <li><a href="/addressManagement">Manage Address</a></li>
+                    <li><a href="/wallet">Wallet</a></li>
+                    <% if (!isGoogleUser) { %>
+                    <li><a href="/password">Password</a></li>
+                    <% } %>
+                    <li><a href="/wishlist" class="active">Wishlist</a></li>
+                </ul>
+            </nav>
+            <button class="logout-btn" onclick="logout()">Logout</button>
+        </aside>
+
+        <main class="content">
+            <div class="view-port">
+                <div class="wishlist-items">
+                    <% if (!wishlist || !wishlist.items || wishlist.items.length === 0) { %>
+                    <div class="empty-wishlist">
+                        <h2>Your wishlist is empty</h2>
+                        <p>Add items to your wishlist to see them here</p>
+                        <a href="/shop" class="continue-shopping">Continue Shopping</a>
+                    </div>
+                    <% } else { %>
+                        <h1>Wishlist</h1>
+                    <div class="wishlist-items-wrapper">
+                        <% wishlist.items.forEach(item => { %>
+                        <div class="wishlist-item" data-id="<%= item.product._id %>">
+                            <img src="<%= item.product.productImage[0] %>" alt="<%= item.product.productName %>">
+                            <div class="item-details">
+                                <h3><%= item.product.productName %></h3>
+                                <div class="price-container">
+                                    <span class="final-price">₹<%= item.finalPrice %></span>
+                                    <span class="original-price">₹<%= (item.product.salePrice || item.product.regularPrice) %></span>
+                                </div>
+                                <div class="item-actions">
+                                    <button class="add-to-cart-btn" data-product-id="<%= item.product._id %>" data-price="<%= item.finalPrice %>">Add to Cart</button>
+                                    <button class="remove-btn" data-product-id="<%= item.product._id %>">Remove</button>
+                                </div>
+                            </div>
+                        </div>
+                        <% }); %>
+                    </div>
+                    <% } %>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <div class="toast-container"></div>
+    <%- include('../partials/user/footer')%>
+    <script src="/js/global.js"></script>
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            const showToast = (message, type = 'success') => {
+                const toastContainer = document.querySelector('.toast-container');
+                const toast = document.createElement('div');
+                toast.className = `toast ${type}`;
+                const icon = type === 'success' ? 'check-circle' : type === 'error' ? 'exclamation-circle' : 'exclamation-triangle';
+                toast.innerHTML = `
+                    <i class="fas fa-${icon} toast-icon"></i>
+                    <span>${message}</span>
+                `;
+                toastContainer.appendChild(toast);
+                toast.offsetHeight;
+                setTimeout(() => toast.classList.add('show'), 10);
+                setTimeout(() => {
+                    toast.classList.remove('show');
+                    setTimeout(() => toast.remove(), 300);
+                }, 3000);
+            };
+
+            function checkWishlistEmpty() {
+                const wishlistWrapper = document.querySelector('.wishlist-items-wrapper');
+                if (!document.querySelector('.wishlist-item') && wishlistWrapper) {
+                    const wishlistItems = document.querySelector('.wishlist-items');
+                    wishlistItems.innerHTML = `
+                        <div class="empty-wishlist">
+                            <h2>Your wishlist is empty</h2>
+                            <p>Add items to your wishlist to see them here</p>
+                            <a href="/shop" class="continue-shopping">Continue Shopping</a>
+                        </div>
+                    `;
+                }
+            }
+
+            const addToCartButtons = document.querySelectorAll(".add-to-cart-btn");
+            addToCartButtons.forEach(button => {
+                button.addEventListener("click", async function() {
+                    const productId = this.dataset.productId;
+                    const price = parseFloat(this.dataset.price);
+                    try {
+                        const response = await fetch("/cart-add-from-wishlist", {
+                            method: "POST",
+                            headers: { "Content-Type": "application/json" },
+                            body: JSON.stringify({ productId, price, quantity: 1 }),
+                        });
+                        const result = await response.json();
+                        if (!response.ok) throw new Error(result.error || "Failed to add to cart");
+
+                        // Success: Show toast and update cart count
+                        showToast("Product added to cart successfully!", "success");
+                        fetchAndUpdateCartCount(); // Update cart count in header
+
+                        // Remove the item from the wishlist UI
+                        const wishlistItem = document.querySelector(`.wishlist-item[data-id="${productId}"]`);
+                        if (wishlistItem) {
+                            wishlistItem.style.opacity = '0'; // Fade-out effect
+                            wishlistItem.style.transform = 'scale(0.9)';
+                            setTimeout(() => {
+                                wishlistItem.remove();
+                                checkWishlistEmpty(); // Check if wishlist is now empty
+                                fetchAndUpdateWishlistCount(); // Update wishlist count after removal
+                            }, 300);
+                        }
+                    } catch (error) {
+                        console.error("Error adding to cart:", error);
+                        showToast(error.message, "error");
+                    }
+                });
+            });
+
+            const removeButtons = document.querySelectorAll(".remove-btn");
+            removeButtons.forEach(button => {
+                button.addEventListener("click", async function() {
+                    const productId = this.dataset.productId;
+                    const wishlistItem = this.closest(".wishlist-item");
+                    try {
+                        const response = await fetch("/wishlist/remove", {
+                            method: "POST",
+                            headers: { "Content-Type": "application/json" },
+                            body: JSON.stringify({ productId })
+                        });
+                        const data = await response.json();
+                        if (data.success) {
+                            showToast("Product removed from wishlist successfully!", "success");
+                            wishlistItem.style.opacity = '0';
+                            wishlistItem.style.transform = 'scale(0.9)';
+                            setTimeout(() => {
+                                wishlistItem.remove();
+                                checkWishlistEmpty();
+                                fetchAndUpdateWishlistCount(); // Update wishlist count in header
+                            }, 300);
+                        } else {
+                            showToast(data.message || "Failed to remove product", "error");
+                        }
+                    } catch (error) {
+                        console.error("Error removing from wishlist:", error);
+                        showToast("Failed to remove product from wishlist", "error");
+                    }
+                });
+            });
+        });
+
+        function logout() {
+            Swal.fire({
+                title: 'Are you sure?',
+                text: "You will be logged out of your account!",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#4A90E2',
+                cancelButtonColor: '#ff4444',
+                confirmButtonText: 'Yes, log out!'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    window.location.href = '/logout'; 
+                }
+            });
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,188 @@
+<link rel="stylesheet" href="/assets/admin-style/customers.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/toastify-js/src/toastify.min.css">
+
+<%- include('../partials/admin/header') %>
+  <main class="main-content" id="mainContent">
+    <div class="content-header row mb-4">
+      <h2 class="content-title">Customers</h2>
+    </div>
+
+
+    <div class="search-container mb-4">
+      <form action="/admin/customers/" method="get" class="search-form">
+        <div class="search-box">
+          <input type="text" class="search-input" placeholder="Search customers..." name="search">
+          <button class="search-button" type="submit">Search</button>
+        </div>
+      </form>
+    </div>
+
+
+    <div class="card customers-card">
+      <div class="card-body">
+        <table class="table">
+          <thead>
+            <tr>
+              <th>Name</th>
+              <th>Email</th>
+              <th>Phone No</th>
+              <th>Action</th>
+            </tr>
+          </thead>
+          <tbody>
+            <% if (customers.length> 0) { %>
+              <% customers.forEach(customer=> { %>
+                <tr>
+                  <td>
+                    <%= customer.fullname %>
+                  </td>
+                  <td>
+                    <%= customer.email %>
+                  </td>
+                  <td>
+                    <%= customer.phone %>
+                  </td>
+                  <td>
+                    <% if (!customer.isBlocked) { %>
+                      <a href="/admin/blockCustomer?id=<%= customer._id %>" class="btn btn-danger action-btn"
+                        data-id="<%= customer._id %>">Block</a>
+                      <% } else { %>
+                        <a href="/admin/UnblockCustomer?id=<%= customer._id %>" class="btn btn-success action-btn"
+                          data-id="<%= customer._id %>">Unblock</a>
+                        <% } %>
+                  </td>
+                </tr>
+                <% }); %>
+                  <% } else { %>
+                    <tr>
+                      <td colspan="4" class="text-center">No customers found</td>
+                    </tr>
+                    <% } %>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+
+    <div class="pagination-container mt-4">
+      <% if (currentPage> 1) { %>
+        <a href="?page=<%= currentPage - 1 %>" class="pagination-link">« Previous</a>
+        <% } %>
+          <% for (let i=1; i <=totalPages; i++) { %>
+            <% if (i===currentPage) { %>
+              <span class="current-page">
+                <%= i %>
+              </span>
+              <% } else { %>
+                <a href="?page=<%= i %>" class="pagination-link">
+                  <%= i %>
+                </a>
+                <% } %>
+                  <% } %>
+                    <% if (currentPage < totalPages) { %>
+                      <a href="?page=<%= currentPage + 1 %>" class="pagination-link">Next »</a>
+                      <% } %>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/toastify-js"></script>
+    <script>
+      document.addEventListener('DOMContentLoaded', () => {
+        const actionButtons = document.querySelectorAll('.action-btn');
+
+        actionButtons.forEach(button => {
+          button.addEventListener('click', async (e) => {
+            e.preventDefault();
+
+            const href = button.getAttribute('href');
+            const customerId = button.getAttribute('data-id');
+            const isBlocking = button.classList.contains('btn-danger');
+
+
+            button.disabled = true;
+
+            try {
+              const response = await fetch(href, {
+                method: 'GET',
+                headers: {
+                  'Content-Type': 'application/json',
+                }
+              });
+
+              const data = await response.json();
+
+              if (data.success) {
+
+                if (isBlocking) {
+                  button.classList.remove('btn-danger');
+                  button.classList.add('btn-success');
+                  button.textContent = 'Unblock';
+                  button.setAttribute('href', `/admin/UnblockCustomer?id=${customerId}`);
+                  Toastify({
+                    text: `❗${data.message} `,
+                    duration: 3000,
+                    close: true,
+                    gravity: "top",
+                    position: "right",
+                    style: {
+                      top: "30 px",
+                      background: "white",
+                      color: "red",
+                      border: "1px solid red",
+                      borderRadius: "5px",
+                      padding: "10px",
+                      fontSize: "16px",
+                      boxShadow: "0 4px 6px rgba(0, 0, 0, 0.1)"
+                    }
+                  }).showToast();
+                } else {
+                  button.classList.remove('btn-success');
+                  button.classList.add('btn-danger');
+                  button.textContent = 'Block';
+                  button.setAttribute('href', `/admin/blockCustomer?id=${customerId}`);
+                  Toastify({
+                    text: `✅${data.message} `,
+                    duration: 3000,
+                    close: true,
+                    gravity: "top",
+                    position: "right",
+                    style: {
+                      top: "30 px",
+                      background: "white",
+                      color: "green",
+                      border: "1px solid green",
+                      borderRadius: "5px",
+                      padding: "10px",
+                      fontSize: "16px",
+                      boxShadow: "0 4px 6px rgba(0, 0, 0, 0.1)"
+                    }
+                  }).showToast();
+                }
+              } else {
+                throw new Error(data.message || 'Operation failed');
+              }
+            } catch (error) {
+              Toastify({
+                text: error.message || 'An error occurred',
+                duration: 3000,
+                close: true,
+                gravity: "top",
+                position: "right",
+                style: {
+                  top: "30 px",
+                  background: "white",
+                  color: "gray",
+                  border: "1px solid gray",
+                  borderRadius: "5px",
+                  padding: "10px",
+                  fontSize: "16px"
+                }
+              }).showToast();
+            } finally {
+              button.disabled = false;
+            }
+          });
+        });
+      });
+    </script>
+  </main>
+  <%- include('../partials/admin/footer') %>

@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Account Overview</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" />
+    <link rel="stylesheet" href="/assets/user-style/userprofile.css">
+    <link rel="icon" type="image/png" href="/assets/img/beat-logo-161616.png"> 
+</head>
+<body>
+    <%- include('../partials/user/header') %>
+    <div class="page-container">
+        <aside class="sidebar">
+            <nav>
+                <ul class="sidebar-menu">
+                    <li><a href="/userProfile" class="active">Account Overview</a></li>
+                    <li><a href="/orders">Order Details</a></li>
+                    <li><a href="/addressManagement">Manage Address</a></li>
+                    <li><a href="/wallet">Wallet</a></li>
+                    <% if (!isGoogleUser) { %>
+                      <li><a href="/password">Password</a></li>
+                    <% } %>
+                    <li><a href="/wishlist">Wishlist</a></li>
+                </ul>
+            </nav>
+            <button class="logout-btn" onclick="logout()">Logout</button>
+        </aside>
+        <main class="content">
+            <div class="view-port">
+                <div class="container" id="orders-container">
+                    <h1>Account Overview</h1>
+                    <div class="overview-grid">
+                        <div class="overview-card" id="profile-details">
+                            <h2>Profile Details</h2>
+                            <div id="profile-info">
+                                <p>Name: <span id="profile-name"><%= user.fullname %></span></p>
+                                <p>Email: <span id="profile-email"><%= user.email %></span></p>
+                                <% if (!isGoogleUser) { %>
+                                  <p>Phone: <span id="profile-phone"><%= user.phone || 'Not provided' %></span></p>
+                                <% } %>
+                                <button id="edit-profile-btn" class="edit-btn">Edit Profile</button>
+                            </div>
+                            <form id="edit-profile-form" class="hidden">
+                                <div class="form-group">
+                                    <label for="edit-name">Name:</label>
+                                    <input type="text" id="edit-name" name="name" pattern="[A-Za-z]+(\s[A-Za-z]+)*(\s[A-Za-z]+)?" title="Name must contain only letters, with at most two spaces separating words." required />
+                                    <div class="error-message" id="name-error">Name must contain only letters, with at most two spaces separating words, and be at least 3 characters long.</div>
+                                </div>
+                                <div class="form-group">
+                                    <label for="edit-email">Email:</label>
+                                    <input type="email" id="edit-email" name="email" readonly />
+                                    <div class="error-message" id="email-error"></div>
+                                </div>
+                                <% if (!isGoogleUser) { %>
+                                  <div class="form-group">
+                                    <label for="edit-phone">Phone:</label>
+                                    <input type="tel" id="edit-phone" name="phone" pattern="\d{10}" title="Phone number must be 10 digits." />
+                                    <div class="error-message" id="phone-error">Phone number must be exactly 10 digits.</div>
+                                  </div>
+                                <% } %>
+                                <div class="form-actions">
+                                    <button type="submit" class="submit-btn">Submit</button>
+                                    <button type="button" id="cancel-edit-btn" class="cancel-btn">Cancel</button>
+                                </div>
+                            </form>
+                        </div>
+                        <div class="overview-card">
+                            <h2>Recent Orders</h2>
+                            <a href="/orders" class="view-all">View All Orders →</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+    <div class="toast-container" id="toast-container"></div>
+    <%- include('../partials/user/footer') %>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script>
+        function showToast(type, title, text) {
+            const toastContainer = document.getElementById('toast-container');
+            const toast = document.createElement('div');
+            toast.className = `toast ${type}`;
+            toast.innerHTML = `
+                <i class="fas ${type === 'success' ? 'fa-check-circle' : 'fa-exclamation-circle'} toast-icon"></i>
+                <div>
+                    <strong>${title}</strong>
+                    <p>${text}</p>
+                </div>
+            `;
+            toastContainer.appendChild(toast);
+            setTimeout(() => toast.classList.add('show'), 10);
+            setTimeout(() => {
+                toast.classList.remove('show');
+                setTimeout(() => toast.remove(), 300);
+            }, 3000);
+        }
+
+        const editBtn = document.getElementById("edit-profile-btn");
+        const cancelBtn = document.getElementById("cancel-edit-btn");
+        const profileInfo = document.getElementById("profile-info");
+        const editForm = document.getElementById("edit-profile-form");
+        const nameSpan = document.getElementById("profile-name");
+        const emailSpan = document.getElementById("profile-email");
+        const nameInput = document.getElementById("edit-name");
+        const emailInput = document.getElementById("edit-email");
+        const nameError = document.getElementById("name-error");
+        <% if (!isGoogleUser) { %>
+          const phoneSpan = document.getElementById("profile-phone");
+          const phoneInput = document.getElementById("edit-phone");
+          const phoneError = document.getElementById("phone-error");
+        <% } %>
+
+        editBtn.addEventListener("click", function () {
+            profileInfo.classList.add("hidden");
+            editForm.classList.remove("hidden");
+            nameInput.value = nameSpan.textContent.trim();
+            emailInput.value = emailSpan.textContent.trim();
+            <% if (!isGoogleUser) { %>
+              phoneInput.value = phoneSpan.textContent.trim() === 'Not provided' ? '' : phoneSpan.textContent.trim();
+            <% } %>
+            clearErrors();
+        });
+
+        cancelBtn.addEventListener("click", function () {
+            profileInfo.classList.remove("hidden");
+            editForm.classList.add("hidden");
+            clearErrors();
+        });
+
+        nameInput.addEventListener("input", validateName);
+        <% if (!isGoogleUser) { %>
+          phoneInput.addEventListener("input", validatePhone);
+        <% } %>
+
+        function validateName() {
+            // Updated regex: allows letters and at most two spaces between words
+            const namePattern = /^[A-Za-z]+(\s[A-Za-z]+){0,2}$/;
+            if (!namePattern.test(nameInput.value)) {
+                nameInput.parentElement.classList.add("invalid");
+                return false;
+            } else {
+                nameInput.parentElement.classList.remove("invalid");
+                return true;
+            }
+        }
+
+        <% if (!isGoogleUser) { %>
+          function validatePhone() {
+              const phonePattern = /^\d{10}$/;
+              if (!phonePattern.test(phoneInput.value)) {
+                  phoneInput.parentElement.classList.add("invalid");
+                  return false;
+              } else {
+                  phoneInput.parentElement.classList.remove("invalid");
+                  return true;
+              }
+          }
+        <% } %>
+
+        function clearErrors() {
+            nameInput.parentElement.classList.remove("invalid");
+            <% if (!isGoogleUser) { %>
+              phoneInput.parentElement.classList.remove("invalid");
+            <% } %>
+        }
+
+        editForm.addEventListener("submit", async function (e) {
+            e.preventDefault();
+
+            let isValid = true;
+
+            if (!validateName()) {
+                isValid = false;
+            }
+
+            <% if (!isGoogleUser) { %>
+              if (!validatePhone()) {
+                  isValid = false;
+              }
+            <% } %>
+
+            if (!isValid) {
+                showToast('error', 'Validation Failed', 'Please correct the errors in the form.');
+                return;
+            }
+
+            const formData = new FormData(editForm);
+            const data = {
+                name: formData.get('name'),
+                <% if (!isGoogleUser) { %>
+                  phone: formData.get('phone')
+                <% } %>
+            };
+
+            try {
+                const response = await fetch('/userProfile', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(data)
+                });
+
+                const result = await response.json();
+
+                if (!response.ok) {
+                    throw new Error(result.message || 'Failed to update profile');
+                }
+
+                nameSpan.textContent = data.name;
+                <% if (!isGoogleUser) { %>
+                  phoneSpan.textContent = data.phone;
+                <% } %>
+
+                showToast('success', 'Profile Updated', 'Your profile details have been successfully updated.');
+                setTimeout(() => {
+                    profileInfo.classList.remove("hidden");
+                    editForm.classList.add("hidden");
+                }, 1000);
+            } catch (error) {
+                showToast('error', 'Update Failed', error.message || 'An error occurred while updating your profile.');
+            }
+        });
+
+        function logout() {
+            Swal.fire({
+                title: 'Are you sure?',
+                text: "You will be logged out of your account!",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#4A90E2',
+                cancelButtonColor: '#ff4444',
+                confirmButtonText: 'Yes, log out!'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                     window.location.href = '/logout';
+                }
+            });
+        }
+    </script>
+</body>
+</html>

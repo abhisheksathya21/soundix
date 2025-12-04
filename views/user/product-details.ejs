@@ -1,0 +1,524 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Product Details</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="/assets/user-style/product-details.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+    <link rel="icon" type="image/png" href="/assets/img/beat-logo-161616.png"> 
+    <style>
+        /* Toast Styles */
+        .toast-container {
+            position: fixed;
+            top: 110px;
+            right: 20px;
+            z-index: 1000;
+        }
+
+        .toast {
+            background: white;
+            color: #333;
+            padding: 12px 24px;
+            border-radius: 4px;
+            margin-bottom: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            opacity: 0;
+            transform: translateX(100%);
+            transition: all 0.3s ease;
+        }
+
+        .toast.show {
+            opacity: 1;
+            transform: translateX(0);
+        }
+
+        .toast.success { border-left: 4px solid #4CAF50; }
+        .toast.error { border-left: 4px solid #f44336; }
+        .toast-icon { font-size: 18px; }
+        .toast.success .toast-icon { color: #4CAF50; }
+        .toast.error .toast-icon { color: #f44336; }
+
+        /* Offer Badge */
+        .offer-badge {
+            position: relative;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: 4px 6px;
+            background-color: #dc2626;
+            color: white;
+            font-family: Arial, sans-serif;
+            border-radius: 8px;
+            transform: rotate(-12deg);
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .offer-percentage {
+            font-size: 20px;
+            font-weight: bold;
+        }
+
+        .offer-text {
+            font-size: 14px;
+            display: block;
+            text-align: center;
+        }
+
+        .dot {
+            position: absolute;
+            width: 8px;
+            height: 8px;
+            background-color: #b91c1c;
+            border-radius: 50%;
+            animation: ping 1.5s cubic-bezier(0, 0, 0.2, 1) infinite;
+        }
+
+        .dot-1 { top: -4px; right: -4px; }
+        .dot-2 { bottom: -4px; left: -4px; animation-delay: 0.5s; }
+
+        /* Product Info */
+        .product-info {
+            padding: 1rem;
+        }
+
+        .pricing-container {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-top: 0.5rem;
+        }
+
+        .price-block {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .final-price {
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: #2B3445;
+        }
+
+        .original-price {
+            font-size: 0.875rem;
+            color: #7D879C;
+            text-decoration: line-through;
+        }
+
+        .offer-label {
+            background-color: #E94560;
+            color: white;
+            padding: 0.25rem 0.5rem;
+            border-radius: 0.25rem;
+            font-size: 0.875rem;
+            font-weight: 600;
+        }
+
+        .product-name {
+            font-size: 1rem;
+            font-weight: 500;
+            color: #2B3445;
+            margin-bottom: 0.5rem;
+            line-height: 1.5;
+        }
+
+        @keyframes ping {
+            75%, 100% {
+                transform: scale(2);
+                opacity: 0;
+            }
+        }
+
+        /* Thumbnail Styles */
+        .thumbnail {
+            cursor: pointer;
+            border: 2px solid transparent;
+            transition: border 0.3s ease;
+        }
+
+        .thumbnail.active {
+            border: 2px solid #007bff;
+        }
+    </style>
+</head>
+<body>
+    <%- include('../partials/user/header') %>
+    <div class="content">
+        <main class="container">
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb">
+                    <% breadcrumbs.forEach(function(crumb, index) { %>
+                        <% if (index === breadcrumbs.length - 1) { %>
+                            <li class="breadcrumb-item active" aria-current="page"><%= crumb.name %></li>
+                        <% } else { %>
+                            <li class="breadcrumb-item">
+                                <a href="<%= crumb.url %>"><%= crumb.name %></a>
+                            </li>
+                        <% } %>
+                    <% }); %>
+                </ol>
+            </nav>
+
+            <div class="product-container">
+                <!-- Thumbnail Images -->
+                <div class="thumbnails">
+                    <% for (let i = 0; i < product.productImage.length && i < 5; i++) { %>
+                        <div class="thumbnail">
+                            <img src="<%= product.productImage[i] %>" alt="Product view <%= i + 1 %>">
+                        </div>
+                    <% } %>
+                </div>
+
+                <!-- Main Image -->
+                <div class="main-image">
+                    <div class="zoom-container">
+                        <img id="mainImage" src="<%= product.productImage[0] %>" alt="<%= product.productName %> main image">
+                    </div>
+                </div>
+
+                <!-- Product Information -->
+                <div class="product-info">
+                    <div class="offer-badge">
+                        <span class="offer-percentage"><%=bestOffer.discountPercentage%>%</span>
+                        <span class="offer-text">OFF</span>
+                        <div class="dot dot-1"></div>
+                        <div class="dot dot-2"></div>
+                    </div>
+                    <h1 class="product-title"><b><%= product.productName %></b></h1>
+                    <p class="product-subtitle"><%= product.description %></p>
+                    <div class="price">
+                        <span class="sale-price">Rs. <%= finalPrice %></span>
+                        <span class="original-price">Rs. <%= product.salePrice %></span>
+                    </div>
+                    <div class="stock-status">
+                        <strong>In Stock:</strong> <%= product.quantity %>
+                    </div>
+                    <div class="action-buttons">
+                        <button class="add-to-cart" data-product-id="<%= product._id %>" data-price="<%= finalPrice %>">
+                            <i class="fas fa-shopping-cart"></i> Add to Cart
+                        </button>
+                        <button class="main-wishlist-btn" data-product-id="<%= product._id %>">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="heart-icon">
+                                <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path>
+                            </svg>
+                        </button>
+                    </div>
+                    <div class="features-list">
+                        <div class="feature-item">
+                            <svg class="feature-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M5 12h14M12 5l7 7-7 7" />
+                            </svg>
+                            <div class="feature-text">
+                                <strong>Free Shipping and Returns</strong>
+                                <small>Enjoy free 2-day delivery and 14-day returns.</small>
+                            </div>
+                        </div>
+                        <div class="feature-item">
+                            <svg class="feature-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16" />
+                            </svg>
+                            <div class="feature-text">
+                                <strong>In-Store Pickup</strong>
+                                <small>Pick up your Beats at an Apple Store near you.</small>
+                            </div>
+                        </div>
+                        <div class="feature-item">
+                            <svg class="feature-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M9 18V5l12-2v13" />
+                                <circle cx="6" cy="18" r="3" />
+                                <circle cx="18" cy="16" r="3" />
+                            </svg>
+                            <div class="feature-text">
+                                <strong>Free Apple Music Trial</strong>
+                                <small>Get 3 months of access to over 100 million songs, ad-free.</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <section class="related-products">
+                <h1>Related Products</h1>
+                <div class="product-grid">
+                    <% for (let i = 0; i < products.length; i++) { %>
+                        <div class="product-card">
+                            <div class="product-image">
+                                <a href="/productDetails?id=<%= products[i]._id %>">
+                                    <img src="<%= products[i].productImage[0] %>" alt="<%= products[i].productName %>">
+                                </a>
+                                <button class="wishlist-btn" data-product-id="<%= products[i]._id %>">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="heart-icon">
+                                        <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path>
+                                    </svg>
+                                </button>
+                            </div>
+                            <div class="product-info">
+                                <h3 class="product-name"><%= products[i].productName %></h3>
+                                <div class="pricing-container">
+                                    <div class="price-block">
+                                        <span class="product-price final-price">₹<%= products[i].finalPrice.toFixed(2) %></span>
+                                        <% if (products[i].bestOffer) { %>
+                                            <span class="product-price original-price">₹<%= products[i].salePrice %></span>
+                                        <% } %>
+                                    </div>
+                                    <% if (products[i].bestOffer) { %>
+                                        <span class="offer-label"> -<%= products[i].bestOffer.discountPercentage %>% </span>
+                                    <% } %>
+                                </div>
+                            </div>
+                            <div class="product-actions">
+                                <button class="add-to-cart" data-product-id="<%= products[i]._id %>" data-price="<%= products[i].finalPrice %>">
+                                    Add to cart
+                                </button>
+                            </div>
+                        </div>
+                    <% } %>
+                </div>
+                <% if (totalPages > 1) { %>
+                    <div class="pagination">
+                        <% if (hasPrevPage) { %>
+                            <a href="/productDetails?id=<%= product._id %>&page=<%= currentPage - 1 %>" class="page-link prev-link">« Previous</a>
+                        <% } %>
+                        <% for(let i = 1; i <= totalPages; i++) { %>
+                            <a href="/productDetails?id=<%= product._id %>&page=<%= i %>" class="page-link <%= currentPage === i ? 'active' : '' %>"><%= i %></a>
+                        <% } %>
+                        <% if (hasNextPage) { %>
+                            <a href="/productDetails?id=<%= product._id %>&page=<%= currentPage + 1 %>" class="page-link next-link">Next »</a>
+                        <% } %>
+                    </div>
+                <% } %>
+            </section>
+        </main>
+    </div>
+    <div class="toast-container"></div>
+    <%- include('../partials/user/footer')%>
+</body>
+</html>
+
+<!-- Scripts -->
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+    // Toast Notification Function
+    const showToast = (message, type = 'success') => {
+        const toastContainer = document.querySelector(".toast-container");
+        const toast = document.createElement("div");
+        toast.className = `toast ${type}`;
+        const icon = type === 'success' ? 'check-circle' : 'exclamation-circle';
+        toast.innerHTML = `
+            <i class="fas fa-${icon} toast-icon"></i>
+            <span>${message}</span>
+        `;
+        toastContainer.appendChild(toast);
+        toast.offsetHeight; // Trigger reflow
+        setTimeout(() => toast.classList.add("show"), 10);
+        setTimeout(() => {
+            toast.classList.remove("show");
+            setTimeout(() => toast.remove(), 300);
+        }, 3000);
+    };
+
+    // Fetch and update cart count
+    async function fetchAndUpdateCartCount() {
+        try {
+            const response = await fetch('/cart/count');
+            const data = await response.json();
+            if (data.success) {
+                updateCartCount(data.count);
+            }
+        } catch (error) {
+            console.error('Error fetching cart count:', error);
+        }
+    }
+
+    // Fetch and update wishlist count
+    async function fetchAndUpdateWishlistCount() {
+        try {
+            const response = await fetch('/wishlist/count');
+            const data = await response.json();
+            if (data.success) {
+                updateWishlistCount(data.count);
+            }
+        } catch (error) {
+            console.error('Error fetching wishlist count:', error);
+        }
+    }
+
+    // Update cart count in DOM
+    function updateCartCount(count) {
+        const cartCountElements = document.querySelectorAll(".cart-counter");
+        cartCountElements.forEach(element => {
+            if (element) element.textContent = count;
+        });
+    }
+
+    // Update wishlist count in DOM
+    function updateWishlistCount(count) {
+        const wishlistCountElements = document.querySelectorAll(".wishlist-counter");
+        wishlistCountElements.forEach(element => {
+            if (element) element.textContent = count;
+        });
+    }
+
+    // Initialize counts on page load
+    fetchAndUpdateCartCount();
+    fetchAndUpdateWishlistCount();
+
+    // Thumbnail Switching
+    const thumbnails = document.querySelectorAll('.thumbnail');
+    thumbnails.forEach(thumbnail => {
+        thumbnail.addEventListener('click', function() {
+            thumbnails.forEach(t => t.classList.remove('active'));
+            this.classList.add('active');
+            const imageSrc = this.querySelector('img').src;
+            updateMainImage(imageSrc);
+        });
+    });
+    if (thumbnails.length > 0) {
+        thumbnails[0].classList.add('active');
+    }
+
+    // Image Update Function
+    function updateMainImage(imageSrc) {
+        const mainImage = document.getElementById("mainImage");
+        if (mainImage) {
+            mainImage.src = imageSrc;
+            mainImage.style.transform = "scale(1)";
+            mainImage.style.transformOrigin = "center center";
+        }
+    }
+
+    // Image Zoom
+    const zoomContainer = document.querySelector(".zoom-container");
+    const mainImage = document.getElementById("mainImage");
+    zoomContainer.addEventListener("mousemove", (event) => {
+        const rect = zoomContainer.getBoundingClientRect();
+        const x = event.clientX - rect.left;
+        const y = event.clientY - rect.top;
+        const xPercent = (x / rect.width) * 100;
+        const yPercent = (y / rect.height) * 100;
+        mainImage.style.transformOrigin = `${xPercent}% ${yPercent}%`;
+        mainImage.style.transform = "scale(1.5)";
+    });
+    zoomContainer.addEventListener("mouseleave", () => {
+        mainImage.style.transformOrigin = "center center";
+        mainImage.style.transform = "scale(1)";
+    });
+
+    // Add to Cart (Main Product)
+    const mainAddToCartButton = document.querySelector(".action-buttons .add-to-cart");
+    if (mainAddToCartButton) {
+        mainAddToCartButton.addEventListener("click", async function (e) {
+            try {
+                const productId = this.getAttribute("data-product-id");
+                const price = parseFloat(this.getAttribute("data-price"));
+                const response = await fetch("/cart-add", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ productId, price, quantity: 1 })
+                });
+                const result = await response.json();
+                if (!response.ok) {
+                    throw new Error(result.error || "Failed to add to cart");
+                }
+                showToast("Product added to cart successfully!", "success");
+                fetchAndUpdateCartCount(); // Fetch and update cart count
+            } catch (error) {
+                console.error("Error adding to cart:", error);
+                showToast(error.message, "error");
+            }
+        });
+    }
+
+    // Add to Cart (Related Products)
+    const relatedProductButtons = document.querySelectorAll(".product-grid .add-to-cart");
+    relatedProductButtons.forEach(button => {
+        button.addEventListener("click", async function (e) {
+            try {
+                const productId = this.getAttribute("data-product-id");
+                const price = parseFloat(this.getAttribute("data-price"));
+                const response = await fetch("/cart-add", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ productId, price, quantity: 1 })
+                });
+                const result = await response.json();
+                if (!response.ok) {
+                    throw new Error(result.error || "Failed to add to cart");
+                }
+                showToast("Product added to cart successfully!", "success");
+                fetchAndUpdateCartCount(); // Fetch and update cart count
+            } catch (error) {
+                console.error("Error adding to cart:", error);
+                showToast(error.message, "error");
+            }
+        });
+    });
+
+    // Fetch Wishlist State
+    async function fetchWishlistState() {
+        try {
+            const response = await fetch("/wishlist/state");
+            const data = await response.json();
+            if (data.success) {
+                data.wishlistItems.forEach(itemId => {
+                    const buttons = document.querySelectorAll(
+                        `.main-wishlist-btn[data-product-id="${itemId}"], .wishlist-btn[data-product-id="${itemId}"]`
+                    );
+                    buttons.forEach(button => {
+                        const heartIcon = button.querySelector('.heart-icon');
+                        if (heartIcon) {
+                            heartIcon.setAttribute('fill', 'red');
+                            button.classList.add('active');
+                        }
+                    });
+                });
+                fetchAndUpdateWishlistCount(); // Fetch and update wishlist count after fetching state
+            }
+        } catch (error) {
+            console.error("Error fetching wishlist state:", error);
+        }
+    }
+    fetchWishlistState();
+
+    // Wishlist Toggle
+    const allWishlistButtons = document.querySelectorAll(".main-wishlist-btn, .wishlist-btn");
+    allWishlistButtons.forEach(button => {
+        button.addEventListener("click", async function (e) {
+            e.preventDefault();
+            const productId = this.getAttribute('data-product-id');
+            const heartIcon = this.querySelector('.heart-icon');
+            try {
+                const response = await fetch("/wishlist/toggle", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ productId })
+                });
+                const data = await response.json();
+                if (!response.ok) {
+                    showToast(data.message || "Failed to update wishlist", "error");
+                    return;
+                }
+                if (data.success) {
+                    heartIcon.setAttribute('fill', data.isAdded ? 'red' : 'none');
+                    this.classList.toggle('active', data.isAdded);
+                    showToast(data.message, "success");
+                    fetchAndUpdateWishlistCount(); // Fetch and update wishlist count
+                } else {
+                    showToast(data.message, "error");
+                }
+            } catch (error) {
+                console.error("Error toggling wishlist:", error);
+                showToast("Failed to update wishlist due to a network error", "error");
+            }
+        });
+    });
+});
+</script>
